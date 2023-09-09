@@ -25,7 +25,11 @@ class Mesa
         }
 
         $p = $pdo->prepare($sql);
-        $p->execute(array($estado));
+        if ($estado == 1) {
+            $p->execute();
+        } else {
+            $p->execute(array($estado));
+        }
         $mesas = $p->fetchAll(PDO::FETCH_ASSOC);
         $data = array();
         foreach ($mesas as $m) {
@@ -43,7 +47,6 @@ class Mesa
         echo json_encode($data);
         return $data;
     }
-
 }
 
 //case
@@ -54,6 +57,5 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
         case 1:
             Mesa::getMesasOcupadas();
             break;
-
     }
 }

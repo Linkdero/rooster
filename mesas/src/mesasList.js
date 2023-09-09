@@ -2,8 +2,6 @@ let mesasList = new Vue({
     el: '#appMesas',
     data: {
         tituloModulo: 'Listado Mesas',
-        placas: '',
-        nroPlacas: '',
         descripcion: '',
         tablaMesas: '',
         horaActual: '',
@@ -11,7 +9,8 @@ let mesasList = new Vue({
         referenciaMesa: '',
         nombreCliente: '',
         nitCliente: '',
-        direccionCliente: ''
+        direccionCliente: '',
+        tipoModal: ''
 
     },
     mounted: function () {
@@ -24,7 +23,7 @@ let mesasList = new Vue({
         },
     },
     methods: {
-        modalFinalizarMesa: function (id) {
+        setMesa: function (id, estado) {
             // Obtener la hora actual en el formato HH:mm
             const now = new Date();
             const formattedTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -32,7 +31,6 @@ let mesasList = new Vue({
             // Asignar la hora actual al modelo
             this.horaActual = formattedTime;
 
-            $("#setFinalizarMesa").modal("show")
             this.tablaMesasData.forEach(mesa => {
                 if (mesa.id_mesa == id) {
                     this.nroMesa = mesa.nro_mesa;
@@ -40,6 +38,13 @@ let mesasList = new Vue({
                 }
             });
 
+            if (estado == 1) {
+                $("#setMesasModal").modal("show")
+                this.tipoModal = 1
+            } else if (estado == 2) {
+                $("#setMesasModal").modal("show")
+                this.tipoModal = 2
+            }
         },
 
         cargarTablaMesas: function (id) {
@@ -109,7 +114,7 @@ let mesasList = new Vue({
                                     if (data == 3) {
                                         return `<a href="#" class="badge badge-success text-white py-1" data-id="${row.id_mesa}"">${row.descripcion} <i class="fa-solid fa-check-to-slot mx-1"></i></a>`;
                                     } else {
-                                        return `<a href="#" class="badge badge-danger text-white py-1">${row.descripcion} <i class="fa-solid fa-street-view mx-1"></i></a>`;
+                                        return `<a href="#" class="badge badge-danger text-white py-1"data-id="${row.id_mesa}" >${row.descripcion} <i class="fa-solid fa-street-view mx-1"></i></a>`;
                                     }
                                 },
 
@@ -148,7 +153,6 @@ let mesasList = new Vue({
                 console.error(error);
             });
         },
-
 
         baseTables: function () {
             let that = this;
@@ -231,13 +235,15 @@ let mesasList = new Vue({
 
             $('#tblmesaList').on('click', '.badge-success', function () {
                 let id = $(this).data('id');
+                that.setMesa(id, 1);
             });
 
             $('#tblmesaList').on('click', '.badge-danger', function () {
                 let id = $(this).data('id');
-                that.modalFinalizarMesa(id);
+                that.setMesa(id, 2);
             });
         },
+
         imprimirTicket: function (id_parqueado) {
             axios.get(`parqueo/model/parqueoList.php`, {
                 params: {

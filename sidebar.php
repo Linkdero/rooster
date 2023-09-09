@@ -30,10 +30,16 @@
               <li><a href="?ref=1">Dashboard</a></li>
             </ul>
           </li>
-          <li><a><i class="fa fa-edit"></i> Rooster <span class="fa fa-chevron-down"></span></a>
+          <li><a><i class="fa fa-edit"></i> Mesas <span class="fa fa-chevron-down"></span></a>
             <ul class="nav child_menu">
-              <li><a href="?ref=2">Listado Mesas</a></li>
-              <li><a href="?ref=2">Bodegas</a></li>
+              <li><a href="?ref=11">Listado Mesas</a></li>
+              <li><a href="?ref=12">Reporteria</a></li>
+            </ul>
+          </li>
+          <li><a><i class="fa fa-edit"></i> Menú <span class="fa fa-chevron-down"></span></a>
+            <ul class="nav child_menu">
+              <li><a href="?ref=21">Categorias</a></li>
+              <li><a href="?ref=22">Reporteria</a></li>
             </ul>
           </li>
         </ul>

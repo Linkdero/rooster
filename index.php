@@ -15,11 +15,11 @@ include_once 'styles.php';
         if ($_GET["ref"] == 1 || $_GET["ref"] == "" || $_GET["ref"] == null) {
           include_once 'dashboard.php';
         } else if ($_GET["ref"] == 2) {
-          include_once 'mesas/views/mesasList.php';
-        } else if ($_GET["ref"] == 3) {
-          include_once 'usuarios/views/formularioUsuario.php';
-        } else if ($_GET["ref"] == 4) {
           include_once 'configuracion/views/editarPerfil.php';
+        } else if ($_GET["ref"] == 11) {
+          include_once 'mesas/views/mesasList.php';
+        } else if ($_GET["ref"] == 21) {
+          include_once 'categorias/views/categoriasList.php';
         }
       } else {
         // Si "ref" no está definido en la URL, muestra por defecto el dashboard
