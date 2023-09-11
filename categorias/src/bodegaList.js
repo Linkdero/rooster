@@ -1,40 +1,36 @@
 let menusList = new Vue({
-    el: '#appCategorias',
+    el: '#appBodega',
     data: {
-        tituloModulo: 'Listado Menús',
+        tituloModulo: 'Listado Bodea',
         descripcion: '',
         horaActual: '',
         tipoModal: '',
-        tablaMenus: '',
-        tipoTabla: '',
+        tablaBodega: '',
         nombreCatalogo: ''
     },
     mounted: function () {
-        this.cargarTablaMenus(1);
+        this.cargarTablaBodega(1);
         this.baseTables();
     },
     methods: {
-        cargarTablaMenus: function (tipoTabla) {
-
-            this.tipoTabla = tipoTabla;
+        cargarTablaBodega: function () {
 
             let thes = this;
-            axios.get(`categorias/model/categoriasList.php`, {
+            axios.get(`categorias/model/bodegaList.php`, {
                 params: {
                     opcion: 1,
-                    tipoTabla: tipoTabla
                 }
             }).then(response => {
                 console.log(response.data);
                 this.tablaMenus = response.data;
 
-                if ($.fn.DataTable.isDataTable("#tblMenus")) {
-                    $("#tblMenus").DataTable().destroy();
+                if ($.fn.DataTable.isDataTable("#tblBodega")) {
+                    $("#tblBodega").DataTable().destroy();
                 }
 
                 if (response.data) {
                     // DataTable initialization
-                    this.tablaMenus = $("#tblMenus").DataTable({
+                    this.tablaBodega = $("#tblBodega").DataTable({
                         "ordering": false,
                         "pageLength": 10,
                         "bProcessing": true,
@@ -70,30 +66,11 @@ let menusList = new Vue({
                                     return encabezado;
                                 },
                             },
-                            { "class": "text-center", mData: 'menu' },
-                            {
-                                "class": "text-center",
-                                data: 'id',
-                                render: function (data, type, row) {
-                                    let nombre;
-                                    if (tipoTabla == 1) {
-                                        nombre = 'Sub Menús'
-                                    } else if (tipoTabla == 2) {
-                                        nombre = 'Comidas'
-
-                                    } else if (tipoTabla == 3) {
-                                        nombre = 'Insumos'
-                                    }
-                                    let encabezado = `
-                                        <button class="btn btn-primary btn-xs getSubMenus" type="button" aria-haspopup="true" aria-expanded="false" data-id="${row.id}">
-                                        ${nombre} <i class="fa-solid fa-rectangle-list"></i>
-                                        </button>`;
-                                    encabezado;
-
-                                    return encabezado;
-                                },
-                            },
-                            {
+                            { "class": "text-center", mData: 'comida' },
+                            { "class": "text-center", mData: 'medida' },
+                            { "class": "text-center", mData: 'nombre' },
+                            { "class": "text-center", mData: 'precio' },
+                            { "class": "text-center", mData: 'existencias' }, {
                                 "class": "text-center",
                                 data: 'estado',
                                 render: function (data, type, row) {
@@ -103,7 +80,6 @@ let menusList = new Vue({
                                         return `<a href="#" class="badge badge-danger text-white py-1"data-id="${row.id}" >${row.descripcion} <i class="fa-solid fa-x mx-1"></i></a>`;
                                     }
                                 },
-
                             },
                         ],
                         buttons: [
@@ -219,101 +195,16 @@ let menusList = new Vue({
                     }
                 });
             }
-            $('#tblMenus').on('click', '.getSubMenus', function () {
-                let id = $(this).data('id');
-                that.getCatalogo(id, that.tipoTabla);
-            });
+            // $('#tblMenus').on('click', '.getSubMenus', function () {
+            //     let id = $(this).data('id');
+            //     that.getCatalogo(id, that.tipoTabla);
+            // });
         },
 
-        getCatalogo: function (id, tipoTabla) {
-            this.cargarTablaCatalogos(id, tipoTabla)
-            $("#getCatalogosModal").modal("show")
-        },
+        // getCatalogo: function (id, tipoTabla) {
+        //     this.cargarTablaCatalogos(id, tipoTabla)
+        //     $("#getCatalogosModal").modal("show")
+        // },
 
-        cargarTablaCatalogos: function (id, tipoTabla) {
-            let thes = this;
-            if (tipoTabla == 1) {
-                this.nombreCatalogo = 'Sub Menús'
-            } else if (tipoTabla == 2) {
-                this.nombreCatalogo = 'Comidas'
-            } else if (tipoTabla == 3) {
-                this.nombreCatalogo = 'Insumos'
-            }
-
-            axios.get(`categorias/model/categoriasList.php`, {
-                params: {
-                    opcion: 2,
-                    filtro: id,
-                    tipoTabla: tipoTabla
-                }
-            }).then(response => {
-                console.log(response.data);
-                this.tablaMenus = response.data;
-                // Clear any previous DataTable instance
-                if ($.fn.DataTable.isDataTable("#tblCatalogos")) {
-                    $("#tblCatalogos").DataTable().destroy();
-                }
-
-                // Initialize DataTables only if data is available
-                if (response.data) {
-                    // DataTable initialization
-                    this.tablaMenus = $("#tblCatalogos").DataTable({
-                        "ordering": false,
-                        "pageLength": 10,
-                        "bProcessing": true,
-                        "lengthChange": true,
-                        "paging": true,
-                        "info": true,
-                        select: false,
-                        scrollX: true,
-                        scrollY: '50vh',
-                        language: {
-                            emptyTable: "No hay solicitudes de Catalogos para mostrar",
-                            sProcessing: " <h3 class=''><i class='fa fa-sync fa-spin'></i> Cargando la información, por favor espere</h3> "
-                        },
-                        "aoColumns": [
-                            {
-                                "class": "text-center",
-                                data: 'id',
-                                render: function (data, type, row) {
-                                    let encabezado;
-
-                                    if (row.data == 1) {
-                                        encabezado = `
-                                        <button class="btn btn-primary btn-xs" type="button" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
-                                        </button>`;
-                                        encabezado;
-                                    } else {
-                                        encabezado = `
-                                        <button class="btn btn-primary btn-xs" type="button" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
-                                        </button>`;
-                                    }
-                                    return encabezado;
-                                },
-                            },
-                            { "class": "text-center", mData: 'nombre' },
-                            {
-                                "class": "text-center",
-                                data: 'estado',
-                                render: function (data, type, row) {
-                                    if (data == 1) {
-                                        return `<a href="#" class="badge badge-success text-white py-1" data-id="${row.id}"">${row.descripcion} <i class="fa-solid fa-check mx-1"></i></a>`;
-                                    } else {
-                                        return `<a href="#" class="badge badge-danger text-white py-1"data-id="${row.id}" >${row.descripcion} <i class="fa-solid fa-x mx-1"></i></a>`;
-                                    }
-                                },
-
-                            },
-                        ],
-
-                        data: response.data,
-                    });
-                }
-            }).catch(error => {
-                console.error(error);
-            });
-        },
     },
 });

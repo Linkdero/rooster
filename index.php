@@ -20,6 +20,8 @@ include_once 'styles.php';
           include_once 'mesas/views/mesasList.php';
         } else if ($_GET["ref"] == 21) {
           include_once 'categorias/views/categoriasList.php';
+        } else if ($_GET["ref"] == 23) {
+          include_once 'categorias/views/bodegaList.php';
         }
       } else {
         // Si "ref" no está definido en la URL, muestra por defecto el dashboard

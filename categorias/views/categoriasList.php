@@ -7,17 +7,17 @@
                         <h2>{{tituloModulo}}</h2>
                         <ul id="overallIncomeTabsControl" class="nav navbar-right panel_toolbox nav-tabs card-header-tabs ml-md-auto mt-3 mt-md-0">
                             <li class="nav-item mr-4">
-                                <a class="nav-link active" @click="cargarTablaMenus()" href="#editarPerfil" role="tab" aria-selected="false" data-toggle="tab">
+                                <a class="nav-link active" @click="cargarTablaMenus(1)" href="#editarPerfil" role="tab" aria-selected="false" data-toggle="tab">
                                     <span class="d-none d-md-inline">Menú</span>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" @click="configuracion(2)" href="#editarPerfiles" role="tab" aria-selected="false" data-toggle="tab" id="configuracion2">
+                                <a class="nav-link" @click="cargarTablaMenus(2)" href="#editarPerfiles" role="tab" aria-selected="false" data-toggle="tab" id="configuracion2">
                                     <span class="d-none d-md-inline">Sub Menú</span>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" @click="configuracion(2)" href="#editarPerfiles" role="tab" aria-selected="false" data-toggle="tab" id="configuracion2">
+                                <a class="nav-link" @click="cargarTablaMenus(3)" href="#editarPerfiles" role="tab" aria-selected="false" data-toggle="tab" id="configuracion2">
                                     <span class="d-none d-md-inline">Comidas</span>
                                 </a>
                             </li>
@@ -39,7 +39,6 @@
                             <tbody></tbody>
                         </table>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -48,6 +47,5 @@
 
     <?php include 'modalCatalogos.php'; ?>
 
-</div>
 </div>
 <script type="module" src="./categorias/src/categoriasList.js"> </script>

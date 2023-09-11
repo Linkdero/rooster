@@ -22,55 +22,85 @@
                         </div>
                         <div class="input-group">
                             <div class="col">
-                                <select class="select2_single form-control btn-xs" tabindex="-1">
-                                    <option value="">Menú</option>
-                                </select>
-                            </div>
-                            <div class="col">
-                                <select class="select2_single form-control btn-xs" tabindex="-1">
-                                    <option value="">Cómida</option>
-
-                                </select>
-                            </div>
-                            <div class="col">
-                                <select class="select2_single form-control btn-xs" tabindex="-1">
+                                <label for="comidas">Menú</label>
+                                <select id="comidas" class="form-control btn-xs">
                                     <option></option>
-                                    <option value="AK">Alaska</option>
-                                    <option value="HI">Hawaii</option>
-                                    <option value="CA">California</option>
-                                    <option value="NV">Nevada</option>
-                                    <option value="OR">Oregon</option>
-                                    <option value="WA">Washington</option>
-                                    <option value="AZ">Arizona</option>
-                                    <option value="CO">Colorado</option>
-                                    <option value="ID">Idaho</option>
-                                    <option value="MT">Montana</option>
-                                    <option value="NE">Nebraska</option>
-                                    <option value="NM">New Mexico</option>
-                                    <option value="ND">North Dakota</option>
-                                    <option value="UT">Utah</option>
-                                    <option value="WY">Wyoming</option>
-                                    <option value="AR">Arkansas</option>
-                                    <option value="IL">Illinois</option>
-                                    <option value="IA">Iowa</option>
-                                    <option value="KS">Kansas</option>
-                                    <option value="KY">Kentucky</option>
-                                    <option value="LA">Louisiana</option>
-                                    <option value="MN">Minnesota</option>
-                                    <option value="MS">Mississippi</option>
-                                    <option value="MO">Missouri</option>
-                                    <option value="OK">Oklahoma</option>
-                                    <option value="SD">South Dakota</option>
-                                    <option value="TX">Texas</option>
+                                    <option v-for="comida in comidas" :key="comida.id" :value="comida.id">
+                                        {{ comida.comida }}
+                                    </option>
                                 </select>
+                            </div>
+
+                            <div class="col">
+                                <label for="insumos">Cómidas</label>
+                                <select id="insumos" class="form-control btn-xs">
+                                    <option></option>
+                                    <option v-for="insumo in insumos" :key="insumo.id" :value="insumo.id">
+                                        {{ insumo.descripcion }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="col">
+                                <label for="cantidades">Cantidades</label>
+                                <div class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
+                                    <input type="number" class="input-sm form-control" id="cantidades">
+                                    <span class="input-group-text"><i class="fa-sharp fa-regular fa-fork-knife"></i></span>
+                                </div>
+                            </div>
+
+                            <div class="col-2">
+                                <label for="insumos">Agregar</label>
+                                <button type="button" class="btn btn-outline-primary form-control btn-xs" @click="agregarFila()">
+                                    <i class="fa-solid fa-circle-plus"></i>
+                                </button>
                             </div>
                         </div>
+
+                        <div class="col-12">
+                            <div class="card-body card-body-slide" width="100%" height="100%">
+                                <table id="tblInsumos" class="table responsive table-sm table-bordered table-striped" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">ID</th>
+                                            <th class="text-center">Insumo</th>
+                                            <th class="text-center">Cantidades</th>
+                                            <th class="text-center">Precio U</th>
+                                            <th class="text-center">Total</th>
+                                            <th class="text-center">Eliminar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(fila, index) in filasInsumos" :key="index">
+                                            <td class="text-center">{{ fila.idInsumo }}</td>
+                                            <td class="text-center">{{ fila.nombreInsumo }}</td>
+                                            <td class="text-center">
+                                                <input type="number" class="form-control" v-model="fila.cantidad" @input="actualizarPrecioTotal(index)">
+                                            </td>
+                                            <td class="text-center">Q{{ fila.precioInsumo }}.00</td>
+                                            <td class="text-center">Q{{ fila.precioTotal }}.00</td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-outline-danger" @click="eliminarFila(index)">
+                                                    <i class="fa-solid fa-trash-xmark"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" :style="{ width: progreso + '%' }" aria-valuenow="progreso" aria-valuemin="0" aria-valuemax="100">{{ progreso }}%</div>
+                                </div>
+
+                            </div>
+                        </div>
+
                         <div class="col-12">
                             <label for="descripcion">Observaciones</label>
                             <div class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
                                 <textarea class="form-control" id="descripcion" rows="3" v-model="descripcion"></textarea>
                             </div>
                         </div>
+
                     </div>
                 </div>
 

@@ -40,6 +40,7 @@
             <ul class="nav child_menu">
               <li><a href="?ref=21">Categorias</a></li>
               <li><a href="?ref=22">Reporteria</a></li>
+              <li><a href="?ref=23">Bodega Insumos</a></li>
             </ul>
           </li>
         </ul>
