@@ -22,12 +22,12 @@
 
                             <div class="col">
                                 <label for="insumos">Precio</label>
-                                <input type="number" v-model="precio" class="btn btn-outline-primary form-control btn-xs" @click="actualizarInputs()"/>
+                                <input type="number" v-model="precio" class="btn btn-outline-primary form-control btn-xs" @click="actualizarInputs()" />
                             </div>
 
                             <div class="col">
                                 <label for="insumos">Existencias</label>
-                                <input type="number" v-model="existencia" class="btn btn-outline-primary form-control btn-xs" @click="actualizarInputs()"/>
+                                <input type="number" v-model="existencia" class="btn btn-outline-primary form-control btn-xs" @click="actualizarInputs()" />
                             </div>
                         </div>
                         <div class="col-12">
@@ -36,8 +36,8 @@
                                 <textarea class="form-control" id="descripcion" rows="3" v-model="descripcion" @click="actualizarInputs()"></textarea>
                             </div>
                         </div>
-                        <input type="hidden" v-model="insumo" id="idSelectComidas" class="btn btn-outline-primary form-control btn-xs" value=""/>
-                        <input type="hidden" v-model="medida" id="idSelectMedidas" class="btn btn-outline-primary form-control btn-xs" value=""/>
+                        <input type="hidden" v-model="insumo" id="idSelectComidas" class="btn btn-outline-primary form-control btn-xs" value="" />
+                        <input type="hidden" v-model="medida" id="idSelectMedidas" class="btn btn-outline-primary form-control btn-xs" value="" />
                     </div>
                 </div>
             </div>

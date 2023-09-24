@@ -77,6 +77,10 @@ let bodegaList = new Vue({
                             this.tablaBodega.clear().destroy();
                             this.cargarTablaBodega()
                             $("#setNuevoInsumo").modal("hide")
+                            this.precio = ''
+                            this.existencia = ''
+                            this.descripcion = ''
+                            this.actualizarInputs()
                         }
                         else {
                             Swal.fire({

@@ -1,4 +1,5 @@
 const ListadoComidas = httpVueLoader('./componentes/listadoComidas.vue'); // Asegúrate de proporcionar la ruta correcta
+import  EventBus  from '../../componentes/eventBus.js';
 
 let mesasList = new Vue({
     el: '#appMesas',
@@ -19,12 +20,16 @@ let mesasList = new Vue({
         selectedInsumo: null,
         precio: null,
         progreso: 0,
-        selectComida: ''
+        selectComida: '',
+        selectComida2: 0
     },
     mounted: function () {
         // Agrega un evento 'change' al select
         this.cargarTablaMesas();
         this.baseTables();
+        EventBus.$on('cambiar-select', (nuevoValor) => {
+            this.selectComida2 = nuevoValor;
+        });
     },
     components: {
         'listado-comidas': ListadoComidas,

@@ -34,4 +34,5 @@
 
     <?php include 'modalMesas.php'; ?>
 </div>
+<script type="module" src="./componentes/eventBus.js"> </script>
 <script type="module" src="./mesas/src/mesasList.js"> </script>

@@ -11,7 +11,7 @@
 </template>
 
 <script>
-// Importa el bus de eventos
+import  EventBus  from './eventBus.js';
 
 module.exports = {
     props: ['tipo'], // Aquí defines el prop miProp
@@ -45,8 +45,14 @@ module.exports = {
                     // Obtiene el valor seleccionado
                     const valorSeleccionado = $(event.target).val();
                     // Llama a la función que deseas ejecutar
-                    $("#idSelectComidas").val(valorSeleccionado);
+                    // $("#idSelectComidas").val(valorSeleccionado);
+                    EventBus.$emit('cambiar-select', valorSeleccionado);
                 });
+                // Obtener la URL completa
+                var urlCompleta = window.location.href;
+
+                // Obtener la parte de la ruta
+                var ruta = window.location.pathname;
 
 
             }).catch(error => {

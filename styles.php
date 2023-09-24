@@ -36,6 +36,5 @@
 
 <body class="nav-md">
   <script src="vendors/vue/vue.js"></script>
-  <script src="
-https://cdn.jsdelivr.net/npm/http-vue-loader@1.4.2/src/httpVueLoader.min.js
-"></script>
+  <script src="https://cdn.jsdelivr.net/npm/http-vue-loader@1.4.2/src/httpVueLoader.min.js"></script>
+  <script type="module" src="./componentes/eventBus.js"> </script>

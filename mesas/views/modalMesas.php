@@ -7,7 +7,6 @@
             </div>
             <div class="modal-body">
                 <?php include 'datosMesa.php'; ?>
-
                 <div class="x_title">
                     <div class="clearfix"></div>
                 </div>
@@ -48,7 +47,8 @@
                                 </button>
                             </div>
                         </div>
-                        <input type="text" id="idSelectComidas" class="btn btn-outline-primary form-control btn-xs" v-model="selectComida"/>
+                        <input type="text" class="btn btn-outline-primary form-control btn-xs" v-model="selectComida2" />
+                        <!-- <input type="text" id="idSelectComidas" class="btn btn-outline-primary form-control btn-xs" v-model="selectComida" /> -->
                         <div class="col-12">
                             <div class="card-body card-body-slide" width="100%" height="100%">
                                 <table id="tblInsumos" class="table responsive table-sm table-bordered table-striped" width="100%">
