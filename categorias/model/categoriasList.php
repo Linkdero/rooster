@@ -68,9 +68,10 @@ class Categoria
             LEFT JOIN tb_estado as e ON c.estado = e.id_estado
             WHERE c.id_sub_menu = ?";
         } else if ($tipoTabla == 3) {
-            $sql = "SELECT sm.id_sub_menu, sm.sub_menu, sm.id_menu, sm.estado, e.descripcion FROM tb_sub_menu as sm 
-            LEFT JOIN tb_estado as e ON sm.estado = e.id_estado
-            WHERE sm.id_menu = ?";
+            $sql = "SELECT id_insumo as id, i.descripcion as nombre, id_comida as idPadre, i.estado, e.descripcion as descripcion
+            FROM tb_insumo as i
+            LEFT JOIN tb_estado as e ON i.estado = e.id_estado
+            WHERE id_comida = ?";
         }
 
         $p = $pdo->prepare($sql);

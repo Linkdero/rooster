@@ -1,3 +1,5 @@
+const ListadoComidas = httpVueLoader('./componentes/listadoComidas.vue'); // Asegúrate de proporcionar la ruta correcta
+
 let mesasList = new Vue({
     el: '#appMesas',
     data: {
@@ -16,11 +18,22 @@ let mesasList = new Vue({
         filasInsumos: [],
         selectedInsumo: null,
         precio: null,
-        progreso: 0
+        progreso: 0,
+        selectComida: ''
     },
     mounted: function () {
+        // Agrega un evento 'change' al select
         this.cargarTablaMesas();
         this.baseTables();
+    },
+    components: {
+        'listado-comidas': ListadoComidas,
+    },
+    watch: {
+        selectComida(newValue) {
+            // Esta función se ejecutará cada vez que selectComida cambie
+            this.getInsumos(this.selectComida);
+        }
     },
     computed: {
         camposCompletos() {
@@ -46,11 +59,12 @@ let mesasList = new Vue({
             if (estado == 1) {
                 $("#setMesasModal").modal("show")
                 this.tipoModal = 1
-                this.getComidas()
+
             } else if (estado == 2) {
                 $("#setMesasModal").modal("show")
                 this.tipoModal = 2
             }
+
         },
 
         cargarTablaMesas: function (id) {
@@ -250,110 +264,6 @@ let mesasList = new Vue({
             });
         },
 
-        // imprimirTicket: function (id_parqueado) {
-        //     axios.get(`parqueo/model/parqueoList.php`, {
-        //         params: {
-        //             opcion: 5,
-        //             id: id_parqueado
-        //         }
-        //     }).then(response => {
-        //         var datos = response.data[0]; // Los datos obtenidos de la petición
-        //         console.log(datos);
-        //         let lista = []
-        //         if (datos.fecha_final == '0000-00-00 00:00:00' || datos.fecha_final == '-0001-11-30 00:00' || datos.fecha_final == null) {
-        //             lista = ['Tipo Vehiculo: ' + datos.nombre_placa,
-        //             'Nro Placas: ' + datos.nro_placa,
-        //             'Inicio: ' + datos.fecha_inicio,
-        //             'Descripcion: ' + datos.descripcion]
-        //         } else {
-        //             lista = ['Tipo Vehiculo: ' + datos.nombre_placa,
-        //             'Nro Placas: ' + datos.nro_placa,
-        //             'Inicio: ' + datos.fecha_inicio,
-        //             'Final: ' + datos.fecha_final,
-        //             'Duración: ' + datos.duracion,
-        //             'Total: Q' + datos.total_horas + '.00',
-        //             'Descripcion: ' + datos.descripcion]
-        //         }
-
-        //         // Definir el contenido del PDF con los datos obtenidos
-        //         var documentDefinition = {
-        //             pageSize: {
-        //                 width: 250,   // Ancho en puntos (1 punto = 1/72 pulgadas)
-        //                 height: 500   // Alto en puntos (1 punto = 1/72 pulgadas)
-        //             },
-        //             content: [
-        //                 {
-        //                     text: '!PARQUEO LA MORENITA MIXQUEÑA!',
-        //                     alignment: 'center',
-        //                     fontSize: 12,
-        //                     margin: [0, 0, 0, 10] // Margen inferior para separar el encabezado del contenido
-        //                 },
-        //                 '\nEl parqueo le genera su ticket de facturación. Verificar datos:',
-        //                 {
-        //                     ul: lista,
-        //                     margin: [0, 5, 0, 5]
-        //                 }
-        //             ]
-        //         };
-
-        //         // Crear el documento PDF
-        //         var pdfDocGenerator = pdfMake.createPdf(documentDefinition);
-
-        //         // Generar el PDF como base64
-        //         pdfDocGenerator.getBase64(function (base64) {
-        //             var blob = b64toBlob(base64, 'application/pdf');
-
-        //             // Crear un objeto blob URL para el PDF
-        //             var blobUrl = URL.createObjectURL(blob);
-
-        //             // Crear un iframe oculto
-        //             var iframe = document.createElement('iframe');
-        //             iframe.style.position = 'absolute';
-        //             iframe.style.left = '-9999px';
-        //             iframe.src = blobUrl;
-
-        //             // Agregar el iframe al cuerpo del documento
-        //             document.body.appendChild(iframe);
-
-        //             // Cuando el iframe haya cargado el PDF
-        //             iframe.onload = function () {
-        //                 // Intentar abrir el modal de impresión después de un breve retraso
-        //                 setTimeout(function () {
-        //                     iframe.contentWindow.print();
-        //                 }, 1000);
-        //             };
-        //         });
-
-        //         // Función para convertir base64 a blob
-        //         function b64toBlob(base64, contentType) {
-        //             contentType = contentType || '';
-        //             var sliceSize = 512;
-        //             var byteCharacters = atob(base64);
-        //             var byteArrays = [];
-
-        //             for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-        //                 var slice = byteCharacters.slice(offset, offset + sliceSize);
-
-        //                 var byteNumbers = new Array(slice.length);
-        //                 for (var i = 0; i < slice.length; i++) {
-        //                     byteNumbers[i] = slice.charCodeAt(i);
-        //                 }
-
-        //                 var byteArray = new Uint8Array(byteNumbers);
-        //                 byteArrays.push(byteArray);
-        //             }
-
-        //             var blob = new Blob(byteArrays, { type: contentType });
-        //             return blob;
-        //         }
-
-        //     }).catch(error => {
-        //         console.error(error);
-        //         alert('Ha ocurrido un error al crear el evento.');
-        //     });
-
-        // },
-
         finalizarMesa: function (id) {
             const Toast = Swal.mixin({
                 toast: true,
@@ -409,35 +319,6 @@ let mesasList = new Vue({
                 }
             })
 
-        },
-
-        getComidas: function () {
-            axios.get(`mesas/model/mesasList.php`, {
-                params: {
-                    opcion: 2,
-                }
-            }).then(response => {
-                console.log(response.data)
-                this.comidas = response.data
-
-                // Inicializa Select2 después de cargar los datos
-                $('#comidas').select2({
-                    placeholder: 'Menú',
-                    allowClear: true,
-                    width: '100%',
-                });
-
-                // Agrega un evento 'change' al select
-                $('#comidas').on('change', (event) => {
-                    // Obtiene el valor seleccionado
-                    const valorSeleccionado = $(event.target).val();
-                    // Llama a la función que deseas ejecutar
-                    this.getInsumos(valorSeleccionado);
-                });
-
-            }).catch(error => {
-                console.error(error);
-            });
         },
 
         getInsumos: function (id) {
@@ -519,6 +400,7 @@ let mesasList = new Vue({
             let fila = this.filasInsumos[index];
             fila.precioTotal = fila.precioInsumo * fila.cantidad;
         },
+
     }
 });
 

@@ -39,8 +39,12 @@
           <li><a><i class="fa fa-edit"></i> Menú <span class="fa fa-chevron-down"></span></a>
             <ul class="nav child_menu">
               <li><a href="?ref=21">Categorias</a></li>
-              <li><a href="?ref=22">Reporteria</a></li>
-              <li><a href="?ref=23">Bodega Insumos</a></li>
+              <li><a href="?ref=22">Medidas</a></li>
+            </ul>
+          </li>
+          <li><a><i class="fa fa-edit"></i> Bodega <span class="fa fa-chevron-down"></span></a>
+            <ul class="nav child_menu">
+              <li><a href="?ref=31">Bodega Insumos</a></li>
             </ul>
           </li>
         </ul>

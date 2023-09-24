@@ -29,8 +29,7 @@
         </div>
     </div>
     <iframe id="pdf_preview_v" hidden></iframe>
-
-    <?php include 'modalCatalogos.php'; ?>
+    <?php include 'modalNuevoInsumo.php'; ?>
 
 </div>
-<script type="module" src="./categorias/src/bodegaList.js"> </script>
+<script type="module" src="./bodega/src/bodegaList.js"> </script>

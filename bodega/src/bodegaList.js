@@ -1,22 +1,102 @@
-let menusList = new Vue({
+const ListadoComidas = httpVueLoader('./componentes/listadoComidas.vue'); // Asegúrate de proporcionar la ruta correcta
+const ListadoMedidas = httpVueLoader('./componentes/listadoMedidas.vue');
+
+let bodegaList = new Vue({
     el: '#appBodega',
     data: {
         tituloModulo: 'Listado Bodea',
-        descripcion: '',
-        horaActual: '',
-        tipoModal: '',
         tablaBodega: '',
-        nombreCatalogo: ''
+        nombreInsumos: 'Nuevo Insumo',
+        insumo: '',
+        medida: '',
+        precio: '',
+        existencia: '',
+        descripcion: ''
+
+    },
+    components: {
+        'listado-comidas': ListadoComidas,
+        'listado-medidas': ListadoMedidas,
     },
     mounted: function () {
         this.cargarTablaBodega(1);
         this.baseTables();
     },
+    computed: {
+        camposCompletos() {
+            return this.insumo.trim() !== '' && this.medida.trim() !== '' && this.precio.trim() !== '' && this.existencia.trim() !== '' && this.descripcion.trim() !== '';
+        },
+    },
+    watch: {
+        insumo(nuevoValor) {
+            console.log('El valor del input de comidas ha cambiado:', nuevoValor);
+        },
+        medida(nuevoValor) {
+            console.log('El valor del input de medidas ha cambiado:', nuevoValor);
+        }
+    },
     methods: {
+        actualizarInputs: function () {
+            this.insumo = $("#idSelectComidas").val();
+            this.medida = $("#idSelectMedidas").val();
+            this.$forceUpdate();
+        },
+        generarInsumo: function () {
+            this.actualizarInputs()
+            Swal.fire({
+                title: '¿Generar Nuevo Insumo?',
+                text: "¡Se agregara un nuevo insumo a la bodega!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Si, generar!',
+                cancelmButtonText: 'Cancelar'
+
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.get('bodega/model/bodegaList.php', {
+                        params: {
+                            opcion: 2,
+                            comida: parseInt(this.insumo),
+                            medida: parseInt(this.medida),
+                            precio: parseFloat(this.precio),
+                            existencia: parseInt(this.existencia),
+                            descripcion: this.descripcion,
+                        }
+                    }).then((response) => {
+                        console.log(response.data);
+                        if (response.data.id == 1) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.data.msg,
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+
+                            this.tablaBodega.clear().destroy();
+                            this.cargarTablaBodega()
+                            $("#setNuevoInsumo").modal("hide")
+                        }
+                        else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: response.data.msg,
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                        }
+                    })
+                        .catch((error) => {
+                            console.log(error);
+                        });
+                }
+            })
+        },
         cargarTablaBodega: function () {
 
             let thes = this;
-            axios.get(`categorias/model/bodegaList.php`, {
+            axios.get(`bodega/model/bodegaList.php`, {
                 params: {
                     opcion: 1,
                 }
@@ -69,8 +149,27 @@ let menusList = new Vue({
                             { "class": "text-center", mData: 'comida' },
                             { "class": "text-center", mData: 'medida' },
                             { "class": "text-center", mData: 'nombre' },
-                            { "class": "text-center", mData: 'precio' },
-                            { "class": "text-center", mData: 'existencias' }, {
+                            {
+                                "class": "text-center",
+                                data: 'precio',
+                                render: function (data, type, row) {
+                                    let encabezado;
+                                    encabezado = `Q${data}`;
+
+                                    return encabezado;
+                                },
+                            },
+                            {
+                                "class": "text-center",
+                                data: 'existencias',
+                                render: function (data, type, row) {
+                                    let encabezado;
+                                    encabezado = `${data} U`;
+
+                                    return encabezado;
+                                },
+                            },
+                            {
                                 "class": "text-center",
                                 data: 'estado',
                                 render: function (data, type, row) {
@@ -87,8 +186,8 @@ let menusList = new Vue({
                                 text: 'Nuevo <i class="fa-solid fa-square-plus"></i>',
                                 className: 'bg-primary text-white btn-xs mx-1',
                                 action: function (e, dt, node, config) {
-                                    thes.tablaMesas.clear().destroy();
-                                    thes.cargarTablaMesas();
+                                    $("#setNuevoInsumo").modal("show")
+                                    thes.actualizarInputs()
                                 }
                             },
                             {
@@ -195,16 +294,6 @@ let menusList = new Vue({
                     }
                 });
             }
-            // $('#tblMenus').on('click', '.getSubMenus', function () {
-            //     let id = $(this).data('id');
-            //     that.getCatalogo(id, that.tipoTabla);
-            // });
         },
-
-        // getCatalogo: function (id, tipoTabla) {
-        //     this.cargarTablaCatalogos(id, tipoTabla)
-        //     $("#getCatalogosModal").modal("show")
-        // },
-
     },
 });

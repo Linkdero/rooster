@@ -31,8 +31,11 @@
   <!-- Custom Styles -->
   <link href="build/css/custom.min.css" rel="stylesheet">
   <link href="src/styles/propios.css" rel="stylesheet">
-	<link href="vendors/select2/dist/css/select2.min.css" rel="stylesheet">
+  <link href="vendors/select2/dist/css/select2.min.css" rel="stylesheet">
 </head>
 
 <body class="nav-md">
   <script src="vendors/vue/vue.js"></script>
+  <script src="
+https://cdn.jsdelivr.net/npm/http-vue-loader@1.4.2/src/httpVueLoader.min.js
+"></script>

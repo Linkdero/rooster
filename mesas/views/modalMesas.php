@@ -21,15 +21,7 @@
                             </div>
                         </div>
                         <div class="input-group">
-                            <div class="col">
-                                <label for="comidas">Menú</label>
-                                <select id="comidas" class="form-control btn-xs">
-                                    <option></option>
-                                    <option v-for="comida in comidas" :key="comida.id" :value="comida.id">
-                                        {{ comida.comida }}
-                                    </option>
-                                </select>
-                            </div>
+                            <listado-comidas :tipo="2"></listado-comidas>
 
                             <div class="col">
                                 <label for="insumos">Cómidas</label>
@@ -56,7 +48,7 @@
                                 </button>
                             </div>
                         </div>
-
+                        <input type="text" id="idSelectComidas" class="btn btn-outline-primary form-control btn-xs" v-model="selectComida"/>
                         <div class="col-12">
                             <div class="card-body card-body-slide" width="100%" height="100%">
                                 <table id="tblInsumos" class="table responsive table-sm table-bordered table-striped" width="100%">

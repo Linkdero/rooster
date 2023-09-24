@@ -46,6 +46,52 @@ class Bodega
         echo json_encode($data);
         return $data;
     }
+
+    //Opcion 2
+    static function setnuevoInsumo()
+    {
+        $comida = $_GET["comida"];
+        $medida = $_GET["medida"];
+        $precio = $_GET["precio"];
+        $existencia = $_GET["existencia"];
+        $descripcion = $_GET["descripcion"];
+
+        try {
+            $db = new Database();
+            $pdo = $db->connect();
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            $sql = "SELECT id_sub_menu FROM tb_comida WHERE id_comida = ?";
+            $p = $pdo->prepare($sql);
+            $p->execute(array($comida));
+            $id_sub_menu = $p->fetch(PDO::FETCH_ASSOC);
+            $id_sub_menu = $id_sub_menu["id_sub_menu"];
+
+            $sql = "SELECT id_menu FROM tb_sub_menu WHERE id_sub_menu = ?";
+            $p = $pdo->prepare($sql);
+            $p->execute(array($id_sub_menu));
+            $id_menu = $p->fetch(PDO::FETCH_ASSOC);
+            $id_menu = $id_menu["id_menu"];
+
+            $sql = "INSERT INTO tb_insumo(descripcion, id_menu, id_sub_menu, id_comida, id_medida, precio, existencias, id_local, estado)
+            VALUES (?,?,?,?,?,?,?,?,?)";
+
+            $p = $pdo->prepare($sql);
+
+            $p->execute(array($descripcion, $id_menu, $id_sub_menu, $comida, $medida, $precio, $existencia, 1, 1));
+
+            $respuesta =  ['msg' => 'Insumo Agregado', 'id' => 1];
+        } catch (PDOException $e) {
+            $respuesta = array('msg' => 'ERROR', 'id' => $e);
+            try {
+                $pdo->rollBack();
+            } catch (Exception $e2) {
+                $respuesta = array('msg' => 'ERROR', 'id' => $e2);
+            }
+        }
+        $pdo = null;
+        echo json_encode($respuesta);
+    }
 }
 
 //case
@@ -55,6 +101,10 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
     switch ($opcion) {
         case 1:
             Bodega::getInsumos();
+            break;
+
+        case 2:
+            Bodega::setnuevoInsumo();
             break;
     }
 }

@@ -1,40 +1,35 @@
-let categoriasList = new Vue({
-    el: '#appCategorias',
+let medidasList = new Vue({
+    el: '#appMedidas',
     data: {
-        tituloModulo: 'Listado Menús',
+        tituloModulo: 'Listado Medidas',
         descripcion: '',
         horaActual: '',
         tipoModal: '',
-        tablaMenus: '',
-        tipoTabla: '',
         nombreCatalogo: ''
     },
     mounted: function () {
-        this.cargarTablaMenus(1);
+        this.cargarTablaMedidas();
         this.baseTables();
     },
     methods: {
-        cargarTablaMenus: function (tipoTabla) {
-
-            this.tipoTabla = tipoTabla;
+        cargarTablaMedidas: function () {
 
             let thes = this;
-            axios.get(`categorias/model/categoriasList.php`, {
+            axios.get(`categorias/model/medidasList.php`, {
                 params: {
                     opcion: 1,
-                    tipoTabla: tipoTabla
+                    tipo: 2
                 }
             }).then(response => {
                 console.log(response.data);
-                this.tablaMenus = response.data;
 
-                if ($.fn.DataTable.isDataTable("#tblMenus")) {
-                    $("#tblMenus").DataTable().destroy();
+                if ($.fn.DataTable.isDataTable("#tblMedidas")) {
+                    $("#tblMedidas").DataTable().destroy();
                 }
 
                 if (response.data) {
                     // DataTable initialization
-                    this.tablaMenus = $("#tblMenus").DataTable({
+                    this.tablaMedidas = $("#tblMedidas").DataTable({
                         "ordering": false,
                         "pageLength": 10,
                         "bProcessing": true,
@@ -45,7 +40,7 @@ let categoriasList = new Vue({
                         scrollX: true,
                         scrollY: '50vh',
                         language: {
-                            emptyTable: "No hay solicitudes de Mennus para mostrar",
+                            emptyTable: "No hay solicitudes de Medidas para mostrar",
                             sProcessing: " <h3 class=''><i class='fa fa-sync fa-spin'></i> Cargando la información, por favor espere</h3> "
                         },
                         "aoColumns": [
@@ -70,22 +65,14 @@ let categoriasList = new Vue({
                                     return encabezado;
                                 },
                             },
-                            { "class": "text-center", mData: 'menu' },
+                            { "class": "text-center", mData: 'nombre' },
                             {
                                 "class": "text-center",
                                 data: 'id',
                                 render: function (data, type, row) {
-                                    let nombre;
-                                    if (tipoTabla == 1) {
-                                        nombre = 'Sub Menús'
-                                    } else if (tipoTabla == 2) {
-                                        nombre = 'Comidas'
-
-                                    } else if (tipoTabla == 3) {
-                                        nombre = 'Insumos'
-                                    }
+                                    let nombre = 'Catalogos';
                                     let encabezado = `
-                                        <button class="btn btn-primary btn-xs getSubMenus" type="button" aria-haspopup="true" aria-expanded="false" data-id="${row.id}">
+                                        <button class="btn btn-primary btn-xs getCategorias" type="button" aria-haspopup="true" aria-expanded="false" data-id="${row.id}">
                                         ${nombre} <i class="fa-solid fa-rectangle-list"></i>
                                         </button>`;
                                     encabezado;
@@ -219,36 +206,26 @@ let categoriasList = new Vue({
                     }
                 });
             }
-            $('#tblMenus').on('click', '.getSubMenus', function () {
+            $('#tblMedidas').on('click', '.getCategorias', function () {
                 let id = $(this).data('id');
-                that.getCatalogo(id, that.tipoTabla);
+                that.getCatalogo(id);
             });
         },
 
-        getCatalogo: function (id, tipoTabla) {
-            this.cargarTablaCatalogos(id, tipoTabla)
+        getCatalogo: function (id) {
+            this.nombreCatalogo = 'Listado Insumos'
+            this.cargarTablaCatalogos(id)
             $("#getCatalogosModal").modal("show")
         },
 
-        cargarTablaCatalogos: function (id, tipoTabla) {
-            let thes = this;
-            if (tipoTabla == 1) {
-                this.nombreCatalogo = 'Sub Menús'
-            } else if (tipoTabla == 2) {
-                this.nombreCatalogo = 'Comidas'
-            } else if (tipoTabla == 3) {
-                this.nombreCatalogo = 'Insumos'
-            }
-
-            axios.get(`categorias/model/categoriasList.php`, {
+        cargarTablaCatalogos: function (id) {
+            axios.get(`categorias/model/medidasList.php`, {
                 params: {
                     opcion: 2,
                     filtro: id,
-                    tipoTabla: tipoTabla
                 }
             }).then(response => {
                 console.log(response.data);
-                this.tablaMenus = response.data;
                 // Clear any previous DataTable instance
                 if ($.fn.DataTable.isDataTable("#tblCatalogos")) {
                     $("#tblCatalogos").DataTable().destroy();
@@ -257,7 +234,7 @@ let categoriasList = new Vue({
                 // Initialize DataTables only if data is available
                 if (response.data) {
                     // DataTable initialization
-                    this.tablaMenus = $("#tblCatalogos").DataTable({
+                    this.tablaCatalogo = $("#tblCatalogos").DataTable({
                         "ordering": false,
                         "pageLength": 10,
                         "bProcessing": true,
