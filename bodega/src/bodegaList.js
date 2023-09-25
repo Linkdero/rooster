@@ -90,10 +90,9 @@ let bodegaList = new Vue({
                                 timer: 1500
                             })
                         }
-                    })
-                        .catch((error) => {
-                            console.log(error);
-                        });
+                    }).catch((error) => {
+                        console.log(error);
+                    });
                 }
             })
         },
@@ -106,8 +105,6 @@ let bodegaList = new Vue({
                 }
             }).then(response => {
                 console.log(response.data);
-                this.tablaMenus = response.data;
-
                 if ($.fn.DataTable.isDataTable("#tblBodega")) {
                     $("#tblBodega").DataTable().destroy();
                 }
@@ -178,9 +175,15 @@ let bodegaList = new Vue({
                                 data: 'estado',
                                 render: function (data, type, row) {
                                     if (data == 1) {
-                                        return `<a href="#" class="badge badge-success text-white py-1" data-id="${row.id}"">${row.descripcion} <i class="fa-solid fa-check mx-1"></i></a>`;
+                                        return `<label class="switch">
+                                        <input class="success" type="checkbox" checked data-id="${row.id}">
+                                        <span class="slider round"></span>
+                                      </label>`;
                                     } else {
-                                        return `<a href="#" class="badge badge-danger text-white py-1"data-id="${row.id}" >${row.descripcion} <i class="fa-solid fa-x mx-1"></i></a>`;
+                                        return `<label class="switch">
+                                        <input class="danger" type="checkbox" data-id="${row.id}">
+                                        <span class="slider round"></span>
+                                      </label>`;
                                     }
                                 },
                             },
@@ -298,6 +301,45 @@ let bodegaList = new Vue({
                     }
                 });
             }
+            $('#tblBodega').on('click', '.success', function () {
+                let id = $(this).data('id');
+                that.setCatalogo(id, 2);
+            });
+
+            $('#tblBodega').on('click', '.danger', function () {
+                let id = $(this).data('id');
+                that.setCatalogo(id, 1);
+            });
+        },
+
+        setCatalogo: function (id, estado) {
+            axios.get('bodega/model/bodegaList.php', {
+                params: {
+                    opcion: 3,
+                    id: id,
+                    estado: estado,
+                }
+            }).then((response) => {
+                console.log(response.data);
+                if (response.data.id == 1) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: response.data.msg,
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                }
+                else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: response.data.msg,
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                }
+            }).catch((error) => {
+                console.log(error);
+            });
         },
     },
 });

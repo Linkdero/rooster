@@ -92,6 +92,41 @@ class Bodega
         $pdo = null;
         echo json_encode($respuesta);
     }
+
+    static function setEstadoInsumo()
+    {
+        $id = $_GET["id"];
+        $estado = $_GET["estado"];
+        if ($estado == 1) {
+            $titulo = 'Insumo Activado';
+        } else {
+            $titulo = 'Insumo Inhabilitado';
+        }
+        try {
+            $db = new Database();
+            $pdo = $db->connect();
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            $sql = "UPDATE tb_insumo
+            SET estado = ?
+            WHERE id_insumo =?";
+
+            $p = $pdo->prepare($sql);
+
+            $p->execute(array($estado, $id));
+
+            $respuesta =  ['msg' => $titulo, 'id' => 1];
+        } catch (PDOException $e) {
+            $respuesta = array('msg' => 'ERROR', 'id' => $e);
+            try {
+                $pdo->rollBack();
+            } catch (Exception $e2) {
+                $respuesta = array('msg' => 'ERROR', 'id' => $e2);
+            }
+        }
+        $pdo = null;
+        echo json_encode($respuesta);
+    }
 }
 
 //case
@@ -105,6 +140,10 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
 
         case 2:
             Bodega::setnuevoInsumo();
+            break;
+
+        case 3:
+            Bodega::setEstadoInsumo();
             break;
     }
 }

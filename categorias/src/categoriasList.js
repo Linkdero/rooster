@@ -5,7 +5,7 @@ let categoriasList = new Vue({
         descripcion: '',
         horaActual: '',
         tipoModal: '',
-        tablaMenus: '',
+        tablaCategorias: '',
         tipoTabla: '',
         nombreCatalogo: ''
     },
@@ -26,15 +26,15 @@ let categoriasList = new Vue({
                 }
             }).then(response => {
                 console.log(response.data);
-                this.tablaMenus = response.data;
+                this.tablaCategorias = response.data;
 
-                if ($.fn.DataTable.isDataTable("#tblMenus")) {
-                    $("#tblMenus").DataTable().destroy();
+                if ($.fn.DataTable.isDataTable("#tblCatagorias")) {
+                    $("#tblCatagorias").DataTable().destroy();
                 }
 
                 if (response.data) {
                     // DataTable initialization
-                    this.tablaMenus = $("#tblMenus").DataTable({
+                    this.tablaCategorias = $("#tblCatagorias").DataTable({
                         "ordering": false,
                         "pageLength": 10,
                         "bProcessing": true,
@@ -98,9 +98,15 @@ let categoriasList = new Vue({
                                 data: 'estado',
                                 render: function (data, type, row) {
                                     if (data == 1) {
-                                        return `<a href="#" class="badge badge-success text-white py-1" data-id="${row.id}"">${row.descripcion} <i class="fa-solid fa-check mx-1"></i></a>`;
+                                        return `<label class="switch">
+                                        <input class="success" type="checkbox" checked data-id="${row.id}">
+                                        <span class="slider round"></span>
+                                      </label>`;
                                     } else {
-                                        return `<a href="#" class="badge badge-danger text-white py-1"data-id="${row.id}" >${row.descripcion} <i class="fa-solid fa-x mx-1"></i></a>`;
+                                        return `<label class="switch">
+                                        <input class="danger" type="checkbox" data-id="${row.id}">
+                                        <span class="slider round"></span>
+                                      </label>`;
                                     }
                                 },
 
@@ -219,15 +225,55 @@ let categoriasList = new Vue({
                     }
                 });
             }
-            $('#tblMenus').on('click', '.getSubMenus', function () {
+            $('#tblCatagorias').on('click', '.getSubMenus', function () {
                 let id = $(this).data('id');
                 that.getCatalogo(id, that.tipoTabla);
             });
-        },
 
+            $('#tblCatagorias').on('click', '.success', function () {
+                let id = $(this).data('id');
+                that.setCatalogo(id, that.tipoTabla, 2);
+            });
+
+            $('#tblCatagorias').on('click', '.danger', function () {
+                let id = $(this).data('id');
+                that.setCatalogo(id, that.tipoTabla, 1);
+            });
+        },
         getCatalogo: function (id, tipoTabla) {
             this.cargarTablaCatalogos(id, tipoTabla)
             $("#getCatalogosModal").modal("show")
+        },
+
+        setCatalogo: function (id, tipoTabla, estado) {
+            axios.get('categorias/model/categoriasList.php', {
+                params: {
+                    opcion: 3,
+                    id: id,
+                    tipoTabla: tipoTabla,
+                    estado: estado,
+                }
+            }).then((response) => {
+                console.log(response.data);
+                if (response.data.id == 1) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: response.data.msg,
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                }
+                else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: response.data.msg,
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                }
+            }).catch((error) => {
+                console.log(error);
+            });
         },
 
         cargarTablaCatalogos: function (id, tipoTabla) {
@@ -248,7 +294,7 @@ let categoriasList = new Vue({
                 }
             }).then(response => {
                 console.log(response.data);
-                this.tablaMenus = response.data;
+                this.tablaCategorias = response.data;
                 // Clear any previous DataTable instance
                 if ($.fn.DataTable.isDataTable("#tblCatalogos")) {
                     $("#tblCatalogos").DataTable().destroy();
@@ -257,7 +303,7 @@ let categoriasList = new Vue({
                 // Initialize DataTables only if data is available
                 if (response.data) {
                     // DataTable initialization
-                    this.tablaMenus = $("#tblCatalogos").DataTable({
+                    this.tablaCategorias = $("#tblCatalogos").DataTable({
                         "ordering": false,
                         "pageLength": 10,
                         "bProcessing": true,

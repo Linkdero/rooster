@@ -27,7 +27,7 @@
                     </div>
 
                     <div class="card-body card-body-slide" width="100%" height="100%">
-                        <table id="tblMenus" class="table responsive table-sm table-bordered table-striped" width="100%">
+                        <table id="tblCatagorias" class="table responsive table-sm table-bordered table-striped" width="100%">
                             <thead>
                                 <tr>
                                     <th class="text-center">ID</th>

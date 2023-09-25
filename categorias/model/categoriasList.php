@@ -51,6 +51,7 @@ class Categoria
         echo json_encode($data);
         return $data;
     }
+    //Opcion 2
     static function getCatalogo()
     {
         $filtro = $_GET["filtro"];
@@ -93,6 +94,121 @@ class Categoria
         echo json_encode($data);
         return $data;
     }
+
+    //Opcion 3
+    static function setCategorias()
+    {
+        $id = $_GET["id"];
+        $tipoTabla = $_GET["tipoTabla"];
+        $estado = $_GET["estado"];
+
+        if ($estado == 1) {
+            $titulo = 'Insumos Activados';
+        } else {
+            $titulo = 'Insumos Inhabilitados';
+        }
+        try {
+            $db = new Database();
+            $pdo = $db->connect();
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            if ($tipoTabla == 1) {
+                $sql = "UPDATE tb_insumo
+                SET estado = ?
+                WHERE id_menu = ?";
+                $p = $pdo->prepare($sql);
+                $p->execute(array($estado, $id));
+
+                $sql = "UPDATE tb_menu
+                SET estado = ?
+                WHERE id = ?";
+                $p = $pdo->prepare($sql);
+                $p->execute(array($estado, $id));
+
+                $sql = "UPDATE tb_sub_menu
+                SET estado = ?
+                WHERE id_menu = ?";
+                $p = $pdo->prepare($sql);
+                $p->execute(array($estado, $id));
+
+                $sql = "SELECT id_sub_menu
+                FROM tb_sub_menu
+                WHERE id_menu = ?";
+                $p = $pdo->prepare($sql);
+                $p->execute(array($id));
+                $id_sub_menu = $p->fetchAll(PDO::FETCH_COLUMN);
+
+                $sql = "UPDATE tb_comida
+                SET estado= ?
+                WHERE id_sub_menu = ?";
+                $p = $pdo->prepare($sql);
+
+                foreach ($id_sub_menu as $id_sub) {
+                    $p->execute(array($estado, $id_sub));
+                }
+            } else if ($tipoTabla == 2) {
+                $sql = "UPDATE tb_sub_menu
+                SET estado = ?
+                WHERE id_sub_menu = ?";
+                $p = $pdo->prepare($sql);
+                $p->execute(array($estado, $id));
+
+                $sql = "UPDATE tb_comida
+                SET estado= ?
+                WHERE id_sub_menu = ?";
+                $p = $pdo->prepare($sql);
+                $p->execute(array($estado, $id));
+
+                $sql = "SELECT id_comida
+                FROM tb_comida
+                WHERE id_sub_menu = ?";
+                $p = $pdo->prepare($sql);
+                $p->execute(array($id));
+                $id_comida = $p->fetchAll(PDO::FETCH_COLUMN);
+
+                $sql = "UPDATE tb_insumo
+                SET estado= ?
+                WHERE id_comida = ?";
+                $p = $pdo->prepare($sql);
+
+                foreach ($id_comida as $id_com) {
+                    $p->execute(array($estado, $id_com));
+                }
+            } else {
+                $sql = "UPDATE tb_comida
+                SET estado= ?
+                WHERE id_comida = ?";
+                $p = $pdo->prepare($sql);
+                $p->execute(array($estado, $id));
+
+                $sql = "SELECT id_comida
+                FROM tb_comida
+                WHERE id_comida = ?";
+                $p = $pdo->prepare($sql);
+                $p->execute(array($id));
+                $id_comida = $p->fetchAll(PDO::FETCH_COLUMN);
+
+                $sql = "UPDATE tb_insumo
+                SET estado= ?
+                WHERE id_comida = ?";
+                $p = $pdo->prepare($sql);
+
+                foreach ($id_comida as $id_com) {
+                    $p->execute(array($estado, $id_com));
+                }
+            }
+
+            $respuesta =  ['msg' => $titulo, 'id' => 1];
+        } catch (PDOException $e) {
+            $respuesta = array('msg' => 'ERROR', 'id' => $e);
+            try {
+                $pdo->rollBack();
+            } catch (Exception $e2) {
+                $respuesta = array('msg' => 'ERROR', 'id' => $e2);
+            }
+        }
+        $pdo = null;
+        echo json_encode($respuesta);
+    }
 }
 
 //case
@@ -106,6 +222,10 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
 
         case 2:
             Categoria::getCatalogo();
+            break;
+
+        case 3:
+            Categoria::setCategorias();
             break;
     }
 }
