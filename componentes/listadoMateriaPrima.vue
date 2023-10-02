@@ -1,10 +1,10 @@
 <template>
     <div class="col">
-        <label for="comidas">Menú</label>
-        <select id="comidas" class="form-control btn-xs">
+        <label for="materiasPrimas">Materias Primas</label>
+        <select id="materiasPrimas" class="form-control btn-xs">
             <option></option>
-            <option v-for="comida in comidas" :key="comida.id" :value="comida.id">
-                {{ comida.comida }}
+            <option v-for="materiaPrima in materiasPrimas" :key="materiaPrima.id" :value="materiaPrima.id">
+                {{ materiaPrima.nombre }}
             </option>
         </select>
     </div>
@@ -18,38 +18,46 @@ module.exports = {
 
     data: function () {
         return {
-            comidas: '',
+            materiasPrimas: '',
         }
     },
     mounted: function () {
-        this.getComidas();
+        this.getMateriasPrimas();
     },
     methods: {
-        getComidas: function () {
-            axios.get(`mesas/model/mesasList.php`, {
+        getMateriasPrimas: function () {
+            axios.get(`bodega/model/bodegaList.php`, {
                 params: {
-                    opcion: 2,
+                    opcion: 1,
+                    tipo: this.tipo
                 }
             }).then(response => {
                 console.log(response.data)
-                this.comidas = response.data
+                this.materiasPrimas = response.data
 
                 // Inicializa Select2 después de cargar los datos
-                $('#comidas').select2({
+                $('#materiasPrimas').select2({
                     placeholder: 'Menú',
                     allowClear: true,
                     width: '100%',
                     dropdownParent: $('#' + this.modal + ''),
                 });
                 // Agrega un evento 'change' al select
-                $('#comidas').on('change', (event) => {
+                $('#materiasPrimas').on('change', (event) => {
                     // Obtiene el valor seleccionado
                     const valorSeleccionado = $(event.target).val();
+
+                    // Obtiene el nombre de la materia prima seleccionada
+                    const nombreSeleccionado = $('#materiasPrimas option:selected').text();
+
                     // Llama a la función que deseas ejecutar
-                    $("#idSelectComidas").val(valorSeleccionado);
+                    $("#idSelectMateriasPrimas").val(valorSeleccionado);
+                    $("#nombreSelectMateriasPrimas").val(nombreSeleccionado);
                     // EventBus.$emit('cambiar-select', valorSeleccionado);
+
+                    // Imprime el nombre seleccionado
+                    console.log("Nombre seleccionado:", nombreSeleccionado);
                 });
-           
             }).catch(error => {
                 console.error(error);
             });

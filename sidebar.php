@@ -1,8 +1,7 @@
 <div class="col-md-3 left_col">
   <div class="left_col scroll-view">
     <div class="navbar nav_title" style="border: 0;">
-      <a href="#" class="site_title"><i class="fa-solid fa-cars mr-2"></i><span style="font-size: 20px;">Morenita
-          Mixqueña!</span></a>
+      <a href="#" class="site_title"><i class="fa-solid fa-cars mr-2"></i><span style="font-size: 20px;">Rooster Restaurant!</span></a>
     </div>
 
     <div class="clearfix"></div>
@@ -18,9 +17,7 @@
         </h2>
       </div>
     </div>
-    <!-- /menu profile quick info -->
     <br />
-    <!-- sidebar menu -->
     <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
       <div class="menu_section">
         <h3>Opciones Rapidas</h3>
@@ -36,23 +33,27 @@
               <li><a href="?ref=12">Reporteria</a></li>
             </ul>
           </li>
-          <li><a><i class="fa fa-edit"></i> Menú <span class="fa fa-chevron-down"></span></a>
+          <li><a><i class="fa fa-edit"></i> Catalogos <span class="fa fa-chevron-down"></span></a>
             <ul class="nav child_menu">
               <li><a href="?ref=21">Categorias</a></li>
               <li><a href="?ref=22">Medidas</a></li>
+              <li><a href="?ref=22">Precios</a></li>
             </ul>
           </li>
           <li><a><i class="fa fa-edit"></i> Bodega <span class="fa fa-chevron-down"></span></a>
             <ul class="nav child_menu">
-              <li><a href="?ref=31">Bodega Insumos</a></li>
+              <li><a href="?ref=31">Materia Prima</a></li>
+            </ul>
+          </li>
+          <li><a><i class="fa fa-edit"></i> Insumos <span class="fa fa-chevron-down"></span></a>
+            <ul class="nav child_menu">
+              <li><a href="?ref=41">Comidas</a></li>
+              <li><a href="?ref=42">Combos</a></li>
             </ul>
           </li>
         </ul>
       </div>
-
     </div>
-    <!-- /sidebar menu -->
-    <!-- /menu footer buttons -->
 
     <div class="sidebar-footer hidden-small">
       <a data-toggle="tooltip" data-placement="top" title="Ajustes">
@@ -65,6 +66,5 @@
       <a data-toggle="tooltip" data-placement="top" title="Cerrar Sesión" href="logout.php">
         <i class="fa-solid fa-right-from-bracket"></i> </a>
     </div>
-    <!-- /menu footer buttons -->
   </div>
 </div>

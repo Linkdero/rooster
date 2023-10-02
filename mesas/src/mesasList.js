@@ -1,5 +1,6 @@
 const ListadoComidas = httpVueLoader('./componentes/listadoComidas.vue'); // Asegúrate de proporcionar la ruta correcta
-import  EventBus  from '../../componentes/eventBus.js';
+const ListadoMateriasPrimas = httpVueLoader('./componentes/listadoMateriaPrima.vue');
+import EventBus from '../../componentes/eventBus.js';
 
 let mesasList = new Vue({
     el: '#appMesas',
@@ -21,24 +22,42 @@ let mesasList = new Vue({
         precio: null,
         progreso: 0,
         selectComida: '',
-        selectComida2: 0
+        selectComida2: 0,
+        seleccionComidas: 0,
+        idModal: ''
     },
     mounted: function () {
-        // Agrega un evento 'change' al select
+        this.idModal = this.$refs.idModal.id;
         this.cargarTablaMesas();
         this.baseTables();
         EventBus.$on('cambiar-select', (nuevoValor) => {
             this.selectComida2 = nuevoValor;
         });
+        setTimeout(() => {
+            $('#tipoSeleccion').select2({
+                placeholder: 'Tipo Seleccion',
+                allowClear: true,
+                width: '100%',
+            });
+            $('#tipoSeleccion').on('change', (event) => {
+                // Obtiene el valor seleccionado
+                const valorSeleccionado = $(event.target).val();
+                this.seleccionComidas = valorSeleccionado;
+                // Imprime el nombre seleccionado
+                console.log("Nuevo valor:", valorSeleccionado);
+            });
+        }, "2500");
+
     },
     components: {
         'listado-comidas': ListadoComidas,
+        'listado-materias-primas': ListadoMateriasPrimas,
     },
     watch: {
         selectComida(newValue) {
             // Esta función se ejecutará cada vez que selectComida cambie
             this.getInsumos(this.selectComida);
-        }
+        },
     },
     computed: {
         camposCompletos() {
@@ -137,9 +156,9 @@ let mesasList = new Vue({
                                 data: 'estado_mesa',
                                 render: function (data, type, row) {
                                     if (data == 3) {
-                                        return `<a href="#" class="badge badge-success text-white py-1" data-id="${row.id_mesa}"">${row.descripcion} <i class="fa-solid fa-check-to-slot mx-1"></i></a>`;
+                                        return `<a href="#" class="badge badge-success text-white py-1" data-id="${row.id_mesa}"">${row.estado} <i class="fa-solid fa-check-to-slot mx-1"></i></a>`;
                                     } else {
-                                        return `<a href="#" class="badge badge-danger text-white py-1"data-id="${row.id_mesa}" >${row.descripcion} <i class="fa-solid fa-street-view mx-1"></i></a>`;
+                                        return `<a href="#" class="badge badge-danger text-white py-1"data-id="${row.id_mesa}" >${row.estado} <i class="fa-solid fa-street-view mx-1"></i></a>`;
                                     }
                                 },
 
@@ -348,10 +367,21 @@ let mesasList = new Vue({
         },
 
         agregarFila: function () {
+            let idInsumo
+            let nombreInsumo
             // Obtiene los valores seleccionados y la cantidad
-            let idInsumo = $('#insumos').val();
-            let nombreInsumo = $('#insumos option:selected').text();
+            if (this.seleccionComidas == 1) {
+                idInsumo = $('#materiasPrimas').val();
+                nombreInsumo = $('#materiasPrimas option:selected').text();
+            } else if (this.seleccionComidas == 2) {
+                // let idInsumo = $('#materiasPrimas').val();
+                // let nombreInsumo = $('#materiasPrimas option:selected').text();
+            } else if (this.seleccionComidas == 3) {
+
+            }
             let cantidad = $('#cantidades').val();
+
+
             if (idInsumo == '' || idInsumo == null || nombreInsumo == '' || nombreInsumo == null || cantidad == '' || cantidad == null) {
                 return;
             }

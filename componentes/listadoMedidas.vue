@@ -12,7 +12,7 @@
 
 <script>
 module.exports = {
-    props: ['tipo'], // Aquí defines el prop miProp
+    props: ['tipo', 'modal'],
 
     data: function () {
         return {
@@ -32,12 +32,16 @@ module.exports = {
             }).then(response => {
                 console.log(response.data)
                 this.medidas = response.data
-
                 // Inicializa Select2 después de cargar los datos
                 $('#medidas').select2({
                     placeholder: 'Medidas',
                     allowClear: true,
                     width: '100%',
+                    create: true,
+                    sortField: 'text',
+                    dropdownParent: $('#' + this.modal + ''),
+                    tags: true, // Habilita la creación de nuevos elementos
+
                 });
                 // Agrega un evento 'change' al select
                 $('#medidas').on('change', (event) => {

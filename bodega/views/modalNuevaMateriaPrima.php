@@ -1,4 +1,4 @@
-<div id="setNuevoInsumo" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+<div ref="idModal" id="setNuevoInsumo" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header" style="padding: .5rem .5rem;">
@@ -10,21 +10,16 @@
                     <div class="form-row">
                         <div class="col-12">
                             <div class="x_title">
-                                <h2>Datos Insumo</h2>
+                                <h2>Datos Materia Prima</h2>
                                 <div class="clearfix"></div>
                             </div>
                         </div>
                         <div class="input-group">
-                            <listado-comidas :tipo="1"></listado-comidas>
-
-                            <listado-medidas :tipo="1"></listado-medidas>
-
-
+                            <listado-medidas :tipo="1" :modal="idModal"></listado-medidas>
                             <div class="col">
                                 <label for="insumos">Precio</label>
                                 <input type="number" v-model="precio" class="btn btn-outline-primary form-control btn-xs" @click="actualizarInputs()" />
                             </div>
-
                             <div class="col">
                                 <label for="insumos">Existencias</label>
                                 <input type="number" v-model="existencia" class="btn btn-outline-primary form-control btn-xs" @click="actualizarInputs()" />
@@ -36,7 +31,7 @@
                                 <textarea class="form-control" id="descripcion" rows="3" v-model="descripcion" @click="actualizarInputs()"></textarea>
                             </div>
                         </div>
-                        <input type="hidden" v-model="insumo" id="idSelectComidas" class="btn btn-outline-primary form-control btn-xs" value="" />
+                        <!-- <input type="hidden" v-model="precio" id="idSelectPrecios" class="btn btn-outline-primary form-control btn-xs" value="" /> -->
                         <input type="hidden" v-model="medida" id="idSelectMedidas" class="btn btn-outline-primary form-control btn-xs" value="" />
                     </div>
                 </div>

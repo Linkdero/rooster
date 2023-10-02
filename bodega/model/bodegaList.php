@@ -5,111 +5,120 @@ date_default_timezone_set("America/Guatemala");
 class Bodega
 {
     //Opcion 1
-    static function getInsumos()
+    static function getMateriaPrima()
     {
         $db = new Database();
         $pdo = $db->connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $sql = "SELECT id_insumo as id, i.descripcion as nombre, id_menu, i.id_sub_menu,
-        i.id_comida, c.comida, i.id_medida, m.medida, precio, i.estado, e.descripcion, existencias
-        FROM tb_insumo as i
-        LEFT JOIN tb_estado as e ON i.estado = e.id_estado
-        LEFT JOIN tb_comida as c ON i.id_comida = c.id_comida
-        LEFT JOIN tb_medida as m ON i.id_medida = m.id_medida";
+        $tipo = $_GET["tipo"];
+        if ($tipo == 1) {
+            $sql = "SELECT id_materia_prima as id, materia_prima as nombre
+                    FROM tb_materia_prima
+                    WHERE id_estado = 1";
+        } else {
+            $sql = "SELECT mp.id_materia_prima as id, mp.materia_prima as nombre, m.medida, mp.precio, mp.existencias, mp.id_estado, e.estado
+                    FROM tb_materia_prima as mp
+                    LEFT JOIN tb_estado as e ON mp.id_estado = e.id_estado
+                    LEFT JOIN tb_medida as m ON mp.id_medida = m.id_medida";
+        }
 
         $p = $pdo->prepare($sql);
-
         $p->execute();
 
         $insumo = $p->fetchAll(PDO::FETCH_ASSOC);
-        $data = array();
+
         foreach ($insumo as $i) {
-            $sub_array = array(
+            $sub_array = [
                 "id" => $i["id"],
                 "nombre" => $i["nombre"],
-                "id_menu" => $i["id_menu"],
-                "id_sub_menu" => $i["id_sub_menu"],
-                "id_comida" => $i["id_comida"],
-                "comida" => $i["comida"],
-                "id_medida" => $i["id_medida"],
-                "medida" => $i["medida"],
-                "precio" => $i["precio"],
-                "estado" => $i["estado"],
-                "descripcion" => $i["descripcion"],
-                "existencias" => $i["existencias"],
-            );
+            ];
+
+            // Agregar elementos adicionales si $tipo no es igual a 1
+            if ($tipo != 1) {
+                $sub_array["medida"] = $i["medida"];
+                $sub_array["precio"] = $i["precio"];
+                $sub_array["existencias"] = $i["existencias"];
+                $sub_array["id_estado"] = $i["id_estado"];
+                $sub_array["estado"] = $i["estado"];
+            }
 
             $data[] = $sub_array;
         }
+
 
         echo json_encode($data);
         return $data;
     }
 
     //Opcion 2
-    static function setnuevoInsumo()
+    static function setnuevaMateriaPrima()
     {
-        $comida = $_GET["comida"];
-        $medida = $_GET["medida"];
-        $precio = $_GET["precio"];
-        $existencia = $_GET["existencia"];
-        $descripcion = $_GET["descripcion"];
-
         try {
+            $medida = $_GET["medida"];
+            $precio = $_GET["precio"];
+            $existencia = $_GET["existencia"];
+            $descripcion = $_GET["descripcion"];
+
             $db = new Database();
             $pdo = $db->connect();
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            $sql = "SELECT id_sub_menu FROM tb_comida WHERE id_comida = ?";
-            $p = $pdo->prepare($sql);
-            $p->execute(array($comida));
-            $id_sub_menu = $p->fetch(PDO::FETCH_ASSOC);
-            $id_sub_menu = $id_sub_menu["id_sub_menu"];
+            if (!is_numeric($medida)) {
+                $sql = "SELECT id_medida
+                        FROM tb_medida
+                        WHERE medida LIKE ?";
+                $p = $pdo->prepare($sql);
+                $p->execute(array($medida));
+                $comprobante = $p->fetch(PDO::FETCH_ASSOC);
 
-            $sql = "SELECT id_menu FROM tb_sub_menu WHERE id_sub_menu = ?";
-            $p = $pdo->prepare($sql);
-            $p->execute(array($id_sub_menu));
-            $id_menu = $p->fetch(PDO::FETCH_ASSOC);
-            $id_menu = $id_menu["id_menu"];
+                if (empty($comprobante)) {
+                    $sql = "INSERT INTO tb_medida(medida, id_estado)
+                            VALUES (?,?)";
+                    $p = $pdo->prepare($sql);
+                    $p->execute(array($medida, 1));
 
-            $sql = "INSERT INTO tb_insumo(descripcion, id_menu, id_sub_menu, id_comida, id_medida, precio, existencias, id_local, estado)
-            VALUES (?,?,?,?,?,?,?,?,?)";
-
-            $p = $pdo->prepare($sql);
-
-            $p->execute(array($descripcion, $id_menu, $id_sub_menu, $comida, $medida, $precio, $existencia, 1, 1));
-
-            $respuesta =  ['msg' => 'Insumo Agregado', 'id' => 1];
-        } catch (PDOException $e) {
-            $respuesta = array('msg' => 'ERROR', 'id' => $e);
-            try {
-                $pdo->rollBack();
-            } catch (Exception $e2) {
-                $respuesta = array('msg' => 'ERROR', 'id' => $e2);
+                    $medida = $pdo->lastInsertId();
+                } else {
+                    $medida = $comprobante["id_medida"];
+                }
             }
+
+            $sql = "INSERT INTO tb_materia_prima(materia_prima, id_medida, precio, existencias,id_estado, id_local)
+                    VALUES (?,?,?,?,?,?)";
+
+            $p = $pdo->prepare($sql);
+            $p->execute(array($descripcion, $medida, $precio, $existencia, 1, 1));
+
+            $respuesta =  ['msg' => 'Materia Prima Agregada', 'id' => 1];
+        } catch (PDOException $e) {
+            $respuesta = array('msg' => 'ERROR', 'id' => $e->getMessage());
+        } catch (Exception $e2) {
+            $respuesta = array('msg' => 'ERROR', 'id' => $e2->getMessage());
+        } finally {
+            $pdo = null;
+            echo json_encode($respuesta);
         }
-        $pdo = null;
-        echo json_encode($respuesta);
     }
 
-    static function setEstadoInsumo()
+
+    static function setEstadoMateriaPrima()
     {
         $id = $_GET["id"];
         $estado = $_GET["estado"];
         if ($estado == 1) {
-            $titulo = 'Insumo Activado';
+            $titulo = 'Materia Prima Activada';
         } else {
-            $titulo = 'Insumo Inhabilitado';
+            $titulo = 'Materia Prima Inhabilitada';
         }
         try {
             $db = new Database();
             $pdo = $db->connect();
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            $sql = "UPDATE tb_insumo
-            SET estado = ?
-            WHERE id_insumo =?";
+            $sql = "UPDATE tb_materia_prima
+            SET id_estado= ?
+            WHERE id_materia_prima = ?";
 
             $p = $pdo->prepare($sql);
 
@@ -135,15 +144,15 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
 
     switch ($opcion) {
         case 1:
-            Bodega::getInsumos();
+            Bodega::getMateriaPrima();
             break;
 
         case 2:
-            Bodega::setnuevoInsumo();
+            Bodega::setnuevaMateriaPrima();
             break;
 
         case 3:
-            Bodega::setEstadoInsumo();
+            Bodega::setEstadoMateriaPrima();
             break;
     }
 }

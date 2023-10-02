@@ -2,44 +2,28 @@
 include '../../inc/database.php';
 date_default_timezone_set("America/Guatemala");
 
-class Medidas
+class Precio
 {
     //Opcion 1
-    static function getMedidas()
+    static function getPrecios()
     {
-        $tipo = $_GET["tipo"];
         $db = new Database();
         $pdo = $db->connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        if ($tipo == 1) {
-            $sql = "SELECT id_medida as id, medida as nombre
-            FROM tb_medida 
-            WHERE id_estado = ?";
-        } else {
-            $sql = "SELECT id_medida as id, medida as nombre, m.id_estado as id_estado, e.estado
-            FROM tb_medida as m
-            LEFT JOIN tb_estado as e ON m.id_estado = e.id_estado
-            WHERE m.id_estado = ?";
-        }
-
+        $sql = "SELECT `id_precio` as id, `precio` as nombre FROM `tb_precio`";
 
         $p = $pdo->prepare($sql);
 
-        $p->execute(array(1));
+        $p->execute();
 
-        $medidas = $p->fetchAll(PDO::FETCH_ASSOC);
+        $precios = $p->fetchAll(PDO::FETCH_ASSOC);
         $data = array();
-        foreach ($medidas as $m) {
+        foreach ($precios as $p) {
             $sub_array = array(
-                "id" => $m["id"],
-                "nombre" => $m["nombre"],
+                "id" => $p["id"],
+                "nombre" => $p["nombre"],
             );
-
-            if (isset($m["estado"])) {
-                $sub_array["id_estado"] = $m["id_estado"];
-                $sub_array["estado"] = $m["estado"];
-            }
             $data[] = $sub_array;
         }
 
@@ -47,7 +31,7 @@ class Medidas
         return $data;
     }
 
-    static function getInsumosMedidas()
+    static function setNuevoPrecio()
     {
         $idMedida = $_GET["filtro"];
         $db = new Database();
@@ -87,11 +71,11 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
 
     switch ($opcion) {
         case 1:
-            Medidas::getMedidas();
+            Precio::getPrecios();
             break;
 
         case 2:
-            Medidas::getInsumosMedidas();
+            Precio::setNuevoPrecio();
             break;
     }
 }

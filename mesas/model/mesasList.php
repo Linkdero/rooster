@@ -12,12 +12,12 @@ class Mesa
         $pdo = $db->connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         if ($estado == 1) {
-            $sql = "SELECT id_mesa, nro_mesa, referencia,e.descripcion ,estado_mesa, l.descripcion as restaurante
+            $sql = "SELECT id_mesa, nro_mesa, referencia,e.estado ,estado_mesa, l.descripcion as restaurante
             FROM tb_mesa as m
             LEFT JOIN tb_estado as e ON m.estado_mesa = e.id_estado
             LEFT JOIN tb_local as l ON m.id_local = l.id_local;";
         } else {
-            $sql = "SELECT id_mesa, nro_mesa, referencia,e.descripcion ,estado_mesa, l.descripcion as restaurante
+            $sql = "SELECT id_mesa, nro_mesa, referencia,e.estado ,estado_mesa, l.descripcion as restaurante
             FROM tb_mesa as m
             LEFT JOIN tb_estado as e ON m.estado_mesa = e.id_estado
             LEFT JOIN tb_local as l ON m.id_local = l.id_local
@@ -37,7 +37,7 @@ class Mesa
                 "id_mesa" => $m["id_mesa"],
                 "nro_mesa" => $m["nro_mesa"],
                 "referencia" => $m["referencia"],
-                "descripcion" => $m["descripcion"],
+                "estado" => $m["estado"],
                 "estado_mesa" => $m["estado_mesa"],
                 "restaurante" => $m["restaurante"]
 

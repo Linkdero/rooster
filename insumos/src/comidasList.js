@@ -1,48 +1,61 @@
-const ListadoMedidas = httpVueLoader('./componentes/listadoMedidas.vue');
-// const ListadoPrecios = httpVueLoader('./componentes/listadoPrecios.vue');
+const ListadoComidas = httpVueLoader('./componentes/listadoComidas.vue'); // Asegúrate de proporcionar la ruta correcta
+const ListadoMateriasPrimas = httpVueLoader('./componentes/listadoMateriaPrima.vue');
 
-
-let bodegaList = new Vue({
-    el: '#appBodega',
+let comidasList = new Vue({
+    el: '#appComidas',
     data: {
-        tituloModulo: 'Listado Materia Prima',
-        tablaBodega: '',
-        nombreInsumos: 'Nueva Materia Prima',
+        tituloModulo: 'Listado Comidas',
+        tablaInsumos: '',
+        nombreInsumos: 'Nuevo Insumo',
+        insumo: '',
+        materiaPrima: '',
         precio: '',
-        medida: '',
-        existencia: '',
         descripcion: '',
-        idModal: ''
-
+        idModal: '',
+        nombreMateriaPrima: '',
+        cantidades: '',
+        progreso: 0,
+        filasInsumos: [],
     },
     components: {
-        'listado-medidas': ListadoMedidas,
-        // 'listado-precios': ListadoPrecios,
+        'listado-comidas': ListadoComidas,
+        'listado-materias-primas': ListadoMateriasPrimas,
     },
     mounted: function () {
         this.idModal = this.$refs.idModal.id;
-        this.cargarTablaBodega(1);
+        this.cargarTablaInsumos(1);
         this.baseTables();
     },
     computed: {
         camposCompletos() {
-            return this.precio.trim() !== '' && this.medida.trim() !== '' && this.precio.trim() !== '' && this.existencia.trim() !== '' && this.descripcion.trim() !== '';
+            console.log(this.insumo)
+            console.log(this.precio)
+            console.log(this.descripcion)
+            console.log(this.filasInsumos)
+            return (
+                this.insumo !== '' &&
+                this.precio !== '' &&
+                this.descripcion !== '' &&
+                this.filasInsumos !== ''
+            );
         },
     },
+
     watch: {
-        precio(nuevoValor) {
-            console.log('El valor del input de precios ha cambiado:', nuevoValor);
+        insumo(nuevoValor) {
+            console.log('El valor del input de comidas ha cambiado:', nuevoValor);
         },
-        medida(nuevoValor) {
-            console.log('El valor del input de medidas ha cambiado:', nuevoValor);
+        materiaPrima(nuevoValor) {
+            console.log('El valor del input de materia prima ha cambiado:', nuevoValor);
         }
     },
     methods: {
         actualizarInputs: function () {
-            this.medida = $("#idSelectMedidas").val();
+            this.insumo = $("#idSelectComidas").val();
+            this.materiaPrima = $("#idSelectMedidas").val();
             this.$forceUpdate();
         },
-        generarInsumo: function () {
+        setNuevoInsumo: function () {
             this.actualizarInputs()
             Swal.fire({
                 title: '¿Generar Nuevo Insumo?',
@@ -56,12 +69,12 @@ let bodegaList = new Vue({
 
             }).then((result) => {
                 if (result.isConfirmed) {
-                    axios.get('bodega/model/bodegaList.php', {
+                    axios.get('insumos/model/comidasList.php', {
                         params: {
                             opcion: 2,
-                            medida: this.medida,
-                            precio: this.precio,
-                            existencia: parseInt(this.existencia),
+                            comida: parseInt(this.insumo),
+                            precio: parseFloat(this.precio),
+                            filasInsumos: this.filasInsumos,
                             descripcion: this.descripcion,
                         }
                     }).then((response) => {
@@ -73,12 +86,10 @@ let bodegaList = new Vue({
                                 showConfirmButton: false,
                                 timer: 1500
                             })
-
-                            this.tablaBodega.clear().destroy();
-                            this.cargarTablaBodega()
+                            this.tablaInsumos.clear().destroy();
+                            this.cargarTablaInsumos()
                             $("#setNuevoInsumo").modal("hide")
                             this.precio = ''
-                            this.existencia = ''
                             this.descripcion = ''
                             this.actualizarInputs()
                         }
@@ -96,23 +107,22 @@ let bodegaList = new Vue({
                 }
             })
         },
-        cargarTablaBodega: function () {
+        cargarTablaInsumos: function () {
 
             let thes = this;
-            axios.get(`bodega/model/bodegaList.php`, {
+            axios.get(`insumos/model/comidasList.php`, {
                 params: {
                     opcion: 1,
-                    tipo:2
                 }
             }).then(response => {
                 console.log(response.data);
-                if ($.fn.DataTable.isDataTable("#tblBodega")) {
-                    $("#tblBodega").DataTable().destroy();
+                if ($.fn.DataTable.isDataTable("#tblComidas")) {
+                    $("#tblComidas").DataTable().destroy();
                 }
 
                 if (response.data) {
                     // DataTable initialization
-                    this.tablaBodega = $("#tblBodega").DataTable({
+                    this.tablaInsumos = $("#tblComidas").DataTable({
                         "ordering": false,
                         "pageLength": 10,
                         "bProcessing": true,
@@ -148,7 +158,7 @@ let bodegaList = new Vue({
                                     return encabezado;
                                 },
                             },
-                            { "class": "text-center", mData: 'medida' },
+                            { "class": "text-center", mData: 'comida' },
                             { "class": "text-center", mData: 'nombre' },
                             {
                                 "class": "text-center",
@@ -156,16 +166,6 @@ let bodegaList = new Vue({
                                 render: function (data, type, row) {
                                     let encabezado;
                                     encabezado = `Q${data}`;
-
-                                    return encabezado;
-                                },
-                            },
-                            {
-                                "class": "text-center",
-                                data: 'existencias',
-                                render: function (data, type, row) {
-                                    let encabezado;
-                                    encabezado = `${data} U`;
 
                                     return encabezado;
                                 },
@@ -301,7 +301,7 @@ let bodegaList = new Vue({
                     }
                 });
             }
-            $('#tblBodega').on('change', '.switch input', function () {
+            $('#tblComidas').on('change', '.switch input', function () {
                 let id = $(this).data('id');
                 let isChecked = $(this).is(':checked');
 
@@ -314,7 +314,7 @@ let bodegaList = new Vue({
         },
 
         setCatalogo: function (id, estado) {
-            axios.get('bodega/model/bodegaList.php', {
+            axios.get('insumos/model/comidasList.php', {
                 params: {
                     opcion: 3,
                     id: id,
@@ -341,6 +341,60 @@ let bodegaList = new Vue({
             }).catch((error) => {
                 console.log(error);
             });
+        },
+
+        agregarFila: function () {
+            // Obtiene los valores seleccionados y la cantidad
+            let idInsumo = $('#materiasPrimas').val();
+            let nombreInsumo = $('#materiasPrimas option:selected').text();
+            let cantidad = this.cantidades;
+
+            if (idInsumo == '' || idInsumo == null || nombreInsumo == '' || nombreInsumo == null || cantidad == '' || cantidad == null) {
+                return;
+            }
+
+            // Verifica si el insumo ya está en la lista
+            let insumoExistente = this.filasInsumos.find(fila => fila.idInsumo === idInsumo);
+
+            // Si el insumo no está en la lista y se seleccionó una cantidad
+            if (!insumoExistente && idInsumo && cantidad) {
+                // Agrega una nueva fila al arreglo de filasInsumos
+                this.filasInsumos.push({
+                    idInsumo: idInsumo,
+                    nombreInsumo: nombreInsumo,
+                    cantidad: cantidad,
+                });
+
+                this.cantidades = ''
+                console.log(this.filasInsumos)
+                this.progreso += 5; // Aumenta en un 10% cada vez que se agrega una fila
+
+                console.log(this.filasInsumos);
+            } else if (insumoExistente) {
+                // Si el insumo ya está en la lista, muestra una alerta con SweetAlert
+                Swal.fire({
+                    title: 'Insumo ya agregado',
+                    text: 'Este insumo ya ha sido agregado a la lista.',
+                    icon: 'warning',
+                    confirmButtonText: 'Aceptar'
+                });
+            }
+        },
+
+        eliminarFila: function (index) {
+            // Elimina la fila en el índice especificado
+            this.filasInsumos.splice(index, 1);
+            this.progreso -= 5; // Aumenta en un 10% cada vez que se agrega una fila
+            console.log(this.filasInsumos);
+
+        },
+
+        actualizarCantidadTotal(index) {
+            let fila = this.filasInsumos[index];
+            if (fila && fila.cantidad && fila.precioInsumo) {
+                fila.cantidadTotal = fila.cantidad * fila.precioInsumo;
+            }
+            console.log(this.filasInsumos);
         },
     },
 });

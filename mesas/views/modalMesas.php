@@ -1,4 +1,4 @@
-<div id="setMesasModal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+<div ref="idModal" id="setMesasModal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header" style="padding: .5rem .5rem;">
@@ -20,16 +20,37 @@
                             </div>
                         </div>
                         <div class="input-group">
-                            <listado-comidas :tipo="2"></listado-comidas>
-
-                            <div class="col">
-                                <label for="insumos">Cómidas</label>
-                                <select id="insumos" class="form-control btn-xs">
+                            <div class="col-3">
+                                <label for="insumos">Tipo Selección</label>
+                                <select id="tipoSeleccion" class="form-control btn-xs" v-model="seleccionComidas">
                                     <option></option>
-                                    <option v-for="insumo in insumos" :key="insumo.id" :value="insumo.id">
-                                        {{ insumo.descripcion }}
-                                    </option>
+                                    <option value="1">Materia Prima</option>
+                                    <option value="2">Comida</option>
+                                    <option value="3">Combo</option>
+
                                 </select>
+                            </div>
+                            <div class="col-4" v-if="seleccionComidas == 1">
+                                <div class="row">
+                                    <listado-materias-primas :tipo="2" :modal="idModal"></listado-materias-primas>
+                                </div>
+                            </div>
+
+                            <div class="col-4" v-if="seleccionComidas == 2">
+                                <div class="row">
+                                    <listado-comidas :tipo="2" :modal="idModal"></listado-comidas>
+
+                                    <div class="col">
+                                        <label for="insumos">Cómidas</label>
+                                        <select id="insumos" class="form-control btn-xs">
+                                            <option></option>
+                                            <option v-for="insumo in insumos" :key="insumo.id" :value="insumo.id">
+                                                {{ insumo.descripcion }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
                             </div>
 
                             <div class="col">

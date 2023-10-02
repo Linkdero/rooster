@@ -24,6 +24,8 @@ include_once 'styles.php';
           include_once 'categorias/views/medidasList.php';
         } else if ($_GET["ref"] == 31) {
           include_once 'bodega/views/bodegaList.php';
+        } else if ($_GET["ref"] == 41) {
+          include_once 'insumos/views/comidasList.php';
         }
       } else {
         // Si "ref" no está definido en la URL, muestra por defecto el dashboard
