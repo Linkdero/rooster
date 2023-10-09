@@ -47,16 +47,20 @@ module.exports = {
                     // Obtiene el valor seleccionado
                     const valorSeleccionado = $(event.target).val();
 
-                    // Obtiene el nombre de la materia prima seleccionada
-                    const nombreSeleccionado = $('#materiasPrimas option:selected').text();
-
                     // Llama a la función que deseas ejecutar
                     $("#idSelectMateriasPrimas").val(valorSeleccionado);
-                    $("#nombreSelectMateriasPrimas").val(nombreSeleccionado);
-                    // EventBus.$emit('cambiar-select', valorSeleccionado);
 
-                    // Imprime el nombre seleccionado
-                    console.log("Nombre seleccionado:", nombreSeleccionado);
+                    if (this.tipo == 2) {
+                        let precio
+                        for (let i = 0; i < this.materiasPrimas.length; i++) {
+                            if (this.materiasPrimas[i].id == valorSeleccionado) {
+                                precio = this.materiasPrimas[i].precio
+                                break
+                            }
+                        }
+                        $("#precio").val(precio);
+                    }
+
                 });
             }).catch(error => {
                 console.error(error);

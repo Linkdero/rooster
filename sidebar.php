@@ -1,7 +1,7 @@
 <div class="col-md-3 left_col">
   <div class="left_col scroll-view">
     <div class="navbar nav_title" style="border: 0;">
-      <a href="#" class="site_title"><i class="fa-solid fa-cars mr-2"></i><span style="font-size: 20px;">Rooster Restaurant!</span></a>
+      <a href="#" class="site_title"><i class="fa-solid fa-fork-knife mr-2"></i><span style="font-size: 20px;">Rooster Restaurant!</span></a>
     </div>
 
     <div class="clearfix"></div>
@@ -30,7 +30,7 @@
           <li><a><i class="fa fa-edit"></i> Mesas <span class="fa fa-chevron-down"></span></a>
             <ul class="nav child_menu">
               <li><a href="?ref=11">Listado Mesas</a></li>
-              <li><a href="?ref=12">Reporteria</a></li>
+              <li><a href="?ref=12">Listado Ordenes</a></li>
             </ul>
           </li>
           <li><a><i class="fa fa-edit"></i> Catalogos <span class="fa fa-chevron-down"></span></a>

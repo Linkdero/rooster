@@ -38,19 +38,18 @@
 
                             <div class="col-4" v-if="seleccionComidas == 2">
                                 <div class="row">
-                                    <listado-comidas :tipo="2" :modal="idModal"></listado-comidas>
+                                    <listado-comidas :tipo="2" :modal="idModal" :evento="evento"></listado-comidas>
 
-                                    <div class="col">
-                                        <label for="insumos">Cómidas</label>
-                                        <select id="insumos" class="form-control btn-xs">
-                                            <option></option>
-                                            <option v-for="insumo in insumos" :key="insumo.id" :value="insumo.id">
-                                                {{ insumo.descripcion }}
-                                            </option>
-                                        </select>
-                                    </div>
+                                    <listado-insumos :tipo="2" :modal="idModal" :evento="evento"></listado-insumos>
+
                                 </div>
 
+                            </div>
+
+                            <div class="col-4" v-if="seleccionComidas == 3">
+                                <div class="row">
+                                    <listado-combos :tipo="2" :modal="idModal"></listado-combos>
+                                </div>
                             </div>
 
                             <div class="col">
@@ -68,8 +67,6 @@
                                 </button>
                             </div>
                         </div>
-                        <input type="text" class="btn btn-outline-primary form-control btn-xs" v-model="selectComida2" />
-                        <!-- <input type="text" id="idSelectComidas" class="btn btn-outline-primary form-control btn-xs" v-model="selectComida" /> -->
                         <div class="col-12">
                             <div class="card-body card-body-slide" width="100%" height="100%">
                                 <table id="tblInsumos" class="table responsive table-sm table-bordered table-striped" width="100%">
@@ -106,6 +103,7 @@
 
                             </div>
                         </div>
+                        <input type="hidden" id="precio" class="btn btn-outline-primary form-control btn-xs" v-model="precio" />
 
                         <div class="col-12">
                             <label for="descripcion">Observaciones</label>
@@ -126,16 +124,9 @@
                             </div>
                         </div>
                         <div class="col">
-                            <label for="placas">Nombre Cliente</label>
-                            <div class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
-                                <input type="text" class="input-sm form-control" id="nombreCliente" v-model="nombreCliente">
-                                <span class="input-group-text"><i class="fa-solid fa-signature"></i></span>
-                            </div>
-                        </div>
-                        <div class="col">
                             <label for="nroPlacas">Nit Cliente</label>
                             <div class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
-                                <input type="text" class="input-sm form-control" id="nitCliente" v-model="nitCliente">
+                                <input type="number" class="input-sm form-control" id="nitCliente" v-model="nitCliente">
                                 <span class="input-group-text"><i class="fa-solid fa-hashtag"></i></span>
                             </div>
                         </div>
@@ -158,7 +149,12 @@
             </div>
             <div class="modal-footer" style="margin-bottom: -1rem;">
                 <button type="button" class="btn btn-danger btn-xs" data-dismiss="modal">Cerrar <i class="fa-solid fa-circle-xmark ml-1"></i></button>
-                <button type="button" class="btn btn-primary btn-xs" :disabled="!camposCompletos" @click="generarVehiculo()">Finalizar Mesa <i class="fa-solid fa-octagon-plus ml-1"></i></button>
+                <div v-if="tipoModal == 1">
+                    <button type="button" class="btn btn-primary btn-xs" :disabled="!camposCompletos1" @click="generarOrden()">Generar Orden<i class="fa-solid fa-octagon-plus ml-1"></i></button>
+                </div>
+                <div v-if="tipoModal == 2">
+                    <button type="button" class="btn btn-primary btn-xs" :disabled="!camposCompletos1" @click="finalizarMesa()">Finalizar Orden<i class="fa-solid fa-octagon-plus ml-1"></i></button>
+                </div>
             </div>
         </div>
     </div>

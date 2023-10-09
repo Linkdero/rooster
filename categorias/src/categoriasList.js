@@ -230,14 +230,15 @@ let categoriasList = new Vue({
                 that.getCatalogo(id, that.tipoTabla);
             });
 
-            $('#tblCatagorias').on('click', '.success', function () {
+            $('#tblCatagorias').on('change', '.switch input', function () {
                 let id = $(this).data('id');
-                that.setCatalogo(id, that.tipoTabla, 2);
-            });
+                let isChecked = $(this).is(':checked');
 
-            $('#tblCatagorias').on('click', '.danger', function () {
-                let id = $(this).data('id');
-                that.setCatalogo(id, that.tipoTabla, 1);
+                if (isChecked) {
+                    that.setCatalogo(id, that.tipoTabla, 1);
+                } else {
+                    that.setCatalogo(id, that.tipoTabla, 2);
+                }
             });
         },
         getCatalogo: function (id, tipoTabla) {

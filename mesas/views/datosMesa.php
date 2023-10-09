@@ -26,4 +26,11 @@
             <span class="input-group-text"><i class="fa-solid fa-clock"></i></span>
         </div>
     </div>
+    <div class="col">
+        <label for="placas">Nombre Cliente</label>
+        <div class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
+            <input type="text" class="input-sm form-control" id="nombreCliente" v-model="nombreCliente" :disabled="!validarNombre">
+            <span class="input-group-text"><i class="fa-solid fa-signature"></i></span>
+        </div>
+    </div>
 </div>

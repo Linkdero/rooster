@@ -1,66 +1,40 @@
-const ListadoComidas = httpVueLoader('./componentes/listadoComidas.vue'); // Asegúrate de proporcionar la ruta correcta
-const ListadoMateriasPrimas = httpVueLoader('./componentes/listadoMateriaPrima.vue');
-
-let comidasList = new Vue({
-    el: '#appComidas',
+const ListadoInsumos = httpVueLoader('./componentes/listadoInsumos.vue'); // Asegúrate de proporcionar la ruta correcta
+let combosList = new Vue({
+    el: '#appCombos',
     data: {
-        tituloModulo: 'Listado Comidas',
-        tablaInsumos: '',
-        nombreInsumos: 'Nuevo Insumo',
-        insumo: '',
-        materiaPrima: '',
-        precio: '',
-        descripcion: '',
-        idModal: '',
-        nombreMateriaPrima: '',
-        cantidades: '',
+        tituloModulo: 'Listado Combos',
+        tablaCombos: '',
+        nombreCombo: 'Nuevo Combo',
         progreso: 0,
+        cantidades: 0,
         filasInsumos: [],
-        idModal : ''
+        cantidades: 0,
+        descripcion: '',
+        precio: 0,
+        idModal: ''
     },
     components: {
-        'listado-comidas': ListadoComidas,
-        'listado-materias-primas': ListadoMateriasPrimas,
+        'listado-insumos': ListadoInsumos,
     },
     mounted: function () {
         this.idModal = this.$refs.idModal.id;
-        this.cargarTablaInsumos(1);
+        this.cargarTablaCombos(1);
         this.baseTables();
     },
     computed: {
         camposCompletos() {
-            console.log(this.insumo)
-            console.log(this.precio)
-            console.log(this.descripcion)
-            console.log(this.filasInsumos)
             return (
-                this.insumo !== '' &&
                 this.precio !== '' &&
                 this.descripcion !== '' &&
                 this.filasInsumos !== ''
             );
         },
     },
-
-    watch: {
-        insumo(nuevoValor) {
-            console.log('El valor del input de comidas ha cambiado:', nuevoValor);
-        },
-        materiaPrima(nuevoValor) {
-            console.log('El valor del input de materia prima ha cambiado:', nuevoValor);
-        }
-    },
     methods: {
-        actualizarInputs: function () {
-            this.insumo = $("#idSelectComidas").val();
-            this.materiaPrima = $("#idSelectMedidas").val();
-            this.$forceUpdate();
-        },
-        setNuevoInsumo: function () {
-            this.actualizarInputs()
+        setNuevoCombo: function () {
             Swal.fire({
-                title: '¿Generar Nuevo Insumo?',
-                text: "¡Se agregara un nuevo insumo a la bodega!",
+                title: '¿Generar Nuevo Combo?',
+                text: "¡Se agregara un nuevo combo a la bodega!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -72,8 +46,7 @@ let comidasList = new Vue({
                 if (result.isConfirmed) {
                     axios.get('insumos/model/comidasList.php', {
                         params: {
-                            opcion: 2,
-                            comida: parseInt(this.insumo),
+                            opcion: 6,
                             precio: parseFloat(this.precio),
                             filasInsumos: this.filasInsumos,
                             descripcion: this.descripcion,
@@ -87,12 +60,12 @@ let comidasList = new Vue({
                                 showConfirmButton: false,
                                 timer: 1500
                             })
-                            this.tablaInsumos.clear().destroy();
-                            this.cargarTablaInsumos()
-                            $("#setNuevoInsumo").modal("hide")
+                            this.tablaCombos.clear().destroy();
+                            this.cargarTablaCombos()
+                            $("#setNuevoCombo").modal("hide")
                             this.precio = ''
                             this.descripcion = ''
-                            this.actualizarInputs()
+                            this.filasInsumos = []
                         }
                         else {
                             Swal.fire({
@@ -108,22 +81,22 @@ let comidasList = new Vue({
                 }
             })
         },
-        cargarTablaInsumos: function () {
+        cargarTablaCombos: function () {
 
             let thes = this;
-            axios.get(`insumos/model/comidasList.php`, {
+            axios.get(`insumos/model/combosList.php`, {
                 params: {
                     opcion: 1,
                 }
             }).then(response => {
                 console.log(response.data);
-                if ($.fn.DataTable.isDataTable("#tblComidas")) {
-                    $("#tblComidas").DataTable().destroy();
+                if ($.fn.DataTable.isDataTable("#tblCombos")) {
+                    $("#tblCombos").DataTable().destroy();
                 }
 
                 if (response.data) {
                     // DataTable initialization
-                    this.tablaInsumos = $("#tblComidas").DataTable({
+                    this.tablaCombos = $("#tblCombos").DataTable({
                         "ordering": false,
                         "pageLength": 10,
                         "bProcessing": true,
@@ -134,7 +107,7 @@ let comidasList = new Vue({
                         scrollX: true,
                         scrollY: '50vh',
                         language: {
-                            emptyTable: "No hay solicitudes de Mennus para mostrar",
+                            emptyTable: "No hay solicitudes de Combos para mostrar",
                             sProcessing: " <h3 class=''><i class='fa fa-sync fa-spin'></i> Cargando insumos, por favor espere</h3> "
                         },
                         "aoColumns": [
@@ -159,7 +132,6 @@ let comidasList = new Vue({
                                     return encabezado;
                                 },
                             },
-                            { "class": "text-center", mData: 'comida' },
                             { "class": "text-center", mData: 'nombre' },
                             {
                                 "class": "text-center",
@@ -194,8 +166,7 @@ let comidasList = new Vue({
                                 text: 'Nuevo <i class="fa-solid fa-square-plus"></i>',
                                 className: 'bg-primary text-white btn-xs mx-1',
                                 action: function (e, dt, node, config) {
-                                    $("#setNuevoInsumo").modal("show")
-                                    thes.actualizarInputs()
+                                    $("#setNuevoCombo").modal("show")
                                 }
                             },
                             {
@@ -302,7 +273,7 @@ let comidasList = new Vue({
                     }
                 });
             }
-            $('#tblComidas').on('change', '.switch input', function () {
+            $('#tblCombos').on('change', '.switch input', function () {
                 let id = $(this).data('id');
                 let isChecked = $(this).is(':checked');
 
@@ -313,41 +284,10 @@ let comidasList = new Vue({
                 }
             });
         },
-
-        setCatalogo: function (id, estado) {
-            axios.get('insumos/model/comidasList.php', {
-                params: {
-                    opcion: 3,
-                    id: id,
-                    estado: estado,
-                }
-            }).then((response) => {
-                console.log(response.data);
-                if (response.data.id == 1) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: response.data.msg,
-                        showConfirmButton: false,
-                        timer: 1500
-                    })
-                }
-                else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: response.data.msg,
-                        showConfirmButton: false,
-                        timer: 1500
-                    })
-                }
-            }).catch((error) => {
-                console.log(error);
-            });
-        },
-
         agregarFila: function () {
             // Obtiene los valores seleccionados y la cantidad
-            let idInsumo = $('#materiasPrimas').val();
-            let nombreInsumo = $('#materiasPrimas option:selected').text();
+            let idInsumo = $('#insumos').val();
+            let nombreInsumo = $('#insumos option:selected').text();
             let cantidad = this.cantidades;
 
             if (idInsumo == '' || idInsumo == null || nombreInsumo == '' || nombreInsumo == null || cantidad == '' || cantidad == null) {
@@ -389,7 +329,6 @@ let comidasList = new Vue({
             console.log(this.filasInsumos);
 
         },
-
         actualizarCantidadTotal(index) {
             let fila = this.filasInsumos[index];
             if (fila && fila.cantidad && fila.precioInsumo) {

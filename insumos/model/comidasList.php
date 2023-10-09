@@ -5,7 +5,7 @@ date_default_timezone_set("America/Guatemala");
 class Comida
 {
     //Opcion 1
-    static function getInsumos()
+    static function getComidas()
     {
         $db = new Database();
         $pdo = $db->connect();
@@ -92,7 +92,7 @@ class Comida
 
                 $p = $pdo->prepare($sql);
 
-                $p->execute(array($id_insumo, $f["idInsumo"],$f["cantidad"]));
+                $p->execute(array($id_insumo, $f["idInsumo"], $f["cantidad"]));
             }
 
             $pdo->commit();
@@ -145,6 +145,121 @@ class Comida
         $pdo = null;
         echo json_encode($respuesta);
     }
+
+    static function getInsumosFiltrados()
+    {
+        $id = $_GET["id"];
+        $db = new Database();
+        $pdo = $db->connect();
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $sql = "SELECT id_insumo as id, descripcion as nombre, precio
+        FROM tb_insumo
+        WHERE id_comida = ? and id_estado = ?";
+
+        $p = $pdo->prepare($sql);
+
+        $p->execute(array($id, 1));
+
+        $insumo = $p->fetchAll(PDO::FETCH_ASSOC);
+        $data = array();
+        foreach ($insumo as $i) {
+            $sub_array = array(
+                "id" => $i["id"],
+                "nombre" => $i["nombre"],
+                "precio" => $i["precio"],
+            );
+
+            $data[] = $sub_array;
+        }
+
+        echo json_encode($data);
+        return $data;
+    }
+
+    static function getInsumos()
+    {
+        $db = new Database();
+        $pdo = $db->connect();
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $sql = "SELECT id_insumo as id, descripcion as nombre, precio
+        FROM tb_insumo
+        WHERE  id_estado = ?";
+
+        $p = $pdo->prepare($sql);
+
+        $p->execute(array(1));
+
+        $insumo = $p->fetchAll(PDO::FETCH_ASSOC);
+        $data = array();
+        foreach ($insumo as $i) {
+            $sub_array = array(
+                "id" => $i["id"],
+                "nombre" => $i["nombre"],
+                "precio" => $i["precio"],
+            );
+
+            $data[] = $sub_array;
+        }
+
+        echo json_encode($data);
+        return $data;
+    }
+
+    static function setnuevoCombo()
+    {
+        $precio = $_GET["precio"];
+        $descripcion = $_GET["descripcion"];
+        $filasInsumos = $_GET["filasInsumos"];
+
+        try {
+            $db = new Database();
+            $pdo = $db->connect();
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $pdo->beginTransaction();
+
+            $sql = "INSERT INTO tb_combo(descripcion, precio, id_estado) 
+            VALUES (?,?,?)";
+
+            $p = $pdo->prepare($sql);
+
+            $p->execute(array($descripcion, $precio, 1));
+
+            $sql = "SELECT id_combo
+            FROM tb_combo
+            ORDER BY id_combo DESC
+            LIMIT 1";
+
+            $p = $pdo->prepare($sql);
+            $p->execute();
+            $id_combo = $p->fetch(PDO::FETCH_ASSOC);
+            $id_combo = $id_combo["id_combo"];
+
+            foreach ($filasInsumos as $f) {
+
+                $sql = "INSERT INTO `tb_combo_detalle`(`id_combo`, `id_insumo`, `cantidades`)
+                VALUES (?,?,?)";
+                $p = $pdo->prepare($sql);
+
+                $p->execute(array($id_combo, $f["idInsumo"], $f["cantidad"]));
+            }
+
+            $pdo->commit();
+
+            $respuesta =  ['msg' => 'Combo Agregado', 'id' => 1];
+        } catch (PDOException $e) {
+            // Si hay una excepción, realiza un rollback
+            $pdo->rollBack();
+            $respuesta = ['msg' => 'ERROR', 'id' => ['errorInfo' => $e->getMessage()]];
+        } finally {
+            // Asegúrate de cerrar la conexión al finalizar
+            $pdo = null;
+        }
+
+        // Devuelve la respuesta
+        echo json_encode($respuesta);
+    }
 }
 
 //case
@@ -153,7 +268,7 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
 
     switch ($opcion) {
         case 1:
-            Comida::getInsumos();
+            Comida::getComidas();
             break;
 
         case 2:
@@ -162,6 +277,17 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
 
         case 3:
             Comida::setEstadoInsumo();
+            break;
+
+        case 4:
+            Comida::getInsumosFiltrados();
+            break;
+        case 5:
+            Comida::getInsumos();
+            break;
+
+        case 6:
+            Comida::setnuevoCombo();
             break;
     }
 }

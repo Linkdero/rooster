@@ -16,16 +16,28 @@ include_once 'styles.php';
           include_once 'dashboard.php';
         } else if ($_GET["ref"] == 2) {
           include_once 'configuracion/views/editarPerfil.php';
-        } else if ($_GET["ref"] == 11) {
+        }
+        //Ordenes y Mesas
+        else if ($_GET["ref"] == 11) {
           include_once 'mesas/views/mesasList.php';
-        } else if ($_GET["ref"] == 21) {
+        } else if ($_GET["ref"] == 12) {
+          include_once 'mesas/views/ordenesList.php';
+        }
+        //Categorias
+        else if ($_GET["ref"] == 21) {
           include_once 'categorias/views/categoriasList.php';
         } else if ($_GET["ref"] == 22) {
           include_once 'categorias/views/medidasList.php';
-        } else if ($_GET["ref"] == 31) {
+        }
+        //Bodega
+        else if ($_GET["ref"] == 31) {
           include_once 'bodega/views/bodegaList.php';
-        } else if ($_GET["ref"] == 41) {
+        }
+        //Insumos
+        else if ($_GET["ref"] == 41) {
           include_once 'insumos/views/comidasList.php';
+        } else if ($_GET["ref"] == 42) {
+          include_once 'insumos/views/combosList.php';
         }
       } else {
         // Si "ref" no está definido en la URL, muestra por defecto el dashboard

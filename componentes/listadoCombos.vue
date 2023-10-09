@@ -1,10 +1,10 @@
 <template>
     <div class="col">
-        <label for="comidas">Menú</label>
-        <select id="comidas" class="form-control btn-xs">
+        <label for="combos">Combos</label>
+        <select id="combos" class="form-control btn-xs">
             <option></option>
-            <option v-for="comida in comidas" :key="comida.id" :value="comida.id">
-                {{ comida.comida }}
+            <option v-for="combo in combos" :key="combo.id" :value="combo.id">
+                {{ combo.nombre }}
             </option>
         </select>
     </div>
@@ -16,38 +16,43 @@ module.exports = {
 
     data: function () {
         return {
-            comidas: '',
+            combos: '',
         }
     },
     mounted: function () {
-        this.getComidas();
+        this.getCombos();
     },
     methods: {
-        getComidas: function () {
-            axios.get(`mesas/model/mesasList.php`, {
+        getCombos: function () {
+            axios.get(`insumos/model/combosList.php`, {
                 params: {
-                    opcion: 2,
+                    opcion: 1,
                 }
             }).then(response => {
                 console.log(response.data)
-                this.comidas = response.data
+                this.combos = response.data
 
                 // Inicializa Select2 después de cargar los datos
-                $('#comidas').select2({
-                    placeholder: 'Menú',
+                $('#combos').select2({
+                    placeholder: 'Combos',
                     allowClear: true,
                     width: '100%',
                     dropdownParent: $('#' + this.modal + ''),
                 });
                 // Agrega un evento 'change' al select
-                $('#comidas').on('change', (event) => {
+                $('#combos').on('change', (event) => {
                     // Obtiene el valor seleccionado
                     const valorSeleccionado = $(event.target).val();
-                    // Llama a la función que deseas ejecutar
-                    $("#idSelectComidas").val(valorSeleccionado);
 
                     if (this.tipo == 2) {
-                        this.evento.$emit('cambiar-insumo', valorSeleccionado);
+                        let precio
+                        for (let i = 0; i < this.combos.length; i++) {
+                            if (this.combos[i].id == valorSeleccionado) {
+                                precio = this.combos[i].precio
+                                break
+                            }
+                        }
+                        $("#precio").val(precio);
                     }
                 });
 

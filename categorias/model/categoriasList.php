@@ -13,15 +13,15 @@ class Categoria
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         if ($tipoTabla ==  1) {
-            $sql = "SELECT m.id as id, m.menu as nombre, m.estado as estado,e.descripcion as descripcion
+            $sql = "SELECT m.id as id, m.menu as nombre, m.estado as estado,e.estado as descripcion
             FROM tb_menu as m
             LEFT JOIN tb_estado as e ON m.estado = e.id_estado";
         } else if ($tipoTabla ==  2) {
-            $sql = "SELECT id_sub_menu as id, sub_menu as nombre, id_menu as idPadre, estado as estado, e.descripcion as descripcion
+            $sql = "SELECT id_sub_menu as id, sub_menu as nombre, id_menu as idPadre, sm.estado as estado, e.estado as descripcion
             FROM tb_sub_menu as sm
             LEFT JOIN tb_estado as e ON sm.estado = e.id_estado";
         } else if ($tipoTabla ==  3) {
-            $sql = "SELECT id_comida as id, comida as nombre, id_sub_menu as idPadre, estado as estado,e.descripcion
+            $sql = "SELECT id_comida as id, comida as nombre, id_sub_menu as idPadre, c.estado as estado,e.estado as descripcion
             FROM tb_comida as c
             LEFT JOIN tb_estado as e ON c.estado = e.id_estado";
         }
@@ -61,17 +61,19 @@ class Categoria
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         if ($tipoTabla == 1) {
-            $sql = "SELECT sm.id_sub_menu as id, sm.sub_menu as nombre, sm.id_menu as idPadre, sm.estado, e.descripcion FROM tb_sub_menu as sm 
+            $sql = "SELECT sm.id_sub_menu as id, sm.sub_menu as nombre, sm.id_menu as idPadre, sm.estado, e.estado as descripcion
+            FROM tb_sub_menu as sm 
             LEFT JOIN tb_estado as e ON sm.estado = e.id_estado
             WHERE sm.id_menu = ?";
         } else if ($tipoTabla == 2) {
-            $sql = "SELECT c.id_comida as id, c.comida as nombre, c.id_sub_menu as idPadre, c.estado, e.descripcion FROM tb_comida as c
+            $sql = "SELECT c.id_comida as id, c.comida as nombre, c.id_sub_menu as idPadre, c.estado, e.estado as descripcion
+            FROM tb_comida as c
             LEFT JOIN tb_estado as e ON c.estado = e.id_estado
             WHERE c.id_sub_menu = ?";
         } else if ($tipoTabla == 3) {
-            $sql = "SELECT id_insumo as id, i.descripcion as nombre, id_comida as idPadre, i.estado, e.descripcion as descripcion
+            $sql = "SELECT id_insumo as id, i.descripcion as nombre, id_comida as idPadre, i.id_estado as estado, e.estado as descripcion
             FROM tb_insumo as i
-            LEFT JOIN tb_estado as e ON i.estado = e.id_estado
+            LEFT JOIN tb_estado as e ON i.id_estado = e.id_estado
             WHERE id_comida = ?";
         }
 
@@ -111,9 +113,10 @@ class Categoria
             $db = new Database();
             $pdo = $db->connect();
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $pdo->beginTransaction();
             if ($tipoTabla == 1) {
                 $sql = "UPDATE tb_insumo
-                SET estado = ?
+                SET id_estado = ?
                 WHERE id_menu = ?";
                 $p = $pdo->prepare($sql);
                 $p->execute(array($estado, $id));
@@ -147,7 +150,7 @@ class Categoria
                 }
             } else if ($tipoTabla == 2) {
                 $sql = "UPDATE tb_sub_menu
-                SET estado = ?
+                SET estado=?
                 WHERE id_sub_menu = ?";
                 $p = $pdo->prepare($sql);
                 $p->execute(array($estado, $id));
@@ -166,7 +169,7 @@ class Categoria
                 $id_comida = $p->fetchAll(PDO::FETCH_COLUMN);
 
                 $sql = "UPDATE tb_insumo
-                SET estado= ?
+                SET id_estado= ?
                 WHERE id_comida = ?";
                 $p = $pdo->prepare($sql);
 
@@ -188,7 +191,7 @@ class Categoria
                 $id_comida = $p->fetchAll(PDO::FETCH_COLUMN);
 
                 $sql = "UPDATE tb_insumo
-                SET estado= ?
+                SET id_estado= ?
                 WHERE id_comida = ?";
                 $p = $pdo->prepare($sql);
 
@@ -196,15 +199,16 @@ class Categoria
                     $p->execute(array($estado, $id_com));
                 }
             }
+            $pdo->commit();
 
             $respuesta =  ['msg' => $titulo, 'id' => 1];
         } catch (PDOException $e) {
-            $respuesta = array('msg' => 'ERROR', 'id' => $e);
-            try {
-                $pdo->rollBack();
-            } catch (Exception $e2) {
-                $respuesta = array('msg' => 'ERROR', 'id' => $e2);
-            }
+            // Si hay una excepción, realiza un rollback
+            $pdo->rollBack();
+            $respuesta = ['msg' => 'ERROR', 'id' => ['errorInfo' => $e->getMessage()]];
+        } finally {
+            // Asegúrate de cerrar la conexión al finalizar
+            $pdo = null;
         }
         $pdo = null;
         echo json_encode($respuesta);

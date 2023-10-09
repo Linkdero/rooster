@@ -11,7 +11,7 @@ class Precio
         $pdo = $db->connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $sql = "SELECT `id_precio` as id, `precio` as nombre FROM `tb_precio`";
+        $sql = "SELECT id_precio as id, precio as nombre FROM tb_precio";
 
         $p = $pdo->prepare($sql);
 
@@ -38,10 +38,10 @@ class Precio
         $pdo = $db->connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $sql = "SELECT id_insumo as id, i.descripcion as nombre, i.estado, e.descripcion
+        $sql = "SELECT id_insumo as id, i.descripcion as nombre, i.id_estado, e.descripcion
         FROM tb_insumo as i
-        LEFT JOIN tb_estado as e ON i.estado = e.id_estado
-        WHERE i.id_medida = ? and i.estado = ?";
+        LEFT JOIN tb_estado as e ON i.id_estado = e.id_estado
+        WHERE i.id_medida = ? and i.id_estado = ?";
 
 
         $p = $pdo->prepare($sql);
