@@ -105,11 +105,15 @@
                         </div>
                         <input type="hidden" id="precio" class="btn btn-outline-primary form-control btn-xs" v-model="precio" />
 
-                        <div class="col-12">
+                        <div class="col">
                             <label for="descripcion">Observaciones</label>
                             <div class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
                                 <textarea class="form-control" id="descripcion" rows="3" v-model="descripcion"></textarea>
                             </div>
+                        </div>
+                        <listado-empleados :local="idLocal" :modal="idModal" :evento="evento"></listado-empleados>
+                        <div v-if="idLocal == 3">
+                            <listado-locales :evento="evento"> </listado-locales>
                         </div>
 
                     </div>

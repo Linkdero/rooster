@@ -7,30 +7,40 @@ class Mesa
     //Opcion 1
     static function getMesasOcupadas()
     {
-        $estado = $_GET["filtro"];
+        // Parsear los parámetros
+        $estado = isset($_GET["filtro"]) ? $_GET["filtro"] : null;
+        $local = isset($_GET["local"]) ? $_GET["local"] : null;
+
         $db = new Database();
         $pdo = $db->connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        if ($estado == 1) {
-            $sql = "SELECT id_mesa, nro_mesa, referencia,e.estado ,estado_mesa, l.descripcion as restaurante
-            FROM tb_mesa as m
-            LEFT JOIN tb_estado as e ON m.estado_mesa = e.id_estado
-            LEFT JOIN tb_local as l ON m.id_local = l.id_local;";
-        } else {
-            $sql = "SELECT id_mesa, nro_mesa, referencia,e.estado ,estado_mesa, l.descripcion as restaurante
-            FROM tb_mesa as m
-            LEFT JOIN tb_estado as e ON m.estado_mesa = e.id_estado
-            LEFT JOIN tb_local as l ON m.id_local = l.id_local
-            WHERE estado_mesa = ?";
+
+        // Construir la consulta SQL
+        $sql = "SELECT id_mesa, nro_mesa, referencia, e.estado, estado_mesa, l.descripcion as restaurante
+                FROM tb_mesa as m
+                LEFT JOIN tb_estado as e ON m.estado_mesa = e.id_estado
+                LEFT JOIN tb_local as l ON m.id_local = l.id_local
+                WHERE 1=1";
+
+        $params = array();
+
+        if ($estado && $estado != 1 && $estado != 3) {
+            $sql .= " AND estado_mesa = ?";
+            $params[] = $estado;
         }
 
-        $p = $pdo->prepare($sql);
-        if ($estado == 1) {
-            $p->execute();
-        } else {
-            $p->execute(array($estado));
+        if ($local != 3) {
+            $sql .= " AND m.id_local = ?";
+            $params[] = $local;
         }
-        $mesas = $p->fetchAll(PDO::FETCH_ASSOC);
+
+        // Ejecutar la consulta
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+
+        $mesas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Transformar los resultados y devolver como JSON
         $data = array();
         foreach ($mesas as $m) {
             $sub_array = array(
@@ -40,13 +50,14 @@ class Mesa
                 "estado" => $m["estado"],
                 "estado_mesa" => $m["estado_mesa"],
                 "restaurante" => $m["restaurante"]
-
             );
             $data[] = $sub_array;
         }
+
         echo json_encode($data);
         return $data;
     }
+
     static function getComidas()
     {
         $db = new Database();
@@ -108,6 +119,9 @@ class Mesa
         $filasInsumos = $_GET["filasInsumos"];
         $regNum = 1;
         $nombreCliente = $_GET["nombreCliente"];
+        $idEmpleado = $_GET["idEmpleado"];
+        $idLocal = $_GET["idLocal"];
+
         try {
             $db = new Database();
             $pdo = $db->connect();
@@ -121,12 +135,12 @@ class Mesa
 
             $p->execute(array(4, $idMesa));
 
-            $sql = "INSERT INTO tb_orden(descripcion, id_mesa, id_mesero, fecha_inicio, id_estado, id_local)
+            $sql = "INSERT INTO tb_orden(descripcion, id_mesa, id_mesero, fecha_inicio, id_estado, id_local) 
             VALUES (?,?,?,?,?,?)";
 
             $p = $pdo->prepare($sql);
 
-            $p->execute(array($descripcion, $idMesa, 1, $fechaHoraActual, 4, 1));
+            $p->execute(array($descripcion, $idMesa, $idEmpleado, $fechaHoraActual, 4, $idLocal));
 
             $sql = "SELECT id_orden
             FROM tb_orden

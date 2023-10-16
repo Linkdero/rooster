@@ -5,48 +5,65 @@ date_default_timezone_set("America/Guatemala");
 class Orden
 {
     //Opcion 1
-    static function getMesasOcupadas()
+    static function getOrdenes()
     {
-        $estado = $_GET["filtro"];
+        // Parsear los parámetros
+        $estado = isset($_GET["filtro"]) ? $_GET["filtro"] : null;
+        $horaInicial = isset($_GET['horaInicial']) ? $_GET['horaInicial'] : null;
+        $horaFinal = isset($_GET['horaFinal']) ? $_GET['horaFinal'] : null;
+        $local = isset($_GET["local"]) ? $_GET["local"] : null;
+
         $db = new Database();
         $pdo = $db->connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        if ($estado == 1) {
-            $sql = "SELECT id_mesa, nro_mesa, referencia,e.estado ,estado_mesa, l.descripcion as restaurante
-            FROM tb_mesa as m
-            LEFT JOIN tb_estado as e ON m.estado_mesa = e.id_estado
-            LEFT JOIN tb_local as l ON m.id_local = l.id_local;";
-        } else {
-            $sql = "SELECT id_mesa, nro_mesa, referencia,e.estado ,estado_mesa, l.descripcion as restaurante
-            FROM tb_mesa as m
-            LEFT JOIN tb_estado as e ON m.estado_mesa = e.id_estado
-            LEFT JOIN tb_local as l ON m.id_local = l.id_local
-            WHERE estado_mesa = ?";
+
+        // Construir la consulta SQL
+        $sql = "SELECT o.id_orden, o.descripcion, o.total, o.fecha_final, o.id_estado, e.estado, c.nom_cliente
+                FROM tb_orden AS o
+                LEFT JOIN tb_estado as e ON o.id_estado = e.id_estado
+                LEFT JOIN tb_cliente as c ON o.id_orden = c.id_orden
+                WHERE o.fecha_inicio >= ? AND o.fecha_final <= ?";
+
+        $params = array($horaInicial, $horaFinal);
+
+        if ($estado && $estado != 1) {
+            $sql .= " AND o.id_estado = ? ";
+            $params[] = $estado;
+        }
+        if ($local != 3) {
+            $sql .= " AND o.id_local = ?";
+            $params[] = $local;
         }
 
-        $p = $pdo->prepare($sql);
-        if ($estado == 1) {
-            $p->execute();
-        } else {
-            $p->execute(array($estado));
-        }
-        $mesas = $p->fetchAll(PDO::FETCH_ASSOC);
+
+        // Ordenar
+        $sql .= " ORDER BY o.id_orden DESC";
+
+        // Ejecutar la consulta
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+
+        $ordenes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Transformar los resultados y devolver como JSON
         $data = array();
-        foreach ($mesas as $m) {
+        foreach ($ordenes as $o) {
             $sub_array = array(
-                "id_mesa" => $m["id_mesa"],
-                "nro_mesa" => $m["nro_mesa"],
-                "referencia" => $m["referencia"],
-                "estado" => $m["estado"],
-                "estado_mesa" => $m["estado_mesa"],
-                "restaurante" => $m["restaurante"]
-
+                "id_orden" => $o["id_orden"],
+                "descripcion" => $o["descripcion"],
+                "total" => $o["total"],
+                "fecha_final" => $o["fecha_final"],
+                "id_estado" => $o["id_estado"],
+                "estado" => $o["estado"],
+                "nom_cliente" => $o["nom_cliente"]
             );
             $data[] = $sub_array;
         }
+
         echo json_encode($data);
         return $data;
     }
+
     static function getNombreCliente()
     {
         $idMesa = $_GET["id"];
@@ -74,6 +91,114 @@ class Orden
         echo json_encode($data);
         return $data;
     }
+
+    static function getOrdenDetalle()
+    {
+        $idOrden = $_GET["id"];
+        $db = new Database();
+        $pdo = $db->connect();
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $sql = "SELECT 
+        o.id_orden,
+        od.reg_num,
+        CASE 
+            WHEN od.id_tipo = 1 THEN 'Materia Prima'
+            WHEN od.id_tipo = 2 THEN 'Insumo'
+            WHEN od.id_tipo = 3 THEN 'Combo'
+            ELSE 'Tipo Desconocido'
+        END AS tipo_producto,
+        CASE 
+            WHEN od.id_tipo = 1 THEN mp.materia_prima
+            WHEN od.id_tipo = 2 THEN i.descripcion
+            WHEN od.id_tipo = 3 THEN c.descripcion
+            ELSE NULL
+        END AS descripcion,
+        CASE 
+            WHEN od.id_tipo = 1 THEN mp.id_materia_prima
+            WHEN od.id_tipo = 2 THEN i.id_insumo
+            WHEN od.id_tipo = 3 THEN c.id_combo
+            ELSE NULL
+        END AS id_producto,
+        CASE 
+                WHEN od.id_tipo = 1 THEN mp.precio
+            WHEN od.id_tipo = 2 THEN i.precio
+            WHEN od.id_tipo = 3 THEN c.precio
+            ELSE NULL
+        END AS precio
+    FROM 
+        tb_orden o
+    LEFT JOIN 
+        tb_orden_detalle od ON o.id_orden = od.id_orden
+    LEFT JOIN 
+        tb_materia_prima mp ON od.id_tipo = 1 AND od.id_insumo = mp.id_materia_prima
+    LEFT JOIN 
+        tb_insumo i ON od.id_tipo = 2 AND od.id_insumo = i.id_insumo
+    LEFT JOIN 
+        tb_combo c ON od.id_tipo = 3 AND od.id_insumo = c.id_combo    
+    WHERE o.id_orden = ?";
+
+        $p = $pdo->prepare($sql);
+
+        $p->execute(array($idOrden));
+
+        $ordenDetalle = $p->fetchAll(PDO::FETCH_ASSOC);
+        $data = array();
+        foreach ($ordenDetalle as $o) {
+            $sub_array = array(
+                "id_orden" => $o["id_orden"],
+                "reg_num" => $o["reg_num"],
+                "tipo_producto" => $o["tipo_producto"],
+                "descripcion" => $o["descripcion"],
+                "id_producto" => $o["id_producto"],
+                "precio" => $o["precio"],
+            );
+            $data[] = $sub_array;
+        }
+        echo json_encode($data);
+        return $data;
+    }
+
+    static function getInformacionCliente()
+    {
+        $idOrden = $_GET["id"];
+        $db = new Database();
+        $pdo = $db->connect();
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $sql = "SELECT c.nom_cliente as nombre, nit_cliente as nit, c.direccion, observacion, o.id_mesero, l.descripcion as locales,
+        CONCAT(em.nombre, ' ', em.apellido) as mesera, em.foto, o.fecha_inicio, o.fecha_final
+        FROM tb_orden as o
+        LEFT JOIN tb_cliente AS c ON o.id_orden = c.id_orden
+        LEFT JOIN tb_empleados AS em ON o.id_mesero = em.id_empleado
+        LEFT JOIN tb_local AS l ON em.id_local = l.id_local
+        WHERE o.id_orden = ?";
+
+        $p = $pdo->prepare($sql);
+
+        $p->execute(array($idOrden));
+
+        $cliente = $p->fetchAll(PDO::FETCH_ASSOC);
+        $data = array();
+        foreach ($cliente as $c) {
+            $sub_array = array(
+                "nombre" => $c["nombre"],
+                "nit" => $c["nit"],
+                "direccion" => $c["direccion"],
+                "observacion" => $c["observacion"],
+                "id_mesero" => $c["id_mesero"],
+                "mesera" => $c["mesera"],
+                "foto" => $c["foto"],
+                "locales" => $c["locales"],
+                "fecha_inicio" => $c["fecha_inicio"],
+                "fecha_final" => $c["fecha_final"],
+
+            );
+            $data[] = $sub_array;
+        }
+        echo json_encode($data);
+        return $data;
+    }
 }
 
 //case
@@ -82,11 +207,18 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
 
     switch ($opcion) {
         case 1:
-            Orden::getMesasOcupadas();
+            Orden::getOrdenes();
             break;
 
         case 2:
             Orden::getNombreCliente();
+            break;
+
+        case 3:
+            Orden::getOrdenDetalle();
+            break;
+        case 4:
+            Orden::getInformacionCliente();
             break;
     }
 }

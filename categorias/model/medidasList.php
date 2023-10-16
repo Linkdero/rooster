@@ -54,11 +54,10 @@ class Medidas
         $pdo = $db->connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $sql = "SELECT id_insumo as id, i.descripcion as nombre, i.estado, e.descripcion
-        FROM tb_insumo as i
-        LEFT JOIN tb_estado as e ON i.estado = e.id_estado
-        WHERE i.id_medida = ? and i.estado = ?";
-
+        $sql = "SELECT id_materia_prima as id, materia_prima as nombre, mp.id_estado as estado, e.estado as descripcion
+         FROM tb_materia_prima as mp
+        LEFT JOIN tb_estado as e ON mp.id_estado = e.id_estado
+        WHERE mp.id_medida = ? and mp.id_estado = ?";
 
         $p = $pdo->prepare($sql);
 

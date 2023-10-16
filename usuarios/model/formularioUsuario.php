@@ -10,9 +10,8 @@ class Usuario
         $db = new Database();
         $pdo = $db->connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $sql = "SELECT id, nombre
-        FROM rolls
-        WHERE id_estado = 1";
+        $sql = "SELECT id_roll as id, descripcion as nombre
+        FROM tb_roll";
 
         $p = $pdo->prepare($sql);
         $p->execute();
@@ -34,13 +33,18 @@ class Usuario
         // Obtener los datos de la solicitud POST
         $tipo = $_POST["tipo"];
         $usuario = $_POST["usuario"];
+        $nombre = $_POST["nombre"];
+        $apellido = $_POST["apellido"];
         $password = $_POST["password"];
         $roll = $_POST["roll"];
+        $local = $_POST["local"];
         $foto_base64 = $_POST["foto"]; // Cadena base64 de la imagen
 
         if (!empty($password)) {
             $password = md5($password);
-
+        }
+        if ($roll == 1) {
+            $local = 3;
         }
 
         try {
@@ -48,15 +52,15 @@ class Usuario
             $pdo = $db->connect();
 
             if ($tipo == 3) {
-                $sql = "INSERT INTO usuarios (usuario, id_roll, id_estado, password, imagen) VALUES (?, ?, ?, ?, ?)";
+                $sql = "INSERT INTO usuarios(usuario, password, nombre, apellido, id_roll, imagen, id_estado, id_local)
+                VALUES (?,?,?,?,?,?,?,?)";
 
                 $p = $pdo->prepare($sql);
 
-                $p->execute(array($usuario, $roll, 1, $password, $foto_base64));
+                $p->execute(array($usuario, $password, $nombre, $apellido, $roll, $foto_base64, 1, $local));
 
                 $pdo = null;
                 echo json_encode(['msg' => 'Usuario Agregado', 'id' => 1]);
-
             } else if ($tipo == 4) {
                 $id = $_POST["id"];
                 if (empty($password)) {
@@ -86,14 +90,10 @@ class Usuario
 
                 exit(); // Asegúrate de detener la ejecución del script después de la redirección
             }
-
         } catch (PDOException $e) {
             echo json_encode(['msg' => 'ERROR: ' . $e->getMessage()]);
         }
-
-
     }
-
     static function setEstado()
     {
         // Obtener los datos de la solicitud POST
@@ -136,12 +136,9 @@ class Usuario
                 }
             }
             echo json_encode(['msg' => $mensaje, 'id' => 1, 'refresh' => $actualizar]);
-
         } catch (PDOException $e) {
             echo json_encode(['msg' => 'ERROR: ' . $e->getMessage()]);
         }
-
-
     }
 
     static function setRoll()
@@ -186,12 +183,9 @@ class Usuario
                 }
             }
             echo json_encode(['msg' => $mensaje, 'id' => 1, 'refresh' => $actualizar]);
-
         } catch (PDOException $e) {
             echo json_encode(['msg' => 'ERROR: ' . $e->getMessage()]);
         }
-
-
     }
 }
 

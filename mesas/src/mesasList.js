@@ -2,6 +2,9 @@ const ListadoComidas = httpVueLoader('./componentes/listadoComidas.vue'); // Ase
 const ListadoMateriasPrimas = httpVueLoader('./componentes/listadoMateriaPrima.vue');
 const ListadoInsumos = httpVueLoader('./componentes/listadoInsumos.vue');
 const ListadoCombos = httpVueLoader('./componentes/listadoCombos.vue');
+const ListadoEmpleados = httpVueLoader('./componentes/listadoEmpleados.vue');
+const LitadoLocales = httpVueLoader('./componentes/ListadoLocales.vue');
+
 
 const EventBus = new Vue();
 
@@ -33,10 +36,19 @@ let mesasList = new Vue({
         precio: '',
         idMesa: '',
         validarNombre: true,
+        idLocal: 0,
+        idEmpleado: ''
     },
     mounted: function () {
         this.idModal = this.$refs.idModal.id;
         this.evento = EventBus;
+        this.idLocal = $("#local").val();
+        this.evento.$on('cambiar-empleado', (nuevoValor) => {
+            this.idEmpleado = nuevoValor
+        });
+        this.evento.$on('cambiar-local', (nuevoValor) => {
+            this.idLocal = nuevoValor
+        });
         this.cargarTablaMesas();
         this.baseTables();
     },
@@ -45,6 +57,8 @@ let mesasList = new Vue({
         'listado-materias-primas': ListadoMateriasPrimas,
         'listado-insumos': ListadoInsumos,
         'listado-combos': ListadoCombos,
+        'listado-empleados': ListadoEmpleados,
+        'listado-locales': LitadoLocales,
     },
     watch: {
         selectComida(newValue) {
@@ -61,7 +75,9 @@ let mesasList = new Vue({
             return (
                 this.filasInsumos !== '' &&
                 this.descripcion !== '' &&
-                this.nombreCliente !== '');
+                this.nombreCliente !== '' &&
+                this.idEmpleado !== ''
+            );
         },
     },
     methods: {
@@ -100,7 +116,8 @@ let mesasList = new Vue({
             axios.get(`mesas/model/mesasList.php`, {
                 params: {
                     opcion: 1,
-                    filtro: id
+                    filtro: id,
+                    local: this.idLocal
                 }
             }).then(response => {
                 console.log(response.data);
@@ -469,7 +486,9 @@ let mesasList = new Vue({
                             filasInsumos: this.filasInsumos,
                             descripcion: this.descripcion,
                             idMesa: this.idMesa,
-                            nombreCliente: this.nombreCliente
+                            nombreCliente: this.nombreCliente,
+                            idEmpleado: this.idEmpleado,
+                            idLocal: this.idLocal
                         }
                     }).then(response => {
                         console.log(response.data);

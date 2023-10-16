@@ -16,6 +16,8 @@ include_once 'styles.php';
           include_once 'dashboard.php';
         } else if ($_GET["ref"] == 2) {
           include_once 'configuracion/views/editarPerfil.php';
+        } else if ($_GET["ref"] == 3) {
+          include_once 'usuarios/views/formularioUsuario.php';
         }
         //Ordenes y Mesas
         else if ($_GET["ref"] == 11) {
@@ -38,6 +40,10 @@ include_once 'styles.php';
           include_once 'insumos/views/comidasList.php';
         } else if ($_GET["ref"] == 42) {
           include_once 'insumos/views/combosList.php';
+        }
+        //Empleados
+        else if ($_GET["ref"] == 51) {
+          include_once 'empleados/views/empleadosList.php';
         }
       } else {
         // Si "ref" no está definido en la URL, muestra por defecto el dashboard

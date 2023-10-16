@@ -37,7 +37,6 @@
             <ul class="nav child_menu">
               <li><a href="?ref=21">Categorias</a></li>
               <li><a href="?ref=22">Medidas</a></li>
-              <li><a href="?ref=22">Precios</a></li>
             </ul>
           </li>
           <li><a><i class="fa fa-edit"></i> Bodega <span class="fa fa-chevron-down"></span></a>
@@ -49,6 +48,11 @@
             <ul class="nav child_menu">
               <li><a href="?ref=41">Comidas</a></li>
               <li><a href="?ref=42">Combos</a></li>
+            </ul>
+          </li>
+          <li><a><i class="fa fa-edit"></i> Empleados <span class="fa fa-chevron-down"></span></a>
+            <ul class="nav child_menu">
+              <li><a href="?ref=51">Empleados</a></li>
             </ul>
           </li>
         </ul>

@@ -1,3 +1,7 @@
+const LitadoLocales = httpVueLoader('./componentes/ListadoLocales.vue');
+const ListadoPermisos = httpVueLoader('./componentes/ListadoPermisos.vue');
+
+const EventBus = new Vue();
 let usuarioModel = new Vue({
   el: '#appUsuarios',
   data: {
@@ -7,15 +11,32 @@ let usuarioModel = new Vue({
     rollsList: '',
     usuario: '',
     password: '',
-    rollsModel: ''
+    rollsModel: '',
+    nombre: '',
+    apellido: '',
+    evento: '',
+    idPermiso: 1,
+    idLocal: 0
+
+  },
+  components: {
+    'listado-locales': LitadoLocales,
+    'listado-permisos': ListadoPermisos,
   },
   mounted: function () {
+    this.evento = EventBus;
+    this.evento.$on('cambiar-permiso', (nuevoValor) => {
+      this.idPermiso = nuevoValor
+    });
+    this.evento.$on('cambiar-local', (nuevoValor) => {
+      this.idLocal = nuevoValor
+    });
     this.bases()
     this.rolls()
   },
   computed: {
     camposCompletos() {
-      return this.usuario.trim() !== '' && this.password.trim() !== '' && this.rollsModel.trim() !== '' && this.base64Image.trim() !== '';
+      return this.usuario.trim() !== '' && this.nombre.trim() !== '' && this.apellido.trim() !== '' && this.password.trim() !== '' && this.idPermiso.trim() !== '' && this.base64Image.trim() !== '';
     },
   },
   methods: {
@@ -122,8 +143,11 @@ let usuarioModel = new Vue({
           formData.append('opcion', 2);
           formData.append('tipo', tipo);
           formData.append('usuario', this.usuario);
+          formData.append('nombre', this.nombre);
+          formData.append('apellido', this.apellido);
           formData.append('password', this.password);
-          formData.append('roll', this.rollsModel);
+          formData.append('roll', this.idPermiso);
+          formData.append('local', this.idLocal);
           formData.append('foto', this.base64Image);
 
           // Realizar la solicitud POST al servidor

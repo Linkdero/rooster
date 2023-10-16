@@ -10,7 +10,7 @@ try {
     $db = new Database();
     $pdo = $db->connect();
 
-    $sql = "SELECT id, usuario, password,nombre, apellido, id_roll, imagen FROM usuarios WHERE usuario = ? AND password = ? AND id_estado = ?";
+    $sql = "SELECT id, usuario, password, id_local,nombre, apellido, id_roll, imagen FROM usuarios WHERE usuario = ? AND password = ? AND id_estado = ?";
 
     $p = $pdo->prepare($sql);
     $p->execute(array($usuario, $contrasena, 1));
@@ -25,6 +25,8 @@ try {
         $_SESSION['imagen'] = $result['imagen'];
         $_SESSION['nombre'] = $result['nombre'];
         $_SESSION['apellido'] = $result['apellido'];
+        $_SESSION['id_local'] = $result['id_local'];
+
 
         echo json_encode(['msg' => 'Inicio de sesión exitoso', 'id' => 1]);
 
