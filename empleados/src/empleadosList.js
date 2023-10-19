@@ -91,9 +91,8 @@ let mesasList = new Vue({
                                 "class": "text-center",
                                 data: 'foto',
                                 render: function (data, type, row) {
-                                    return `<img src="${data} " alt="Imagen del Cliente" class="img-circle img-fluid" style="max-width: 80px; border: 5px solid #fff; border-radius: 50%;">
+                                    return `<img src="${data} " alt="Imagen del Cliente" class="img-circle img-fluid" style="width: 80px; height: 80px; border: 5px solid #fff; border-radius: 50%;">
                                     `;
-
                                 },
 
                             },

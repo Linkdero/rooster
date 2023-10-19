@@ -1,3 +1,7 @@
+const LitadoLocales = httpVueLoader('./componentes/ListadoLocales.vue');
+const LitadoMenus = httpVueLoader('./componentes/listadoMenus.vue');
+const EventBus = new Vue();
+
 let categoriasList = new Vue({
     el: '#appCategorias',
     data: {
@@ -7,11 +11,36 @@ let categoriasList = new Vue({
         tipoModal: '',
         tablaCategorias: '',
         tipoTabla: '',
-        nombreCatalogo: ''
+        nombreCatalogo: '',
+        nombreModal: '',
+        idLocal: '',
+        evento: '',
+        idLocalSesion: '',
+        tipoCategoria: ''
+
     },
     mounted: function () {
+        this.evento = EventBus;
+        this.idLocalSesion = $("#local").val();
+        if (this.idLocalSesion != 3) {
+            this.idLocal = $("#local").val();
+        }
+        this.evento.$on('cambiar-local', (nuevoValor) => {
+            this.idLocal = nuevoValor
+        });
         this.cargarTablaMenus(1);
         this.baseTables();
+    },
+    components: {
+        'listado-locales': LitadoLocales,
+        'listado-menus': LitadoMenus,
+    },
+    computed: {
+        camposCompletos() {
+            if (this.tipoTabla == 1) {
+                return this.descripcion.trim() !== '';
+            }
+        },
     },
     methods: {
         cargarTablaMenus: function (tipoTabla) {
@@ -117,8 +146,8 @@ let categoriasList = new Vue({
                                 text: 'Nuevo <i class="fa-solid fa-square-plus"></i>',
                                 className: 'bg-primary text-white btn-xs mx-1',
                                 action: function (e, dt, node, config) {
-                                    thes.tablaMesas.clear().destroy();
-                                    thes.cargarTablaMesas();
+                                    thes.datosModal()
+                                    $("#setNuevaCategoria").modal("show")
                                 }
                             },
                             {
@@ -362,5 +391,14 @@ let categoriasList = new Vue({
                 console.error(error);
             });
         },
+        datosModal: function () {
+            if (this.tipoTabla == 1) {
+                this.nombreModal = 'Nuevo Menú'
+                this.tipoCategoria = 'Menú'
+            }
+        },
+        setNuevaCategoria: function () {
+            alert("Funciona")
+        }
     },
 });
