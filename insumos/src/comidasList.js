@@ -1,5 +1,8 @@
 const ListadoComidas = httpVueLoader('./componentes/listadoComidas.vue'); // Asegúrate de proporcionar la ruta correcta
 const ListadoMateriasPrimas = httpVueLoader('./componentes/listadoMateriaPrima.vue');
+const LitadoLocales = httpVueLoader('./componentes/ListadoLocales.vue');
+
+const EventBus = new Vue();
 
 let comidasList = new Vue({
     el: '#appComidas',
@@ -16,13 +19,25 @@ let comidasList = new Vue({
         cantidades: '',
         progreso: 0,
         filasInsumos: [],
-        idModal : ''
+        idModal: '',
+        idLocal: '',
+        evento: '',
+        idLocalSesion: '',
     },
     components: {
         'listado-comidas': ListadoComidas,
         'listado-materias-primas': ListadoMateriasPrimas,
+        'listado-locales': LitadoLocales,
     },
     mounted: function () {
+        this.evento = EventBus;
+        this.idLocalSesion = $("#local").val();
+        if (this.idLocalSesion != 3) {
+            this.idLocal = $("#local").val();
+        }
+        this.evento.$on('cambiar-local', (nuevoValor) => {
+            this.idLocal = nuevoValor
+        });
         this.idModal = this.$refs.idModal.id;
         this.cargarTablaInsumos(1);
         this.baseTables();
@@ -48,6 +63,10 @@ let comidasList = new Vue({
         },
         materiaPrima(nuevoValor) {
             console.log('El valor del input de materia prima ha cambiado:', nuevoValor);
+        },
+        idLocal(nuevoValor) {
+            this.evento.$emit('cambiar-insumos', nuevoValor);
+            this.evento.$emit('cambiar-materia-prima', nuevoValor);
         }
     },
     methods: {
@@ -77,6 +96,7 @@ let comidasList = new Vue({
                             precio: parseFloat(this.precio),
                             filasInsumos: this.filasInsumos,
                             descripcion: this.descripcion,
+                            local: this.idLocal
                         }
                     }).then((response) => {
                         console.log(response.data);
@@ -93,6 +113,7 @@ let comidasList = new Vue({
                             this.precio = ''
                             this.descripcion = ''
                             this.actualizarInputs()
+                            this.filasInsumos = []
                         }
                         else {
                             Swal.fire({

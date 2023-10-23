@@ -60,22 +60,26 @@ class Mesa
 
     static function getComidas()
     {
+        $local = $_GET["id"];
         $db = new Database();
         $pdo = $db->connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $sql = "SELECT id_comida, comida, id_sub_menu, estado FROM tb_comida
-        WHERE estado = 1";
+        $sql = "SELECT c.id_comida as id, c.comida, m.id_local
+        FROM tb_comida c
+        LEFT JOIN tb_sub_menu sm ON c.id_sub_menu = sm.id_sub_menu
+        LEFT JOIN tb_menu m ON sm.id_menu = m.id
+        WHERE c.estado = ? AND m.id_local = ?";
 
         $p = $pdo->prepare($sql);
 
-        $p->execute();
+        $p->execute(array(1, $local));
 
         $comida = $p->fetchAll(PDO::FETCH_ASSOC);
         $data = array();
         foreach ($comida as $c) {
             $sub_array = array(
-                "id" => $c["id_comida"],
+                "id" => $c["id"],
                 "comida" => $c["comida"],
             );
             $data[] = $sub_array;
@@ -160,7 +164,6 @@ class Mesa
             $p->execute(array($id_orden, $nombreCliente));
 
             foreach ($filasInsumos as $f) {
-
                 $sql = "INSERT INTO tb_orden_detalle(id_orden, reg_num, id_insumo, cantidad, id_tipo)
                 VALUES (?,?,?,?,?)";
                 $p = $pdo->prepare($sql);
@@ -169,6 +172,54 @@ class Mesa
                 $regNum++;
             }
 
+            foreach ($filasInsumos as $f) {
+                if ($f["tipoMenu"] == 3) {
+                    $sql = "SELECT cd.id_insumo, SUM(cd.cantidades * ?) as cantidades
+                    FROM tb_combo_detalle as cd
+                    WHERE cd.id_combo = ?";
+                    $p = $pdo->prepare($sql);
+                    $p->execute(array($f["cantidad"], $f["idInsumo"]));
+                    $insumos = $p->fetchAll(PDO::FETCH_ASSOC);
+
+                    foreach ($insumos as $i) {
+                        $sql = "SELECT id.id_materia_prima, SUM(id.cantidades * ?) as cantidades
+                                FROM tb_insumo_detalle as id
+                                WHERE id_insumo = ?";
+                        $p = $pdo->prepare($sql);
+                        $p->execute(array($i["cantidades"], $i["id_insumo"]));
+                        $datosFinales = $p->fetchAll(PDO::FETCH_ASSOC);
+
+                        foreach ($datosFinales as $df) {
+                            $sql = "UPDATE tb_materia_prima 
+                                    SET existencias = existencias - ? 
+                                    WHERE id_materia_prima = ?";
+                            $p = $pdo->prepare($sql);
+                            $p->execute(array($df["cantidades"], $df["id_materia_prima"]));
+                        }
+                    }
+                } else if ($f["tipoMenu"] == 2) {
+                    $sql = "SELECT id.id_materia_prima, SUM(id.cantidades * ?) as cantidades
+                    FROM tb_insumo_detalle as id
+                    WHERE id_insumo = ?";
+                    $p = $pdo->prepare($sql);
+                    $p->execute(array($f["cantidad"], $f["idInsumo"]));
+                    $insumos = $p->fetchAll(PDO::FETCH_ASSOC);
+
+                    foreach ($insumos as $i) {
+                        $sql = "UPDATE tb_materia_prima 
+                                    SET existencias = existencias - ? 
+                                    WHERE id_materia_prima = ?";
+                        $p = $pdo->prepare($sql);
+                        $p->execute(array($i["cantidades"], $i["id_materia_prima"]));
+                    }
+                } else if ($f["tipoMenu"] == 1) {
+                    $sql = "UPDATE tb_materia_prima 
+                    SET existencias = existencias - ? 
+                    WHERE id_materia_prima = ?";
+                    $p = $pdo->prepare($sql);
+                    $p->execute(array($f["cantidad"], $f["idInsumo"]));
+                }
+            }
             $pdo->commit();
 
             $respuesta =  ['msg' => 'Orden Generada', 'id' => 1];

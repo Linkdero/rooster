@@ -1,6 +1,7 @@
 const ListadoMedidas = httpVueLoader('./componentes/listadoMedidas.vue');
+const LitadoLocales = httpVueLoader('./componentes/ListadoLocales.vue');
 // const ListadoPrecios = httpVueLoader('./componentes/listadoPrecios.vue');
-
+const EventBus = new Vue();
 
 let bodegaList = new Vue({
     el: '#appBodega',
@@ -12,14 +13,28 @@ let bodegaList = new Vue({
         medida: '',
         existencia: '',
         descripcion: '',
-        idModal: ''
-
+        idModal: '',
+        idLocal: '',
+        evento: '',
+        idLocalSesion: '',
     },
     components: {
         'listado-medidas': ListadoMedidas,
+        'listado-locales': LitadoLocales,
         // 'listado-precios': ListadoPrecios,
     },
     mounted: function () {
+        this.evento = EventBus;
+        this.idLocalSesion = $("#local").val();
+        if (this.idLocalSesion != 3) {
+            this.idLocal = $("#local").val();
+        }
+        this.evento.$on('obtener-medida', (nuevoValor) => {
+            this.medida = nuevoValor
+        });
+        this.evento.$on('cambiar-local', (nuevoValor) => {
+            this.idLocal = nuevoValor
+        });
         this.idModal = this.$refs.idModal.id;
         this.cargarTablaBodega(1);
         this.baseTables();
@@ -43,7 +58,6 @@ let bodegaList = new Vue({
             this.$forceUpdate();
         },
         generarInsumo: function () {
-            this.actualizarInputs()
             Swal.fire({
                 title: '¿Generar Nuevo Insumo?',
                 text: "¡Se agregara un nuevo insumo a la bodega!",
@@ -53,56 +67,105 @@ let bodegaList = new Vue({
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Si, generar!',
                 cancelmButtonText: 'Cancelar'
-
             }).then((result) => {
                 if (result.isConfirmed) {
-                    axios.get('bodega/model/bodegaList.php', {
-                        params: {
-                            opcion: 2,
-                            medida: this.medida,
-                            precio: this.precio,
-                            existencia: parseInt(this.existencia),
-                            descripcion: this.descripcion,
-                        }
-                    }).then((response) => {
-                        console.log(response.data);
-                        if (response.data.id == 1) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: response.data.msg,
-                                showConfirmButton: false,
-                                timer: 1500
-                            })
+                    // Crear un objeto FormData para enviar los datos al servidor
+                    var formData = new FormData();
+                    formData.append('opcion', 2);
+                    formData.append('tipo', this.tipoTabla);
+                    formData.append('descripcion', this.descripcion);
+                    formData.append('local', this.idLocal);
+                    formData.append('existencia', this.existencia);
+                    formData.append('precio', this.precio);
+                    formData.append('medida', this.medida);
 
-                            this.tablaBodega.clear().destroy();
-                            this.cargarTablaBodega()
-                            $("#setNuevoInsumo").modal("hide")
-                            this.precio = ''
-                            this.existencia = ''
-                            this.descripcion = ''
-                            this.actualizarInputs()
-                        }
-                        else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: response.data.msg,
-                                showConfirmButton: false,
-                                timer: 1500
-                            })
-                        }
-                    }).catch((error) => {
-                        console.log(error);
-                    });
+                    // Realizar la solicitud POST al servidor
+                    axios.post('./bodega/model/bodegaList.php', formData)
+                        .then(response => {
+                            console.log(response.data);
+                            if (response.data.id == 1) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.data.msg,
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                })
+
+                                this.tablaBodega.clear().destroy();
+                                this.cargarTablaBodega()
+                                $("#setNuevoInsumo").modal("hide")
+                                this.precio = ''
+                                this.existencia = ''
+                                this.descripcion = ''
+                            }
+                        })
+                        .catch(error => {
+                            console.error(error);
+                        });
                 }
-            })
+            });
         },
+        // generarInsumo: function () {
+        //     this.actualizarInputs()
+        //     Swal.fire({
+        //         title: '¿Generar Nuevo Insumo?',
+        //         text: "¡Se agregara un nuevo insumo a la bodega!",
+        //         icon: 'warning',
+        //         showCancelButton: true,
+        //         confirmButtonColor: '#3085d6',
+        //         cancelButtonColor: '#d33',
+        //         confirmButtonText: 'Si, generar!',
+        //         cancelmButtonText: 'Cancelar'
+
+        //     }).then((result) => {
+        //         if (result.isConfirmed) {
+        //             axios.get('bodega/model/bodegaList.php', {
+        //                 params: {
+        //                     opcion: 2,
+        //                     medida: this.medida,
+        //                     precio: this.precio,
+        //                     existencia: parseInt(this.existencia),
+        //                     descripcion: this.descripcion,
+        //                 }
+        //             }).then((response) => {
+        //                 console.log(response.data);
+        //                 if (response.data.id == 1) {
+        //                     Swal.fire({
+        //                         icon: 'success',
+        //                         title: response.data.msg,
+        //                         showConfirmButton: false,
+        //                         timer: 1500
+        //                     })
+
+        //                     this.tablaBodega.clear().destroy();
+        //                     this.cargarTablaBodega()
+        //                     $("#setNuevoInsumo").modal("hide")
+        //                     this.precio = ''
+        //                     this.existencia = ''
+        //                     this.descripcion = ''
+        //                     this.actualizarInputs()
+        //                 }
+        //                 else {
+        //                     Swal.fire({
+        //                         icon: 'error',
+        //                         title: response.data.msg,
+        //                         showConfirmButton: false,
+        //                         timer: 1500
+        //                     })
+        //                 }
+        //             }).catch((error) => {
+        //                 console.log(error);
+        //             });
+        //         }
+        //     })
+        // },
         cargarTablaBodega: function () {
 
             let thes = this;
             axios.get(`bodega/model/bodegaList.php`, {
                 params: {
                     opcion: 1,
-                    tipo:2
+                    tipo: 2
                 }
             }).then(response => {
                 console.log(response.data);

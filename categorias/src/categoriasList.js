@@ -1,5 +1,7 @@
 const LitadoLocales = httpVueLoader('./componentes/ListadoLocales.vue');
 const LitadoMenus = httpVueLoader('./componentes/listadoMenus.vue');
+const LitadoSubMenus = httpVueLoader('./componentes/listadoSubMenus.vue');
+
 const EventBus = new Vue();
 
 let categoriasList = new Vue({
@@ -16,8 +18,9 @@ let categoriasList = new Vue({
         idLocal: '',
         evento: '',
         idLocalSesion: '',
-        tipoCategoria: ''
-
+        tipoCategoria: '',
+        idMenu: '',
+        idSubMenu: ''
     },
     mounted: function () {
         this.evento = EventBus;
@@ -28,17 +31,33 @@ let categoriasList = new Vue({
         this.evento.$on('cambiar-local', (nuevoValor) => {
             this.idLocal = nuevoValor
         });
+        this.evento.$on('obtener-id-menu', (nuevoValor) => {
+            this.idMenu = nuevoValor
+        });
+        this.evento.$on('obtener-id-subMenu', (nuevoValor) => {
+            this.idSubMenu = nuevoValor
+        });
         this.cargarTablaMenus(1);
         this.baseTables();
+    },
+    watch: {
+        idLocal(nuevoValor, viejoValor) {
+            this.evento.$emit('cambiar-menus', nuevoValor);
+        },
     },
     components: {
         'listado-locales': LitadoLocales,
         'listado-menus': LitadoMenus,
+        'listado-sub-menus': LitadoSubMenus,
     },
     computed: {
         camposCompletos() {
             if (this.tipoTabla == 1) {
                 return this.descripcion.trim() !== '';
+            } else if (this.tipoTabla == 2) {
+                return this.descripcion.trim() !== '' && this.idMenu.trim() !== '';
+            } else if (this.tipoTabla == 3) {
+                return this.descripcion.trim() !== '' && this.idSubMenu.trim() !== '';
             }
         },
     },
@@ -395,10 +414,57 @@ let categoriasList = new Vue({
             if (this.tipoTabla == 1) {
                 this.nombreModal = 'Nuevo Menú'
                 this.tipoCategoria = 'Menú'
+            } else if (this.tipoTabla == 2) {
+                this.nombreModal = 'Nuevo Sub Menú'
+                this.tipoCategoria = 'Sub Menú'
+            } else if (this.tipoTabla == 3) {
+                this.nombreModal = 'Nueva Comida'
+                this.tipoCategoria = 'Comida'
             }
         },
         setNuevaCategoria: function () {
-            alert("Funciona")
+            Swal.fire({
+                title: '¿Generar ' + this.nombreModal + '?',
+                text: "Se agregara un " + this.nombreModal + " al Sistema!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '¡Si, Generar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Crear un objeto FormData para enviar los datos al servidor
+                    var formData = new FormData();
+                    formData.append('opcion', 4);
+                    formData.append('tipo', this.tipoTabla);
+                    formData.append('descripcion', this.descripcion);
+                    formData.append('local', this.idLocal);
+                    if (this.tipoTabla == 2) {
+                        formData.append('menu', this.idMenu);
+                    } else if (this.tipoTabla == 3) {
+                        formData.append('subMenu', this.idSubMenu);
+                    }
+
+                    // Realizar la solicitud POST al servidor
+                    axios.post('./categorias/model/categoriasList.php', formData)
+                        .then(response => {
+                            console.log(response.data);
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.data.msg,
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                            $("#setNuevaCategoria").modal("hide")
+                            this.cargarTablaMenus(this.tipoTabla)
+                            this.descripcion = ''
+                        })
+                        .catch(error => {
+                            console.error(error);
+                        });
+                }
+            });
         }
     },
 });

@@ -1,4 +1,8 @@
 const ListadoInsumos = httpVueLoader('./componentes/listadoInsumos.vue'); // Asegúrate de proporcionar la ruta correcta
+const LitadoLocales = httpVueLoader('./componentes/ListadoLocales.vue');
+
+const EventBus = new Vue();
+
 let combosList = new Vue({
     el: '#appCombos',
     data: {
@@ -8,15 +12,34 @@ let combosList = new Vue({
         progreso: 0,
         cantidades: 0,
         filasInsumos: [],
-        cantidades: 0,
+        cantidades: '',
         descripcion: '',
-        precio: 0,
-        idModal: ''
+        precio: '',
+        idModal: '',
+        idLocal: '',
+        evento: '',
+        idLocalSesion: '',
     },
     components: {
         'listado-insumos': ListadoInsumos,
+        'listado-locales': LitadoLocales,
+
+    },
+    watch: {
+        idLocal(nuevoValor) {
+            this.evento.$emit('cambiar-insumos', nuevoValor);
+        }
     },
     mounted: function () {
+        this.evento = EventBus;
+        this.idLocalSesion = $("#local").val();
+        if (this.idLocalSesion != 3) {
+            this.idLocal = $("#local").val();
+        }
+        this.evento.$on('cambiar-local', (nuevoValor) => {
+            this.idLocal = nuevoValor
+        });
+
         this.idModal = this.$refs.idModal.id;
         this.cargarTablaCombos(1);
         this.baseTables();
@@ -44,12 +67,13 @@ let combosList = new Vue({
 
             }).then((result) => {
                 if (result.isConfirmed) {
-                    axios.get('insumos/model/comidasList.php', {
+                    axios.get('insumos/model/combosList.php', {
                         params: {
-                            opcion: 6,
+                            opcion: 2,
                             precio: parseFloat(this.precio),
                             filasInsumos: this.filasInsumos,
                             descripcion: this.descripcion,
+                            local: this.idLocal
                         }
                     }).then((response) => {
                         console.log(response.data);
@@ -66,6 +90,7 @@ let combosList = new Vue({
                             this.precio = ''
                             this.descripcion = ''
                             this.filasInsumos = []
+                            this.progreso = 0
                         }
                         else {
                             Swal.fire({

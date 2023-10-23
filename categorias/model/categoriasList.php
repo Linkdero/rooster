@@ -213,6 +213,59 @@ class Categoria
         $pdo = null;
         echo json_encode($respuesta);
     }
+
+    //Opcion 4
+    static function setNuevaCategoria()
+    {
+        // Obtener los datos de la solicitud POST
+        $tipo = $_POST["tipo"];
+        $descripcion = $_POST["descripcion"];
+        $local = $_POST["local"];
+
+        if ($tipo == 2) {
+            $menu = $_POST["menu"];
+        } else if ($tipo == 3) {
+            $subMenu = $_POST["subMenu"];
+        }
+
+        try {
+            $db = new Database();
+            $pdo = $db->connect();
+
+            if ($tipo == 1) {
+                $sql = "INSERT INTO tb_menu(menu, id_local, estado)
+                VALUES (?,?,?)";
+
+                $p = $pdo->prepare($sql);
+
+                $p->execute(array($descripcion, $local, 1));
+
+                echo json_encode(['msg' => 'Menú Agregado', 'id' => 1]);
+            } else if ($tipo == 2) {
+                $sql = "INSERT INTO tb_sub_menu(sub_menu, id_menu, estado) 
+                VALUES (?,?,?)";
+
+                $p = $pdo->prepare($sql);
+
+                $p->execute(array($descripcion, $menu, 1));
+
+                echo json_encode(['msg' => 'Sub Menú Agregado', 'id' => 1]);
+            } else if ($tipo == 3) {
+                $sql = "INSERT INTO tb_comida(comida, id_sub_menu, estado)
+                    VALUES (?,?,?)";
+
+                $p = $pdo->prepare($sql);
+
+                $p->execute(array($descripcion, $subMenu, 1));
+
+                echo json_encode(['msg' => 'Comida Agregada', 'id' => 1]);
+            }
+            $pdo = null;
+
+        } catch (PDOException $e) {
+            echo json_encode(['msg' => 'ERROR: ' . $e->getMessage()]);
+        }
+    }
 }
 
 //case
@@ -231,5 +284,8 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
         case 3:
             Categoria::setCategorias();
             break;
+
+        case 4:
+            Categoria::setNuevaCategoria();
     }
 }

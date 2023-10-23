@@ -32,7 +32,7 @@
                             </div>
                             <div class="col-4" v-if="seleccionComidas == 1">
                                 <div class="row">
-                                    <listado-materias-primas :tipo="2" :modal="idModal"></listado-materias-primas>
+                                    <listado-materias-primas :tipo="1" :modal="idModal" :evento="evento"></listado-materias-primas>
                                 </div>
                             </div>
 
@@ -40,7 +40,7 @@
                                 <div class="row">
                                     <listado-comidas :tipo="2" :modal="idModal" :evento="evento"></listado-comidas>
 
-                                    <listado-insumos :tipo="2" :modal="idModal" :evento="evento"></listado-insumos>
+                                    <listado-insumos :tipo="3" :modal="idModal" :evento="evento"></listado-insumos>
 
                                 </div>
 
@@ -111,8 +111,8 @@
                                 <textarea class="form-control" id="descripcion" rows="3" v-model="descripcion"></textarea>
                             </div>
                         </div>
-                        <listado-empleados :local="idLocal" :modal="idModal" :evento="evento"></listado-empleados>
-                        <div v-if="idLocal == 3">
+                        <listado-empleados :tipo="2" :modal="idModal" :evento="evento"></listado-empleados>
+                        <div v-if="idLocalSesion == 3">
                             <listado-locales :evento="evento"> </listado-locales>
                         </div>
 

@@ -1,10 +1,10 @@
 <template>
     <div class="col">
-        <label for="menus">Menús {{ tipo }} </label>
-        <select id="menus" class="form-control btn-xs">
+        <label for="subMenus">Sub Menús </label>
+        <select id="subMenus" class="form-control btn-xs">
             <option></option>
-            <option v-for="menu in menus" :key="menu.id" :value="menu.id">
-                {{ menu.nombre }}
+            <option v-for="subMenu in subMenus" :key="subMenu.id" :value="subMenu.id">
+                {{ subMenu.nombre }}
             </option>
         </select>
     </div>
@@ -17,43 +17,41 @@ module.exports = {
 
     data: function () {
         return {
-            menus: '',
+            subMenus: '',
         }
     },
     mounted: function () {
         if (this.tipo == 2) {
             this.evento.$on('cambiar-menus', (nuevoValor) => {
-                this.getMenus(nuevoValor)
+                this.getSubMenus(nuevoValor)
             });
         } else {
-            this.getMenus(3);
+            this.getSubMenus(3);
         }
     },
     methods: {
-        getMenus: function (id) {
-            axios.get(`componentes/model/menusList.php`, {
+        getSubMenus: function (id) {
+            axios.get(`componentes/model/subMenusList.php`, {
                 params: {
                     opcion: 1,
                     id: id
                 }
             }).then(response => {
                 console.log(response.data)
-                this.menus = response.data
+                this.subMenus = response.data
 
                 // Inicializa Select2 después de cargar los datos
-                $('#menus').select2({
+                $('#subMenus').select2({
                     placeholder: 'Menús',
                     allowClear: true,
                     width: '100%',
                     // dropdownParent: $('#' + this.modal + ''),
                 });
-
-                $('#menus').on('change', (event) => {
+                $('#subMenus').on('change', (event) => {
                     // Obtiene el valor seleccionado
                     const valorSeleccionado = $(event.target).val();
-                    this.evento.$emit('obtener-id-menu', valorSeleccionado);
+                    this.evento.$emit('obtener-id-subMenu', valorSeleccionado);
                 });
-
             }).catch(error => {
                 console.error(error);
             });

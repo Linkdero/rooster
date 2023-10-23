@@ -15,7 +15,7 @@
                             </div>
                         </div>
                         <div class="input-group">
-                            <listado-insumos :tipo="1" :modal="idModal"></listado-insumos>
+                            <listado-insumos :tipo="2" :modal="idModal" :evento="evento"></listado-insumos>
                             <div class="col">
                                 <label for="cantidades">Cantidades</label>
                                 <input type="number" v-model="cantidades" class="btn btn-outline-primary form-control btn-xs" />
@@ -64,11 +64,14 @@
                             <label for="cantidades">Precio</label>
                             <input type="number" v-model="precio" class="btn btn-outline-primary form-control btn-xs" />
                         </div>
-                        <div class="col-12">
+                        <div class="col">
                             <label for="descripcion">Descripción</label>
                             <div class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
                                 <textarea class="form-control" id="descripcion" rows="3" v-model="descripcion"></textarea>
                             </div>
+                        </div>
+                        <div v-if="idLocalSesion == 3">
+                            <listado-locales :evento="evento"> </listado-locales> {{idLocal}}
                         </div>
                     </div>
                 </div>

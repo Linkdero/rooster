@@ -7,6 +7,7 @@ class Bodega
     //Opcion 1
     static function getMateriaPrima()
     {
+        $local = $_GET["id"];
         $db = new Database();
         $pdo = $db->connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -15,7 +16,7 @@ class Bodega
         if ($tipo == 1) {
             $sql = "SELECT id_materia_prima as id, materia_prima as nombre
                     FROM tb_materia_prima
-                    WHERE id_estado = 1";
+                    WHERE id_estado = ? and id_local = ?";
         } else {
             $sql = "SELECT mp.id_materia_prima as id, mp.materia_prima as nombre, m.medida, mp.precio, mp.existencias, mp.id_estado, e.estado
                     FROM tb_materia_prima as mp
@@ -24,8 +25,11 @@ class Bodega
         }
 
         $p = $pdo->prepare($sql);
-        $p->execute();
-
+        if ($tipo == 1) {
+            $p->execute(array(1,$local));
+        } else {
+            $p->execute();
+        }
         $insumo = $p->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($insumo as $i) {
@@ -55,10 +59,11 @@ class Bodega
     static function setnuevaMateriaPrima()
     {
         try {
-            $medida = $_GET["medida"];
-            $precio = $_GET["precio"];
-            $existencia = $_GET["existencia"];
-            $descripcion = $_GET["descripcion"];
+            $medida = $_POST["medida"];
+            $precio = $_POST["precio"];
+            $existencia = $_POST["existencia"];
+            $descripcion = $_POST["descripcion"];
+            $local = $_POST["local"];
 
             $db = new Database();
             $pdo = $db->connect();
@@ -88,7 +93,7 @@ class Bodega
                     VALUES (?,?,?,?,?,?)";
 
             $p = $pdo->prepare($sql);
-            $p->execute(array($descripcion, $medida, $precio, $existencia, 1, 1));
+            $p->execute(array($descripcion, $medida, $precio, $existencia, 1, $local));
 
             $respuesta =  ['msg' => 'Materia Prima Agregada', 'id' => 1];
         } catch (PDOException $e) {

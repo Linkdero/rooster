@@ -1,6 +1,6 @@
 <template>
     <div class="col">
-        <label for="comidas">Menú</label>
+        <label for="comidas">Comidas</label>
         <select id="comidas" class="form-control btn-xs">
             <option></option>
             <option v-for="comida in comidas" :key="comida.id" :value="comida.id">
@@ -20,13 +20,20 @@ module.exports = {
         }
     },
     mounted: function () {
-        this.getComidas();
+        if (this.tipo == 2) {
+            this.evento.$on('cambiar-insumos', (nuevoValor) => {
+                this.getComidas(nuevoValor)
+            });
+        } else {
+            this.getComidas(3);
+        }
     },
     methods: {
-        getComidas: function () {
+        getComidas: function (id) {
             axios.get(`mesas/model/mesasList.php`, {
                 params: {
                     opcion: 2,
+                    id: id
                 }
             }).then(response => {
                 console.log(response.data)
@@ -34,7 +41,7 @@ module.exports = {
 
                 // Inicializa Select2 después de cargar los datos
                 $('#comidas').select2({
-                    placeholder: 'Menú',
+                    placeholder: 'Comida',
                     allowClear: true,
                     width: '100%',
                     dropdownParent: $('#' + this.modal + ''),
@@ -48,6 +55,7 @@ module.exports = {
 
                     if (this.tipo == 2) {
                         this.evento.$emit('cambiar-insumo', valorSeleccionado);
+                        this.evento.$emit('cambiar-insumos-comida', valorSeleccionado);
                     }
                 });
 

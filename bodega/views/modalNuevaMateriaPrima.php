@@ -15,7 +15,7 @@
                             </div>
                         </div>
                         <div class="input-group">
-                            <listado-medidas :tipo="1" :modal="idModal"></listado-medidas>
+                            <listado-medidas :tipo="1" :modal="idModal" :evento="evento"></listado-medidas>
                             <div class="col">
                                 <label for="insumos">Precio</label>
                                 <input type="number" v-model="precio" class="btn btn-outline-primary form-control btn-xs" @click="actualizarInputs()" />
@@ -25,11 +25,14 @@
                                 <input type="number" v-model="existencia" class="btn btn-outline-primary form-control btn-xs" @click="actualizarInputs()" />
                             </div>
                         </div>
-                        <div class="col-12">
+                        <div class="col">
                             <label for="descripcion">Descripción</label>
                             <div class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
-                                <textarea class="form-control" id="descripcion" rows="3" v-model="descripcion" @click="actualizarInputs()"></textarea>
+                                <textarea class="form-control" id="descripcion" rows="3" v-model="descripcion"></textarea>
                             </div>
+                        </div>
+                        <div v-if="idLocalSesion == 3">
+                            <listado-locales :evento="evento"> </listado-locales> {{idLocal}}
                         </div>
                         <!-- <input type="hidden" v-model="precio" id="idSelectPrecios" class="btn btn-outline-primary form-control btn-xs" value="" /> -->
                         <input type="hidden" v-model="medida" id="idSelectMedidas" class="btn btn-outline-primary form-control btn-xs" value="" />

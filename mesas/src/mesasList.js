@@ -36,14 +36,18 @@ let mesasList = new Vue({
         precio: '',
         idMesa: '',
         validarNombre: true,
-        idLocal: 0,
+        idLocal: '',
+        idLocalSesion: '',
         idEmpleado: ''
     },
     mounted: function () {
         this.idModal = this.$refs.idModal.id;
         this.evento = EventBus;
-        this.idLocal = $("#local").val();
-        this.evento.$on('cambiar-empleado', (nuevoValor) => {
+        this.idLocalSesion = $("#local").val();
+        if (this.idLocalSesion != 3) {
+            this.idLocal = $("#local").val();
+        }
+        this.evento.$on('id-empleado', (nuevoValor) => {
             this.idEmpleado = nuevoValor
         });
         this.evento.$on('cambiar-local', (nuevoValor) => {
@@ -65,6 +69,13 @@ let mesasList = new Vue({
             // Esta función se ejecutará cada vez que selectComida cambie
             this.getInsumos(this.selectComida);
         },
+        idLocal(nuevoValor) {
+            this.evento.$emit('cambiar-materia-prima', nuevoValor);
+            this.evento.$emit('cambiar-insumos', nuevoValor);
+            this.evento.$emit('cambiar-empleado', nuevoValor);
+            // this.evento.$emit('cambiar-materia-prima', nuevoValor);
+
+        }
     },
     computed: {
         camposCompletos2() {
@@ -117,7 +128,7 @@ let mesasList = new Vue({
                 params: {
                     opcion: 1,
                     filtro: id,
-                    local: this.idLocal
+                    local: this.idLocalSesion
                 }
             }).then(response => {
                 console.log(response.data);

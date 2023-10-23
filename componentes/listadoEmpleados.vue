@@ -12,7 +12,7 @@
 <script>
 
 module.exports = {
-    props: ['tipo', 'modal', 'evento', 'local'], // Aquí defines el prop miProp
+    props: ['tipo', 'modal', 'evento'], // Aquí defines el prop miProp
 
     data: function () {
         return {
@@ -20,7 +20,13 @@ module.exports = {
         }
     },
     mounted: function () {
-        this.getEmpleados(this.local);
+        if (this.tipo == 2) {
+            this.evento.$on('cambiar-empleado', (nuevoValor) => {
+                this.getEmpleados(nuevoValor)
+            });
+        } else {
+            this.getEmpleados(3);
+        }
     },
     methods: {
         getEmpleados: function (local) {
@@ -44,7 +50,7 @@ module.exports = {
                 $('#empleados').on('change', (event) => {
                     // Obtiene el valor seleccionado
                     const valorSeleccionado = $(event.target).val();
-                    this.evento.$emit('cambiar-empleado', valorSeleccionado);
+                    this.evento.$emit('id-empleado', valorSeleccionado);
                 });
 
             }).catch(error => {

@@ -5,6 +5,7 @@
                 <div class="x_panel">
                     <div class="x_title">
                         <h2>{{tituloModulo}}</h2>
+                        <input type="hidden" id="local" value="<?php echo $_SESSION['id_local'] ?>">
                         <div class="clearfix"></div>
                     </div>
 

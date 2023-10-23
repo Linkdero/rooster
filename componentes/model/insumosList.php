@@ -2,27 +2,28 @@
 include '../../inc/database.php';
 date_default_timezone_set("America/Guatemala");
 
-class Menu
+class Insumo
 {
     //Opcion 1
-    static function getMenus()
+    static function getInsumosComida()
     {
-        $local = $_GET["id"];
-
+        $comida = $_GET["id"];
         $db = new Database();
         $pdo = $db->connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $sql = "SELECT id, menu as nombre FROM `tb_menu`
-        WHERE id_local = ? and estado = ?";
+        $sql = "SELECT id_insumo as id, descripcion as nombre
+        FROM tb_insumo
+        WHERE id_comida = ? and id_estado = ?";
 
         $p = $pdo->prepare($sql);
-        $p->execute(array($local, 1));
-        $menus = $p->fetchAll(PDO::FETCH_ASSOC);
+        $p->execute(array($comida, 1));
+
+        $insumos = $p->fetchAll(PDO::FETCH_ASSOC);
         $data = array();
-        foreach ($menus as $m) {
+        foreach ($insumos as $i) {
             $sub_array = array(
-                "id" => $m["id"],
-                "nombre" => $m["nombre"],
+                "id" => $i["id"],
+                "nombre" => $i["nombre"],
             );
             $data[] = $sub_array;
         }
@@ -37,7 +38,7 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
 
     switch ($opcion) {
         case 1:
-            Menu::getMenus();
+            Insumo::getInsumosComida();
             break;
     }
 }

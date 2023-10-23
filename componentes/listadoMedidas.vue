@@ -12,7 +12,7 @@
 
 <script>
 module.exports = {
-    props: ['tipo', 'modal'],
+    props: ['tipo', 'modal', 'evento'],
 
     data: function () {
         return {
@@ -48,7 +48,7 @@ module.exports = {
                     // Obtiene el valor seleccionado
                     const valorSeleccionado = $(event.target).val();
                     // Llama a la función que deseas ejecutar
-                    $("#idSelectMedidas").val(valorSeleccionado);
+                    this.evento.$emit('obtener-medida', valorSeleccionado);
                 });
 
 

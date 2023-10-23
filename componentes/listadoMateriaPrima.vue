@@ -14,7 +14,7 @@
 // import  EventBus  from './eventBus.js';
 
 module.exports = {
-    props: ['tipo', 'modal'], // Aquí defines el prop miProp
+    props: ['tipo', 'modal', 'evento'], // Aquí defines el prop miProp
 
     data: function () {
         return {
@@ -22,14 +22,22 @@ module.exports = {
         }
     },
     mounted: function () {
-        this.getMateriasPrimas();
+        if (this.tipo == 1) {
+            this.evento.$on('cambiar-materia-prima', (nuevoValor) => {
+                this.getMateriasPrimas(nuevoValor)
+            });
+        } else {
+            this.getMateriasPrimas(3);
+        }
+
     },
     methods: {
-        getMateriasPrimas: function () {
+        getMateriasPrimas: function (id) {
             axios.get(`bodega/model/bodegaList.php`, {
                 params: {
                     opcion: 1,
-                    tipo: this.tipo
+                    tipo: this.tipo,
+                    id: id
                 }
             }).then(response => {
                 console.log(response.data)

@@ -15,10 +15,10 @@
                             </div>
                         </div>
                         <div class="input-group">
-                            <listado-comidas :tipo="1" :modal="idModal"></listado-comidas>
+                            <listado-comidas :tipo="2" :modal="idModal" :evento="evento"></listado-comidas>
                             <div class="col">
                                 <label for="insumos">Precio</label>
-                                <input type="number" v-model="precio" class="btn btn-outline-primary form-control btn-xs" @click="actualizarInputs()" value=""/>
+                                <input type="number" v-model="precio" class="btn btn-outline-primary form-control btn-xs" @click="actualizarInputs()" value="" />
                             </div>
 
                         </div>
@@ -29,7 +29,7 @@
                             </div>
                         </div>
                         <div class="input-group">
-                            <listado-materias-primas :tipo="1" :modal="idModal"></listado-materias-primas>
+                            <listado-materias-primas :tipo="1" :modal="idModal" :evento="evento"></listado-materias-primas>
                             <div class="col">
                                 <label for="cantidades">Cantidades</label>
                                 <input type="number" v-model="cantidades" class="btn btn-outline-primary form-control btn-xs" @click="actualizarInputs()" />
@@ -73,11 +73,14 @@
 
                             </div>
                         </div>
-                        <div class="col-12">
+                        <div class="col">
                             <label for="descripcion">Descripción</label>
                             <div class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
-                                <textarea class="form-control" id="descripcion" rows="3" v-model="descripcion" @click="actualizarInputs()"></textarea>
+                                <textarea class="form-control" id="descripcion" rows="3" v-model="descripcion"></textarea>
                             </div>
+                        </div>
+                        <div v-if="idLocalSesion == 3">
+                            <listado-locales :evento="evento"> </listado-locales> {{idLocal}}
                         </div>
                         <input type="hidden" v-model="insumo" id="idSelectComidas" class="btn btn-outline-primary form-control btn-xs" value="" />
                         <input type="hidden" v-model="materiaPrima" id="idSelectMateriasPrimas" class="btn btn-outline-primary form-control btn-xs" value="" />
