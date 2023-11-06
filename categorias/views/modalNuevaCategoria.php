@@ -11,7 +11,7 @@
                     <div v-if="tipoTabla == 2" class="form-row">
                         <div class="col-12">
                             <div class="x_title">
-                                <h2>Datos Sub Menú {{idLocal}} </h2>
+                                <h2>Datos Sub Menú </h2>
                                 <div class="clearfix"></div>
                             </div>
                         </div>
@@ -22,7 +22,7 @@
                     <div v-if="tipoTabla == 3" class="form-row">
                         <div class="col-12">
                             <div class="x_title">
-                                <h2>Comida {{idLocal}} </h2>
+                                <h2>Comida </h2>
                                 <div class="clearfix"></div>
                             </div>
                         </div>

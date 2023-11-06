@@ -2,7 +2,7 @@
 include '../../inc/database.php';
 date_default_timezone_set("America/Guatemala");
 
-class Medidas
+class Medida
 {
     //Opcion 1
     static function getMedidas()
@@ -14,19 +14,17 @@ class Medidas
 
         if ($tipo == 1) {
             $sql = "SELECT id_medida as id, medida as nombre
-            FROM tb_medida 
-            WHERE id_estado = ?";
+            FROM tb_medida";
         } else {
             $sql = "SELECT id_medida as id, medida as nombre, m.id_estado as id_estado, e.estado
             FROM tb_medida as m
-            LEFT JOIN tb_estado as e ON m.id_estado = e.id_estado
-            WHERE m.id_estado = ?";
+            LEFT JOIN tb_estado as e ON m.id_estado = e.id_estado";
         }
 
 
         $p = $pdo->prepare($sql);
 
-        $p->execute(array(1));
+        $p->execute();
 
         $medidas = $p->fetchAll(PDO::FETCH_ASSOC);
         $data = array();
@@ -78,6 +76,60 @@ class Medidas
         echo json_encode($data);
         return $data;
     }
+
+    static function setNuevaMedida()
+    {
+        $descripcion = $_POST["descripcion"];
+        try {
+            $db = new Database();
+            $pdo = $db->connect();
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            $sql = "INSERT INTO tb_medida(medida, id_estado)
+             VALUES (?,?)";
+
+            $p = $pdo->prepare($sql);
+
+            $p->execute(array($descripcion, 1));
+
+            echo json_encode(['msg' => 'Medida Agregada', 'id' => 1]);
+
+            $pdo = null;
+
+        } catch (PDOException $e) {
+            echo json_encode(['msg' => 'ERROR: ' . $e->getMessage()]);
+        }
+    }
+
+    static function setMedida()
+    {
+        $id = $_POST["id"];
+        $estado = $_POST["estado"];
+        if ($estado == 1) {
+            $mensaje = "Medida Activada";
+        } else {
+            $mensaje = "Medida Desactivada";
+        }
+        try {
+            $db = new Database();
+            $pdo = $db->connect();
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            $sql = "UPDATE tb_medida SET id_estado= ?
+             WHERE id_medida = ?";
+
+            $p = $pdo->prepare($sql);
+
+            $p->execute(array($estado, $id));
+
+            echo json_encode(['msg' => $mensaje, 'id' => 1]);
+
+            $pdo = null;
+
+        } catch (PDOException $e) {
+            echo json_encode(['msg' => 'ERROR: ' . $e->getMessage()]);
+        }
+    }
 }
 
 //case
@@ -86,11 +138,19 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
 
     switch ($opcion) {
         case 1:
-            Medidas::getMedidas();
+            Medida::getMedidas();
             break;
 
         case 2:
-            Medidas::getInsumosMedidas();
+            Medida::getInsumosMedidas();
+            break;
+
+        case 3:
+            Medida::setNuevaMedida();
+            break;
+
+        case 4:
+            Medida::setMedida();
             break;
     }
 }

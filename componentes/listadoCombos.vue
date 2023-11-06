@@ -20,13 +20,20 @@ module.exports = {
         }
     },
     mounted: function () {
-        this.getCombos();
+        if (this.tipo == 2) {
+            this.evento.$on('cambiar-insumos', (nuevoValor) => {
+                this.getCombos(nuevoValor);
+            });
+        } else {
+            this.getCombos(3);
+        }
     },
     methods: {
-        getCombos: function () {
+        getCombos: function (id) {
             axios.get(`insumos/model/combosList.php`, {
                 params: {
                     opcion: 1,
+                    id: id
                 }
             }).then(response => {
                 console.log(response.data)

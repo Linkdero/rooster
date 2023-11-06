@@ -63,14 +63,13 @@ let categoriasList = new Vue({
     },
     methods: {
         cargarTablaMenus: function (tipoTabla) {
-
             this.tipoTabla = tipoTabla;
-
             let thes = this;
             axios.get(`categorias/model/categoriasList.php`, {
                 params: {
                     opcion: 1,
-                    tipoTabla: tipoTabla
+                    tipoTabla: tipoTabla,
+                    local: this.idLocalSesion
                 }
             }).then(response => {
                 console.log(response.data);
@@ -167,6 +166,9 @@ let categoriasList = new Vue({
                                 action: function (e, dt, node, config) {
                                     thes.datosModal()
                                     $("#setNuevaCategoria").modal("show")
+                                    if (thes.idLocalSesion != 3) {
+                                        thes.evento.$emit('cambiar-menus', thes.idLocalSesion);
+                                    }
                                 }
                             },
                             {

@@ -16,7 +16,7 @@ class Mesa
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Construir la consulta SQL
-        $sql = "SELECT id_mesa, nro_mesa, referencia, e.estado, estado_mesa, l.descripcion as restaurante
+        $sql = "SELECT id_mesa, nro_mesa, referencia, e.estado, estado_mesa, l.descripcion as restaurante, m.id_local
                 FROM tb_mesa as m
                 LEFT JOIN tb_estado as e ON m.estado_mesa = e.id_estado
                 LEFT JOIN tb_local as l ON m.id_local = l.id_local
@@ -49,7 +49,9 @@ class Mesa
                 "referencia" => $m["referencia"],
                 "estado" => $m["estado"],
                 "estado_mesa" => $m["estado_mesa"],
-                "restaurante" => $m["restaurante"]
+                "restaurante" => $m["restaurante"],
+                "id_local" => $m["id_local"],
+
             );
             $data[] = $sub_array;
         }
@@ -131,6 +133,96 @@ class Mesa
             $pdo = $db->connect();
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $pdo->beginTransaction();
+            foreach ($filasInsumos as $f) {
+                if ($f["tipoMenu"] == 3) {
+                    $sql = "SELECT cd.id_insumo, SUM(cd.cantidades * ?) as cantidades
+                    FROM tb_combo_detalle as cd
+                    WHERE cd.id_combo = ?";
+                    $p = $pdo->prepare($sql);
+                    $p->execute(array($f["cantidad"], $f["idInsumo"]));
+                    $insumos = $p->fetchAll(PDO::FETCH_ASSOC);
+
+                    foreach ($insumos as $i) {
+                        $sql = "SELECT id.id_materia_prima, SUM(id.cantidades * ?) as cantidades
+                                FROM tb_insumo_detalle as id
+                                WHERE id_insumo = ?";
+                        $p = $pdo->prepare($sql);
+                        $p->execute(array($i["cantidades"], $i["id_insumo"]));
+                        $datosFinales = $p->fetchAll(PDO::FETCH_ASSOC);
+
+                        foreach ($datosFinales as $df) {
+                            $sql = "SELECT materia_prima, existencias
+                            FROM tb_materia_prima
+                            WHERE id_materia_prima = ?";
+                            $p = $pdo->prepare($sql);
+                            $p->execute(array($df["id_materia_prima"]));
+                            $insumosExistente = $p->fetchAll(PDO::FETCH_ASSOC);
+
+                            foreach ($insumosExistente as $i) {
+                                if ($i["existencias"] < $df["cantidades"]) {
+                                    json_encode(['msg' => 'Solamente hay ' . $i["existencias"] . 'U de ' . $i["materia_prima"] . ' De las' . $df["cantidades"] . 'U Solicitadas', 'id' => 2]);
+                                    return;
+                                }
+                            }
+
+                            $sql = "UPDATE tb_materia_prima 
+                                    SET existencias = existencias - ? 
+                                    WHERE id_materia_prima = ?";
+                            $p = $pdo->prepare($sql);
+                            $p->execute(array($df["cantidades"], $df["id_materia_prima"]));
+                        }
+                    }
+                } else if ($f["tipoMenu"] == 2) {
+                    $sql = "SELECT id.id_materia_prima, SUM(id.cantidades * ?) as cantidades
+                    FROM tb_insumo_detalle as id
+                    WHERE id_insumo = ?";
+                    $p = $pdo->prepare($sql);
+                    $p->execute(array($f["cantidad"], $f["idInsumo"]));
+                    $insumos = $p->fetchAll(PDO::FETCH_ASSOC);
+
+                    foreach ($insumos as $i) {
+                        $sql = "SELECT materia_prima, existencias
+                        FROM tb_materia_prima
+                        WHERE id_materia_prima = ?";
+                        $p = $pdo->prepare($sql);
+                        $p->execute(array($i["id_materia_prima"]));
+                        $insumosExistente = $p->fetchAll(PDO::FETCH_ASSOC);
+
+                        foreach ($insumosExistente as $i2) {
+                            if ($i2["existencias"] < $i["cantidades"]) {
+                                json_encode(['msg' => 'Solamente hay ' . $i2["existencias"] . 'U de ' . $i2["materia_prima"] . ' De las' . $i["cantidades"] . 'U Solicitadas', 'id' => 2]);
+                                return;
+                            }
+                        }
+
+                        $sql = "UPDATE tb_materia_prima 
+                                    SET existencias = existencias - ? 
+                                    WHERE id_materia_prima = ?";
+                        $p = $pdo->prepare($sql);
+                        $p->execute(array($i["cantidades"], $i["id_materia_prima"]));
+                    }
+                } else if ($f["tipoMenu"] == 1) {
+                    $sql = "SELECT materia_prima, existencias
+                    FROM tb_materia_prima
+                    WHERE id_materia_prima = ?";
+                    $p = $pdo->prepare($sql);
+                    $p->execute(array($f["idInsumo"]));
+                    $insumosExistente = $p->fetchAll(PDO::FETCH_ASSOC);
+
+                    foreach ($insumosExistente as $i) {
+                        if ($i["existencias"] < $f["cantidad"]) {
+                            echo json_encode(['msg' => 'Solamente hay ' . $i["existencias"] . 'U de ' . $i["materia_prima"] . ' De las' . $f["cantidad"] . 'U Solicitadas', 'id' => 2]);
+                            return;
+                        }
+                    }
+
+                    $sql = "UPDATE tb_materia_prima 
+                    SET existencias = existencias - ? 
+                    WHERE id_materia_prima = ?";
+                    $p = $pdo->prepare($sql);
+                    $p->execute(array($f["cantidad"], $f["idInsumo"]));
+                }
+            }
 
             $sql = "UPDATE tb_mesa SET estado_mesa = ?
             WHERE id_mesa = ?";
@@ -171,58 +263,9 @@ class Mesa
                 $p->execute(array($id_orden, $regNum, $f["idInsumo"], $f["cantidad"], $f["tipoMenu"]));
                 $regNum++;
             }
-
-            foreach ($filasInsumos as $f) {
-                if ($f["tipoMenu"] == 3) {
-                    $sql = "SELECT cd.id_insumo, SUM(cd.cantidades * ?) as cantidades
-                    FROM tb_combo_detalle as cd
-                    WHERE cd.id_combo = ?";
-                    $p = $pdo->prepare($sql);
-                    $p->execute(array($f["cantidad"], $f["idInsumo"]));
-                    $insumos = $p->fetchAll(PDO::FETCH_ASSOC);
-
-                    foreach ($insumos as $i) {
-                        $sql = "SELECT id.id_materia_prima, SUM(id.cantidades * ?) as cantidades
-                                FROM tb_insumo_detalle as id
-                                WHERE id_insumo = ?";
-                        $p = $pdo->prepare($sql);
-                        $p->execute(array($i["cantidades"], $i["id_insumo"]));
-                        $datosFinales = $p->fetchAll(PDO::FETCH_ASSOC);
-
-                        foreach ($datosFinales as $df) {
-                            $sql = "UPDATE tb_materia_prima 
-                                    SET existencias = existencias - ? 
-                                    WHERE id_materia_prima = ?";
-                            $p = $pdo->prepare($sql);
-                            $p->execute(array($df["cantidades"], $df["id_materia_prima"]));
-                        }
-                    }
-                } else if ($f["tipoMenu"] == 2) {
-                    $sql = "SELECT id.id_materia_prima, SUM(id.cantidades * ?) as cantidades
-                    FROM tb_insumo_detalle as id
-                    WHERE id_insumo = ?";
-                    $p = $pdo->prepare($sql);
-                    $p->execute(array($f["cantidad"], $f["idInsumo"]));
-                    $insumos = $p->fetchAll(PDO::FETCH_ASSOC);
-
-                    foreach ($insumos as $i) {
-                        $sql = "UPDATE tb_materia_prima 
-                                    SET existencias = existencias - ? 
-                                    WHERE id_materia_prima = ?";
-                        $p = $pdo->prepare($sql);
-                        $p->execute(array($i["cantidades"], $i["id_materia_prima"]));
-                    }
-                } else if ($f["tipoMenu"] == 1) {
-                    $sql = "UPDATE tb_materia_prima 
-                    SET existencias = existencias - ? 
-                    WHERE id_materia_prima = ?";
-                    $p = $pdo->prepare($sql);
-                    $p->execute(array($f["cantidad"], $f["idInsumo"]));
-                }
-            }
             $pdo->commit();
 
-            $respuesta =  ['msg' => 'Orden Generada', 'id' => 1];
+            $respuesta = ['msg' => 'Orden Generada', 'id' => 1];
         } catch (PDOException $e) {
             // Si hay una excepción, realiza un rollback
             $pdo->rollBack();
@@ -268,9 +311,9 @@ class Mesa
             $sql = "SELECT
             SUM(
                 CASE
-                    WHEN od.id_tipo = 1 THEN mp.precio
-                    WHEN od.id_tipo = 2 THEN ins.precio
-                    WHEN od.id_tipo = 3 THEN c.precio
+                    WHEN od.id_tipo = 1 THEN mp.precio * od.cantidad
+                    WHEN od.id_tipo = 2 THEN ins.precio * od.cantidad
+                    WHEN od.id_tipo = 3 THEN c.precio * od.cantidad
                     ELSE 0 -- Puedes establecer un valor por defecto si es necesario
                 END
             ) AS total_precio
@@ -278,7 +321,8 @@ class Mesa
         LEFT JOIN tb_materia_prima mp ON od.id_tipo = 1 AND od.id_insumo = mp.id_materia_prima
         LEFT JOIN tb_insumo ins ON od.id_tipo = 2 AND od.id_insumo = ins.id_insumo
         LEFT JOIN tb_combo c ON od.id_tipo = 3 AND od.id_insumo = c.id_combo
-        WHERE od.id_orden = ?;";
+        WHERE od.id_orden = ?;
+        ";
 
             $p = $pdo->prepare($sql);
             $p->execute(array($idORden));
@@ -303,7 +347,7 @@ class Mesa
 
             $pdo->commit();
 
-            $respuesta =  ['msg' => 'Orden Finalizada', 'id' => 1];
+            $respuesta = ['msg' => 'Orden Finalizada', 'id' => 1];
         } catch (PDOException $e) {
             // Si hay una excepción, realiza un rollback
             $pdo->rollBack();
@@ -316,6 +360,47 @@ class Mesa
         // Devuelve la respuesta
         echo json_encode($respuesta);
     }
+    static function setNuevaMesa()
+    {
+        $descripcion = $_POST["descripcion"];
+        $idoLcal = $_POST["id"];
+
+        try {
+            $db = new Database();
+            $pdo = $db->connect();
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $pdo->beginTransaction();
+
+            $sql = "SELECT COALESCE(MAX(nro_mesa), 0) as nro_mesa
+            FROM tb_mesa
+            WHERE id_local = ?";
+            $p = $pdo->prepare($sql);
+            $p->execute(array($idoLcal));
+            $nro_mesa = $p->fetch(PDO::FETCH_ASSOC);
+            $nro_mesa = $nro_mesa["nro_mesa"];
+            $nro_mesa = $nro_mesa + 1;
+            $sql = "INSERT INTO tb_mesa(nro_mesa, referencia, estado_mesa, id_local) 
+            VALUES (?,?,?,?)";
+
+            $p = $pdo->prepare($sql);
+
+            $p->execute(array($nro_mesa, $descripcion, 3, $idoLcal));
+            $pdo->commit();
+
+            $respuesta = ['msg' => 'Mesa Generada', 'id' => 1];
+        } catch (PDOException $e) {
+            // Si hay una excepción, realiza un rollback
+            $pdo->rollBack();
+            $respuesta = ['msg' => 'ERROR', 'id' => ['errorInfo' => $e->getMessage()]];
+        } finally {
+            // Asegúrate de cerrar la conexión al finalizar
+            $pdo = null;
+        }
+
+        // Devuelve la respuesta
+        echo json_encode($respuesta);
+    }
+
 }
 
 //case
@@ -340,6 +425,10 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
             break;
         case 5:
             Mesa::setFinalizarOrden();
+            break;
+
+        case 6:
+            Mesa::setNuevaMesa();
             break;
     }
 }

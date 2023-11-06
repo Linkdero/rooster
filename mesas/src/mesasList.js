@@ -5,7 +5,6 @@ const ListadoCombos = httpVueLoader('./componentes/listadoCombos.vue');
 const ListadoEmpleados = httpVueLoader('./componentes/listadoEmpleados.vue');
 const LitadoLocales = httpVueLoader('./componentes/ListadoLocales.vue');
 
-
 const EventBus = new Vue();
 
 let mesasList = new Vue({
@@ -74,10 +73,13 @@ let mesasList = new Vue({
             this.evento.$emit('cambiar-insumos', nuevoValor);
             this.evento.$emit('cambiar-empleado', nuevoValor);
             // this.evento.$emit('cambiar-materia-prima', nuevoValor);
-
         }
     },
     computed: {
+        camposCompletos3() {
+            return (
+                this.descripcion.trim() !== '');
+        },
         camposCompletos2() {
             return (
                 this.nitCliente.trim() !== '' && this.direccionCliente.trim() !== '');
@@ -104,13 +106,14 @@ let mesasList = new Vue({
                 if (mesa.id_mesa == id) {
                     this.nroMesa = mesa.nro_mesa;
                     this.referenciaMesa = mesa.referencia;
+                    if (this.idLocalSesion == 3) {
+                        this.idLocal = mesa.id_local
+                    }
                 }
             });
-
             if (estado == 1) {
                 $("#setMesasModal").modal("show")
                 this.tipoModal = 1
-
             } else if (estado == 2) {
                 $("#setMesasModal").modal("show")
                 this.tipoModal = 2
@@ -324,6 +327,11 @@ let mesasList = new Vue({
                         that.seleccionComidas = valorSeleccionado;
                         // Imprime el nombre seleccionado
                         console.log("Nuevo valor:", valorSeleccionado);
+                        setTimeout(() => {
+                            that.evento.$emit('cambiar-materia-prima', that.idLocal);
+                            that.evento.$emit('cambiar-insumos', that.idLocal);
+                            that.evento.$emit('cambiar-empleado', that.idLocal);
+                        }, 100);
                     });
                 }, 100);
             });
@@ -468,7 +476,6 @@ let mesasList = new Vue({
             }
         },
 
-
         eliminarFila: function (index) {
             // Elimina la fila en el índice especificado
             this.filasInsumos.splice(index, 1);
@@ -515,6 +522,14 @@ let mesasList = new Vue({
                             this.descripcion = ''
                             this.filasInsumos = []
                             this.progreso = 0
+                        } else if (response.data.id == 2) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: response.data.msg,
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                            return
                         }
                         else {
                             Swal.fire({
@@ -530,6 +545,46 @@ let mesasList = new Vue({
 
                 }
             })
+        },
+        modalNuevaMesa: function () {
+            $("#setNuevaMesa").modal("show")
+        },
+        setNuevaMedida: function () {
+            Swal.fire({
+                title: '¿Generar Nueva Mesa?',
+                text: "Se agregara una mesa al Sistema!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '¡Si, Generar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Crear un objeto FormData para enviar los datos al servidor
+                    var formData = new FormData();
+                    formData.append('opcion', 6);
+                    formData.append('descripcion', this.descripcion);
+                    formData.append('id', this.idLocal);
+                    // Realizar la solicitud POST al servidor
+                    axios.post('./mesas/model/mesasList.php', formData)
+                        .then(response => {
+                            console.log(response.data);
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.data.msg,
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                            $("#setNuevaMesa").modal("hide")
+                            this.cargarTablaMesas()
+                            this.descripcion = ''
+                        })
+                        .catch(error => {
+                            console.error(error);
+                        });
+                }
+            });
         }
 
     }

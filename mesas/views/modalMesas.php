@@ -1,8 +1,10 @@
-<div ref="idModal" id="setMesasModal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+<div ref="idModal" id="setMesasModal" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog"
+    aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header" style="padding: .5rem .5rem;">
-                <h5 class="modal-title text-primary" id="myModalLabel">Datos de la Mesa<i class="fa-solid fa-burger-soda ml-2"></i></h5>
+                <h5 class="modal-title text-primary" id="myModalLabel">Datos de la Mesa<i
+                        class="fa-solid fa-burger-soda ml-2"></i></h5>
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
             </div>
             <div class="modal-body">
@@ -32,7 +34,8 @@
                             </div>
                             <div class="col-4" v-if="seleccionComidas == 1">
                                 <div class="row">
-                                    <listado-materias-primas :tipo="1" :modal="idModal" :evento="evento"></listado-materias-primas>
+                                    <listado-materias-primas :tipo="1" :modal="idModal"
+                                        :evento="evento"></listado-materias-primas>
                                 </div>
                             </div>
 
@@ -48,28 +51,32 @@
 
                             <div class="col-4" v-if="seleccionComidas == 3">
                                 <div class="row">
-                                    <listado-combos :tipo="2" :modal="idModal"></listado-combos>
+                                    <listado-combos :tipo="2" :modal="idModal" :evento="evento"></listado-combos>
                                 </div>
                             </div>
 
                             <div class="col">
                                 <label for="cantidades">Cantidades</label>
-                                <div class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
+                                <div
+                                    class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
                                     <input type="number" class="input-sm form-control" id="cantidades">
-                                    <span class="input-group-text"><i class="fa-sharp fa-regular fa-fork-knife"></i></span>
+                                    <span class="input-group-text"><i
+                                            class="fa-sharp fa-regular fa-fork-knife"></i></span>
                                 </div>
                             </div>
 
                             <div class="col-2">
                                 <label for="insumos">Agregar</label>
-                                <button type="button" class="btn btn-outline-primary form-control btn-xs" @click="agregarFila()">
+                                <button type="button" class="btn btn-outline-primary form-control btn-xs"
+                                    @click="agregarFila()">
                                     <i class="fa-solid fa-circle-plus"></i>
                                 </button>
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="card-body card-body-slide" width="100%" height="100%">
-                                <table id="tblInsumos" class="table responsive table-sm table-bordered table-striped" width="100%">
+                                <table id="tblInsumos" class="table responsive table-sm table-bordered table-striped"
+                                    width="100%">
                                     <thead>
                                         <tr>
                                             <th class="text-center">ID</th>
@@ -85,12 +92,14 @@
                                             <td class="text-center">{{ fila.idInsumo }}</td>
                                             <td class="text-center">{{ fila.nombreInsumo }}</td>
                                             <td class="text-center">
-                                                <input type="number" class="form-control" v-model="fila.cantidad" @input="actualizarPrecioTotal(index)">
+                                                <input type="number" class="form-control" v-model="fila.cantidad"
+                                                    @input="actualizarPrecioTotal(index)">
                                             </td>
                                             <td class="text-center">Q{{ fila.precioInsumo }}.00</td>
                                             <td class="text-center">Q{{ fila.precioTotal }}.00</td>
                                             <td class="text-center">
-                                                <button type="button" class="btn btn-outline-danger" @click="eliminarFila(index)">
+                                                <button type="button" class="btn btn-outline-danger"
+                                                    @click="eliminarFila(index)">
                                                     <i class="fa-solid fa-trash-xmark"></i>
                                                 </button>
                                             </td>
@@ -98,24 +107,26 @@
                                     </tbody>
                                 </table>
                                 <div class="progress">
-                                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" :style="{ width: progreso + '%' }" aria-valuenow="progreso" aria-valuemin="0" aria-valuemax="100">{{ progreso }}%</div>
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                        role="progressbar" :style="{ width: progreso + '%' }" aria-valuenow="progreso"
+                                        aria-valuemin="0" aria-valuemax="100">{{ progreso }}%</div>
                                 </div>
 
                             </div>
                         </div>
-                        <input type="hidden" id="precio" class="btn btn-outline-primary form-control btn-xs" v-model="precio" />
+                        <input type="hidden" id="precio" class="btn btn-outline-primary form-control btn-xs"
+                            v-model="precio" />
 
                         <div class="col">
-                            <label for="descripcion">Observaciones</label>
-                            <div class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
-                                <textarea class="form-control" id="descripcion" rows="3" v-model="descripcion"></textarea>
+                            <label for="descripcion">Descripción</label>
+                            <div
+                                class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
+                                <textarea class="form-control" id="descripcion" rows="3"
+                                    v-model="descripcion"></textarea>
                             </div>
                         </div>
+                      
                         <listado-empleados :tipo="2" :modal="idModal" :evento="evento"></listado-empleados>
-                        <div v-if="idLocalSesion == 3">
-                            <listado-locales :evento="evento"> </listado-locales>
-                        </div>
-
                     </div>
                 </div>
 
@@ -129,35 +140,43 @@
                         </div>
                         <div class="col">
                             <label for="nroPlacas">Nit Cliente</label>
-                            <div class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
+                            <div
+                                class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
                                 <input type="number" class="input-sm form-control" id="nitCliente" v-model="nitCliente">
                                 <span class="input-group-text"><i class="fa-solid fa-hashtag"></i></span>
                             </div>
                         </div>
                         <div class="col">
                             <label for="nroPlacas">Dirección</label>
-                            <div class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
-                                <input type="text" class="input-sm form-control" id="direccionCliente" v-model="direccionCliente">
+                            <div
+                                class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
+                                <input type="text" class="input-sm form-control" id="direccionCliente"
+                                    v-model="direccionCliente">
                                 <span class="input-group-text"><i class="fa-solid fa-location-dot"></i></span>
                             </div>
                         </div>
 
                         <div class="col-12">
                             <label for="descripcion">Observaciones</label>
-                            <div class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
-                                <textarea class="form-control" id="descripcion" rows="3" v-model="descripcion"></textarea>
+                            <div
+                                class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
+                                <textarea class="form-control" id="descripcion" rows="3"
+                                    v-model="descripcion"></textarea>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer" style="margin-bottom: -1rem;">
-                <button type="button" class="btn btn-danger btn-xs" data-dismiss="modal">Cerrar <i class="fa-solid fa-circle-xmark ml-1"></i></button>
+                <button type="button" class="btn btn-danger btn-xs" data-dismiss="modal">Cerrar <i
+                        class="fa-solid fa-circle-xmark ml-1"></i></button>
                 <div v-if="tipoModal == 1">
-                    <button type="button" class="btn btn-primary btn-xs" :disabled="!camposCompletos1" @click="generarOrden()">Generar Orden<i class="fa-solid fa-octagon-plus ml-1"></i></button>
+                    <button type="button" class="btn btn-primary btn-xs" :disabled="!camposCompletos1"
+                        @click="generarOrden()">Generar Orden<i class="fa-solid fa-octagon-plus ml-1"></i></button>
                 </div>
                 <div v-if="tipoModal == 2">
-                    <button type="button" class="btn btn-primary btn-xs" :disabled="!camposCompletos1" @click="finalizarMesa()">Finalizar Orden<i class="fa-solid fa-octagon-plus ml-1"></i></button>
+                    <button type="button" class="btn btn-primary btn-xs" :disabled="!camposCompletos2"
+                        @click="finalizarMesa()">Finalizar Orden<i class="fa-solid fa-octagon-plus ml-1"></i></button>
                 </div>
             </div>
         </div>

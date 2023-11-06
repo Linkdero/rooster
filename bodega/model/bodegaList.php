@@ -14,34 +14,43 @@ class Bodega
 
         $tipo = $_GET["tipo"];
         if ($tipo == 1) {
-            $sql = "SELECT id_materia_prima as id, materia_prima as nombre
+            $sql = "SELECT id_materia_prima as id, materia_prima as nombre, precio
                     FROM tb_materia_prima
                     WHERE id_estado = ? and id_local = ?";
         } else {
             $sql = "SELECT mp.id_materia_prima as id, mp.materia_prima as nombre, m.medida, mp.precio, mp.existencias, mp.id_estado, e.estado
                     FROM tb_materia_prima as mp
                     LEFT JOIN tb_estado as e ON mp.id_estado = e.id_estado
-                    LEFT JOIN tb_medida as m ON mp.id_medida = m.id_medida";
+                    LEFT JOIN tb_medida as m ON mp.id_medida = m.id_medida ";
+            if ($local != 3) {
+                $sql .= "WHERE mp.id_local = ?";
+            }
         }
 
         $p = $pdo->prepare($sql);
         if ($tipo == 1) {
-            $p->execute(array(1,$local));
+            $p->execute(array(1, $local));
         } else {
-            $p->execute();
+            if ($local != 3) {
+                $p->execute(array($local));
+            } else {
+                $p->execute();
+            }
         }
         $insumo = $p->fetchAll(PDO::FETCH_ASSOC);
+        $data = array(); // Or initialize it with the appropriate data structure.
 
         foreach ($insumo as $i) {
             $sub_array = [
                 "id" => $i["id"],
                 "nombre" => $i["nombre"],
+                "precio" => $i["precio"]
+
             ];
 
             // Agregar elementos adicionales si $tipo no es igual a 1
             if ($tipo != 1) {
                 $sub_array["medida"] = $i["medida"];
-                $sub_array["precio"] = $i["precio"];
                 $sub_array["existencias"] = $i["existencias"];
                 $sub_array["id_estado"] = $i["id_estado"];
                 $sub_array["estado"] = $i["estado"];
@@ -49,10 +58,7 @@ class Bodega
 
             $data[] = $sub_array;
         }
-
-
         echo json_encode($data);
-        return $data;
     }
 
     //Opcion 2
@@ -95,7 +101,7 @@ class Bodega
             $p = $pdo->prepare($sql);
             $p->execute(array($descripcion, $medida, $precio, $existencia, 1, $local));
 
-            $respuesta =  ['msg' => 'Materia Prima Agregada', 'id' => 1];
+            $respuesta = ['msg' => 'Materia Prima Agregada', 'id' => 1];
         } catch (PDOException $e) {
             $respuesta = array('msg' => 'ERROR', 'id' => $e->getMessage());
         } catch (Exception $e2) {
@@ -105,8 +111,6 @@ class Bodega
             echo json_encode($respuesta);
         }
     }
-
-
     static function setEstadoMateriaPrima()
     {
         $id = $_GET["id"];
@@ -129,7 +133,39 @@ class Bodega
 
             $p->execute(array($estado, $id));
 
-            $respuesta =  ['msg' => $titulo, 'id' => 1];
+            $respuesta = ['msg' => $titulo, 'id' => 1];
+        } catch (PDOException $e) {
+            $respuesta = array('msg' => 'ERROR', 'id' => $e);
+            try {
+                $pdo->rollBack();
+            } catch (Exception $e2) {
+                $respuesta = array('msg' => 'ERROR', 'id' => $e2);
+            }
+        }
+        $pdo = null;
+        echo json_encode($respuesta);
+    }
+
+
+    static function setNuevoIngresoBodega()
+    {
+        $id = $_POST["id"];
+        $existencia = $_POST["existencia"];
+
+        try {
+            $db = new Database();
+            $pdo = $db->connect();
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            $sql = "UPDATE tb_materia_prima
+            SET existencias = existencias + ?
+            WHERE id_materia_prima = ?";
+
+            $p = $pdo->prepare($sql);
+
+            $p->execute(array($existencia, $id));
+
+            $respuesta = ['msg' => 'Ingreso Exitoso', 'id' => 1];
         } catch (PDOException $e) {
             $respuesta = array('msg' => 'ERROR', 'id' => $e);
             try {
@@ -158,6 +194,10 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
 
         case 3:
             Bodega::setEstadoMateriaPrima();
+            break;
+
+        case 4:
+            Bodega::setNuevoIngresoBodega();
             break;
     }
 }

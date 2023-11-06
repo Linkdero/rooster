@@ -1,13 +1,15 @@
-<div ref="idModal" id="getOrdenDetalle" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+<div ref="idModal" id="getOrdenDetalle" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog"
+    aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header" style="padding: .5rem .5rem;">
-                <h5 class="modal-title text-primary" id="myModalLabel">Detalle de la Orden: #{{idOrden}} <i class="fas fa-burger-soda ml-2"></i></h5>
+                <h5 class="modal-title text-primary" id="myModalLabel">Detalle de la Orden: #{{idOrden}} <i
+                        class="fas fa-burger-soda ml-2"></i></h5>
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
             </div>
             <nav class="navbar navbar-light bg-light">
                 <form class="form-inline ml-auto">
-                    <button type="button" class="btn btn-primary btn-floating rounded-circle">
+                    <button type="button" class="btn btn-primary btn-floating rounded-circle" @click="imprimirTicket">
                         <i class="fas fa-download"></i>
                     </button>
                 </form>
@@ -25,13 +27,15 @@
 
                     <div class="row">
                         <div class="col-md-12 profile_details">
-                            <table id="tblOrdenDetalle" class="table responsive table-sm table-bordered table-striped" width="100%">
+                            <table id="tblOrdenDetalle" class="table responsive table-sm table-bordered table-striped"
+                                width="100%">
                                 <thead>
                                     <tr>
                                         <th class="text-center">Num.Insumo</th>
                                         <th class="text-center">Tipo Insumo</th>
                                         <th class="text-center">Descripcion</th>
                                         <th class="text-center">Precio</th>
+                                        <th class="text-center">Cantidades</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -40,6 +44,7 @@
                                         <td class="text-center">{{ o.tipo_producto }}</td>
                                         <td class="text-center">{{ o.descripcion }}</td>
                                         <td class="text-center">Q{{ o.precio }}.00</td>
+                                        <td class="text-center">{{ o.cantidad }} U</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -67,7 +72,7 @@
                                     <h5><strong>{{ datosCliente.fecha_final || 'Orden en proceso' }}</strong></h5>
                                 </div>
                                 <div class="col-12"><small class="text-muted">TOTAL: </small>
-                                    <h5><strong>{{ datosCliente.total || 'Orden en proceso' }}</strong></h5>
+                                    <h5><strong>{{ totalConsumido || 'Orden en proceso' }}</strong></h5>
                                 </div>
                             </div>
                         </div>
@@ -75,7 +80,8 @@
                         <div class="col-sm-6">
                             <div class="row">
                                 <div class="col-12"><small class="text-muted">Observaciones: </small>
-                                    <span class="badge badge-info">{{ datosCliente.observacion || 'Orden en proceso' }}</span>
+                                    <span class="badge badge-info">{{ datosCliente.observacion || 'Orden en proceso'
+                                        }}</span>
                                 </div>
                             </div>
                             <hr>
@@ -104,13 +110,15 @@
 
                             <div class="row" style="z-index: 1;">
                                 <div class="col-12">
-                                    <img :src="datosCliente.foto || 'ruta_por_defecto'" alt="Imagen de mesera" class="img-circle img-fluid" style="width: 100px; height: 100ox;  border: 5px solid #fff; border-radius: 50%;">
+                                    <img :src="datosCliente.foto || 'ruta_por_defecto'" alt="Imagen de mesera"
+                                        class="img-circle img-fluid"
+                                        style="width: 100px; height: 100ox;  border: 5px solid #fff; border-radius: 50%;">
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col-12"><small class="text-muted">PROPINA:</small>
-                                    <h5><strong>{{ datosCliente.propina || 'Orden en proceso' }}</strong></h5>
+                                    <h5><strong>{{ propina || 'Orden en proceso' }}</strong></h5>
                                 </div>
                             </div>
                         </div>
@@ -120,3 +128,4 @@
         </div>
     </div>
 </div>
+

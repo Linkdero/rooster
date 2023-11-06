@@ -7,15 +7,26 @@ class Combo
     //Opcion 1
     static function getCombos()
     {
+        $local = $_GET["id"];
+
         $db = new Database();
         $pdo = $db->connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         $sql = "SELECT id_combo as id, descripcion as nombre, precio, c.id_estado, e.estado
         FROM tb_combo as c
-        LEFT JOIN tb_estado as e ON c.id_estado = e.id_estado";
+        LEFT JOIN tb_estado as e ON c.id_estado = e.id_estado ";
+        if ($local != 3) {
+            $sql .= "WHERE c.id_local = ?";
+        }
         $p = $pdo->prepare($sql);
-        $p->execute();
+
+        if ($local != 3) {
+            $p->execute(array($local));
+        } else {
+            $p->execute();
+
+        }
 
         $combo = $p->fetchAll(PDO::FETCH_ASSOC);
         $data = array();
@@ -75,7 +86,7 @@ class Combo
 
             $pdo->commit();
 
-            $respuesta =  ['msg' => 'Combo Agregado', 'id' => 1];
+            $respuesta = ['msg' => 'Combo Agregado', 'id' => 1];
         } catch (PDOException $e) {
             // Si hay una excepción, realiza un rollback
             $pdo->rollBack();

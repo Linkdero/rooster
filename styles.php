@@ -9,7 +9,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="images/favicon.ico" type="image/ico" />
 
-  <title>MORENITA MIXQUEÑA</title>
+  <title>Rooster´s!!</title>
 
   <!-- External Libraries -->
   <link href="vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -38,3 +38,4 @@
   <script src="vendors/vue/vue.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/http-vue-loader@1.4.2/src/httpVueLoader.min.js"></script>
   <script type="module" src="./componentes/eventBus.js"> </script>
+  <script type="module" src="vendors/jspdf/jspdf.min.js"></script>

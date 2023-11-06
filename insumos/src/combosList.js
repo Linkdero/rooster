@@ -112,6 +112,7 @@ let combosList = new Vue({
             axios.get(`insumos/model/combosList.php`, {
                 params: {
                     opcion: 1,
+                    id: this.idLocalSesion
                 }
             }).then(response => {
                 console.log(response.data);
@@ -192,6 +193,7 @@ let combosList = new Vue({
                                 className: 'bg-primary text-white btn-xs mx-1',
                                 action: function (e, dt, node, config) {
                                     $("#setNuevoCombo").modal("show")
+                                    thes.evento.$emit('cambiar-insumos', thes.idLocal);
                                 }
                             },
                             {

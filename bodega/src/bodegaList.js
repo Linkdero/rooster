@@ -1,5 +1,6 @@
 const ListadoMedidas = httpVueLoader('./componentes/listadoMedidas.vue');
 const LitadoLocales = httpVueLoader('./componentes/ListadoLocales.vue');
+const ListadoMateriasPrimas = httpVueLoader('./componentes/listadoMateriaPrima.vue');
 // const ListadoPrecios = httpVueLoader('./componentes/listadoPrecios.vue');
 const EventBus = new Vue();
 
@@ -17,11 +18,13 @@ let bodegaList = new Vue({
         idLocal: '',
         evento: '',
         idLocalSesion: '',
+        tipoModal: 0,
+        idMateriaPrima: ''
     },
     components: {
         'listado-medidas': ListadoMedidas,
         'listado-locales': LitadoLocales,
-        // 'listado-precios': ListadoPrecios,
+        'listado-materias-primas': ListadoMateriasPrimas,
     },
     mounted: function () {
         this.evento = EventBus;
@@ -35,11 +38,17 @@ let bodegaList = new Vue({
         this.evento.$on('cambiar-local', (nuevoValor) => {
             this.idLocal = nuevoValor
         });
+        this.evento.$on('id-materia-prima', (nuevoValor) => {
+            this.idMateriaPrima = nuevoValor
+        });
         this.idModal = this.$refs.idModal.id;
         this.cargarTablaBodega(1);
         this.baseTables();
     },
     computed: {
+        camposCompletos2() {
+            return this.existencia.trim() !== '' && this.idMateriaPrima.trim() !== '';
+        },
         camposCompletos() {
             return this.precio.trim() !== '' && this.medida.trim() !== '' && this.precio.trim() !== '' && this.existencia.trim() !== '' && this.descripcion.trim() !== '';
         },
@@ -50,6 +59,10 @@ let bodegaList = new Vue({
         },
         medida(nuevoValor) {
             console.log('El valor del input de medidas ha cambiado:', nuevoValor);
+        },
+        idLocal(nuevoValor) {
+            this.evento.$emit('cambiar-materia-prima', nuevoValor);
+            // this.evento.$emit('cambiar-materia-prima', nuevoValor);
         }
     },
     methods: {
@@ -59,7 +72,7 @@ let bodegaList = new Vue({
         },
         generarInsumo: function () {
             Swal.fire({
-                title: '¿Generar Nuevo Insumo?',
+                title: '¿Generar Nueva Materia Prima?',
                 text: "¡Se agregara un nuevo insumo a la bodega!",
                 icon: 'warning',
                 showCancelButton: true,
@@ -105,67 +118,13 @@ let bodegaList = new Vue({
                 }
             });
         },
-        // generarInsumo: function () {
-        //     this.actualizarInputs()
-        //     Swal.fire({
-        //         title: '¿Generar Nuevo Insumo?',
-        //         text: "¡Se agregara un nuevo insumo a la bodega!",
-        //         icon: 'warning',
-        //         showCancelButton: true,
-        //         confirmButtonColor: '#3085d6',
-        //         cancelButtonColor: '#d33',
-        //         confirmButtonText: 'Si, generar!',
-        //         cancelmButtonText: 'Cancelar'
-
-        //     }).then((result) => {
-        //         if (result.isConfirmed) {
-        //             axios.get('bodega/model/bodegaList.php', {
-        //                 params: {
-        //                     opcion: 2,
-        //                     medida: this.medida,
-        //                     precio: this.precio,
-        //                     existencia: parseInt(this.existencia),
-        //                     descripcion: this.descripcion,
-        //                 }
-        //             }).then((response) => {
-        //                 console.log(response.data);
-        //                 if (response.data.id == 1) {
-        //                     Swal.fire({
-        //                         icon: 'success',
-        //                         title: response.data.msg,
-        //                         showConfirmButton: false,
-        //                         timer: 1500
-        //                     })
-
-        //                     this.tablaBodega.clear().destroy();
-        //                     this.cargarTablaBodega()
-        //                     $("#setNuevoInsumo").modal("hide")
-        //                     this.precio = ''
-        //                     this.existencia = ''
-        //                     this.descripcion = ''
-        //                     this.actualizarInputs()
-        //                 }
-        //                 else {
-        //                     Swal.fire({
-        //                         icon: 'error',
-        //                         title: response.data.msg,
-        //                         showConfirmButton: false,
-        //                         timer: 1500
-        //                     })
-        //                 }
-        //             }).catch((error) => {
-        //                 console.log(error);
-        //             });
-        //         }
-        //     })
-        // },
         cargarTablaBodega: function () {
-
             let thes = this;
             axios.get(`bodega/model/bodegaList.php`, {
                 params: {
                     opcion: 1,
-                    tipo: 2
+                    tipo: 2,
+                    id: this.idLocalSesion
                 }
             }).then(response => {
                 console.log(response.data);
@@ -257,6 +216,7 @@ let bodegaList = new Vue({
                                 className: 'bg-primary text-white btn-xs mx-1',
                                 action: function (e, dt, node, config) {
                                     $("#setNuevoInsumo").modal("show")
+                                    thes.tipoModal = 1
                                     thes.actualizarInputs()
                                 }
                             },
@@ -405,5 +365,55 @@ let bodegaList = new Vue({
                 console.log(error);
             });
         },
+        modalNuevoIngreso: function () {
+            $("#setNuevoInsumo").modal("show")
+            this.tipoModal = 2
+            setTimeout(() => {
+                this.evento.$emit('cambiar-materia-prima', this.idLocal);
+            }, 100);
+        },
+        ingresarBodega: function () {
+            let nombreInsumo = $("#materiasPrimas").text();
+
+            Swal.fire({
+                title: `¿Agregar ingreso de: ${nombreInsumo}?`,
+                text: `Se agregaran ${this.existencia}U a la bodega `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '¡Si, Agregar!',
+                cancelmButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Crear un objeto FormData para enviar los datos al servidor
+                    var formData = new FormData();
+                    formData.append('opcion', 4);
+                    formData.append('existencia', this.existencia);
+                    formData.append('id', this.idMateriaPrima);
+
+                    // Realizar la solicitud POST al servidor
+                    axios.post('./bodega/model/bodegaList.php', formData)
+                        .then(response => {
+                            console.log(response.data);
+                            if (response.data.id == 1) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.data.msg,
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                })
+                                this.tablaBodega.clear().destroy();
+                                this.cargarTablaBodega()
+                                $("#setNuevoInsumo").modal("hide")
+                                this.existencia = ''
+                            }
+                        })
+                        .catch(error => {
+                            console.error(error);
+                        });
+                }
+            });
+        }
     },
 });

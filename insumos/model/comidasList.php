@@ -7,6 +7,7 @@ class Comida
     //Opcion 1
     static function getComidas()
     {
+        $local = $_GET["id"];
         $db = new Database();
         $pdo = $db->connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -14,11 +15,20 @@ class Comida
         $sql = "SELECT id_insumo as id, i.descripcion as nombre,i.id_comida, c.comida, precio, i.id_estado, e.estado
         FROM tb_insumo as i
         LEFT JOIN tb_estado as e ON i.id_estado = e.id_estado
-        LEFT JOIN tb_comida as c ON i.id_comida = c.id_comida";
-
+        LEFT JOIN tb_comida as c ON i.id_comida = c.id_comida
+        LEFT JOIN tb_sub_menu as sm ON c.id_sub_menu = sm.id_sub_menu
+        LEFT JOIN tb_menu as m ON sm.id_menu = m.id ";
+        if ($local != 3) {
+            $sql .= "WHERE m.id_local = ?";
+        }
         $p = $pdo->prepare($sql);
 
-        $p->execute();
+        if ($local != 3) {
+            $p->execute(array($local));
+        } else {
+            $p->execute();
+
+        }
 
         $insumo = $p->fetchAll(PDO::FETCH_ASSOC);
         $data = array();
@@ -60,7 +70,7 @@ class Comida
 
             $p = $pdo->prepare($sql);
 
-            $p->execute(array($descripcion,  $comida, $precio, $local, 1));
+            $p->execute(array($descripcion, $comida, $precio, $local, 1));
 
             $sql = "SELECT id_insumo
             FROM tb_insumo
@@ -83,7 +93,7 @@ class Comida
 
             $pdo->commit();
 
-            $respuesta =  ['msg' => 'Insumo Agregado', 'id' => 1];
+            $respuesta = ['msg' => 'Insumo Agregado', 'id' => 1];
         } catch (PDOException $e) {
             // Si hay una excepción, realiza un rollback
             $pdo->rollBack();
@@ -119,7 +129,7 @@ class Comida
 
             $p->execute(array($estado, $id));
 
-            $respuesta =  ['msg' => $titulo, 'id' => 1];
+            $respuesta = ['msg' => $titulo, 'id' => 1];
         } catch (PDOException $e) {
             $respuesta = array('msg' => 'ERROR', 'id' => $e);
             try {

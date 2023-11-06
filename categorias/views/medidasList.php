@@ -27,7 +27,7 @@
     </div>
     <iframe id="pdf_preview_v" hidden></iframe>
 
-    <?php include 'modalCatalogos.php'; ?>
+    <?php include 'modalNuevaMedida.php'; ?>
 
 </div>
 <script type="module" src="./categorias/src/medidasList.js"> </script>

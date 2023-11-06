@@ -18,25 +18,25 @@ class SubMenu
 
         $p = $pdo->prepare($sql);
         $p->execute(array($local, 1));
-        $menus = $p->fetch(PDO::FETCH_ASSOC);
-        $menus = $menus["id"];
-
-        $sql = "SELECT id_sub_menu as id, sub_menu as nombre
-        FROM `tb_sub_menu`
-        WHERE id_menu = ? and estado = ?";
-
-        $p = $pdo->prepare($sql);
-        $p->execute(array($local, 1));
-        $subMenus = $p->fetchAll(PDO::FETCH_ASSOC);
-
-
+        $menus = $p->fetchAll(PDO::FETCH_ASSOC);
         $data = array();
-        foreach ($subMenus as $s) {
-            $sub_array = array(
-                "id" => $s["id"],
-                "nombre" => $s["nombre"],
-            );
-            $data[] = $sub_array;
+
+        foreach ($menus as $m) {
+            $sql = "SELECT id_sub_menu as id, sub_menu as nombre
+            FROM tb_sub_menu
+            WHERE id_menu = ? and estado = ?";
+
+            $p = $pdo->prepare($sql);
+            $p->execute(array($m['id'], 1));
+            $subMenus = $p->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($subMenus as $s) {
+                $sub_array = array(
+                    "id" => $s["id"],
+                    "nombre" => $s["nombre"],
+                );
+                $data[] = $sub_array;
+            }
         }
         echo json_encode($data);
         return $data;

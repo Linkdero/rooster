@@ -5,15 +5,21 @@ let medidasList = new Vue({
         descripcion: '',
         horaActual: '',
         tipoModal: '',
-        nombreCatalogo: ''
+        nombreCatalogo: '',
+        descripcion: '',
+        nombreModal: 'Nueva Medida'
     },
     mounted: function () {
         this.cargarTablaMedidas();
         this.baseTables();
     },
+    computed: {
+        camposCompletos() {
+            return this.descripcion.trim() !== '';
+        },
+    },
     methods: {
         cargarTablaMedidas: function () {
-
             let thes = this;
             axios.get(`categorias/model/medidasList.php`, {
                 params: {
@@ -82,12 +88,18 @@ let medidasList = new Vue({
                             },
                             {
                                 "class": "text-center",
-                                data: 'estado',
+                                data: 'id_estado',
                                 render: function (data, type, row) {
                                     if (data == 1) {
-                                        return `<a href="#" class="badge badge-success text-white py-1" data-id="${row.id}"">${row.descripcion} <i class="fa-solid fa-check mx-1"></i></a>`;
+                                        return `<label class="switch">
+                                        <input class="success" type="checkbox" checked data-id="${row.id}">
+                                        <span class="slider round"></span>
+                                      </label>`;
                                     } else {
-                                        return `<a href="#" class="badge badge-danger text-white py-1"data-id="${row.id}" >${row.descripcion} <i class="fa-solid fa-x mx-1"></i></a>`;
+                                        return `<label class="switch">
+                                        <input class="danger" type="checkbox" data-id="${row.id}">
+                                        <span class="slider round"></span>
+                                      </label>`;
                                     }
                                 },
 
@@ -98,8 +110,7 @@ let medidasList = new Vue({
                                 text: 'Nuevo <i class="fa-solid fa-square-plus"></i>',
                                 className: 'bg-primary text-white btn-xs mx-1',
                                 action: function (e, dt, node, config) {
-                                    thes.tablaMesas.clear().destroy();
-                                    thes.cargarTablaMesas();
+                                    $("#setNuevaMedida").modal("show")
                                 }
                             },
                             {
@@ -206,91 +217,114 @@ let medidasList = new Vue({
                     }
                 });
             }
-            $('#tblMedidas').on('click', '.getCategorias', function () {
+            $('#tblMedidas').on('change', '.switch input', function () {
                 let id = $(this).data('id');
-                that.getCatalogo(id);
+                let isChecked = $(this).is(':checked');
+
+                if (isChecked) {
+                    that.setMedida(id, 1);
+                } else {
+                    that.setMedida(id, 2);
+                }
             });
         },
-
-        getCatalogo: function (id) {
-            this.nombreCatalogo = 'Listado Insumos'
-            this.cargarTablaCatalogos(id)
-            $("#getCatalogosModal").modal("show")
-        },
-
-        cargarTablaCatalogos: function (id) {
-            axios.get(`categorias/model/medidasList.php`, {
-                params: {
-                    opcion: 2,
-                    filtro: id,
+        setNuevaMedida: function () {
+            Swal.fire({
+                title: '¿Generar Nueva Medida?',
+                text: "Se agregara una medida al Sistema!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '¡Si, Generar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Crear un objeto FormData para enviar los datos al servidor
+                    var formData = new FormData();
+                    formData.append('opcion', 3);
+                    formData.append('descripcion', this.descripcion);
+                    // Realizar la solicitud POST al servidor
+                    axios.post('./categorias/model/medidasList.php', formData)
+                        .then(response => {
+                            console.log(response.data);
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.data.msg,
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                            $("#setNuevaMedida").modal("hide")
+                            this.cargarTablaMedidas()
+                            this.descripcion = ''
+                        })
+                        .catch(error => {
+                            console.error(error);
+                        });
                 }
-            }).then(response => {
-                console.log(response.data);
-                // Clear any previous DataTable instance
-                if ($.fn.DataTable.isDataTable("#tblCatalogos")) {
-                    $("#tblCatalogos").DataTable().destroy();
-                }
-
-                // Initialize DataTables only if data is available
-                if (response.data) {
-                    // DataTable initialization
-                    this.tablaCatalogo = $("#tblCatalogos").DataTable({
-                        "ordering": false,
-                        "pageLength": 10,
-                        "bProcessing": true,
-                        "lengthChange": true,
-                        "paging": true,
-                        "info": true,
-                        select: false,
-                        scrollX: true,
-                        scrollY: '50vh',
-                        language: {
-                            emptyTable: "No hay solicitudes de Catalogos para mostrar",
-                            sProcessing: " <h3 class=''><i class='fa fa-sync fa-spin'></i> Cargando la información, por favor espere</h3> "
-                        },
-                        "aoColumns": [
-                            {
-                                "class": "text-center",
-                                data: 'id',
-                                render: function (data, type, row) {
-                                    let encabezado;
-
-                                    if (row.data == 1) {
-                                        encabezado = `
-                                        <button class="btn btn-primary btn-xs" type="button" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
-                                        </button>`;
-                                        encabezado;
-                                    } else {
-                                        encabezado = `
-                                        <button class="btn btn-primary btn-xs" type="button" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
-                                        </button>`;
-                                    }
-                                    return encabezado;
-                                },
-                            },
-                            { "class": "text-center", mData: 'nombre' },
-                            {
-                                "class": "text-center",
-                                data: 'estado',
-                                render: function (data, type, row) {
-                                    if (data == 1) {
-                                        return `<a href="#" class="badge badge-success text-white py-1" data-id="${row.id}"">${row.descripcion} <i class="fa-solid fa-check mx-1"></i></a>`;
-                                    } else {
-                                        return `<a href="#" class="badge badge-danger text-white py-1"data-id="${row.id}" >${row.descripcion} <i class="fa-solid fa-x mx-1"></i></a>`;
-                                    }
-                                },
-
-                            },
-                        ],
-
-                        data: response.data,
-                    });
-                }
-            }).catch(error => {
-                console.error(error);
             });
         },
+        setMedida: function (id, estado) {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+            let titulo;
+            let descripcion;
+            if (estado == 1) {
+                titulo = '¿Activar Medida?'
+                descripcion = '!Se activara nuevamente esta medida al sistema!'
+            } else {
+                titulo = '¿Desactivar Medida?'
+                descripcion = '!Se dara de baja a la medida en el sistema!'
+            }
+            Swal.fire({
+                title: titulo,
+                text: descripcion,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '¡Si, Desactivar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Crear un objeto FormData para enviar los datos al servidor
+                    var formData = new FormData();
+                    formData.append('opcion', 4);
+                    formData.append('id', id);
+                    formData.append('estado', estado);
+
+                    // Realizar la solicitud POST al servidor
+                    axios.post('./categorias/model/medidasList.php', formData)
+                        .then(response => {
+                            console.log(response.data);
+
+                            if (response.data.id == 1) {
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: response.data.msg
+                                });
+                                this.cargarTablaMedidas()
+                            } else {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: response.data.msg
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error(error);
+                        });
+                }
+            });
+        }
     },
 });

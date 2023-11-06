@@ -114,6 +114,7 @@ let comidasList = new Vue({
                             this.descripcion = ''
                             this.actualizarInputs()
                             this.filasInsumos = []
+                            this.progreso = 0
                         }
                         else {
                             Swal.fire({
@@ -135,6 +136,7 @@ let comidasList = new Vue({
             axios.get(`insumos/model/comidasList.php`, {
                 params: {
                     opcion: 1,
+                    id: this.idLocalSesion
                 }
             }).then(response => {
                 console.log(response.data);
@@ -215,6 +217,10 @@ let comidasList = new Vue({
                                 text: 'Nuevo <i class="fa-solid fa-square-plus"></i>',
                                 className: 'bg-primary text-white btn-xs mx-1',
                                 action: function (e, dt, node, config) {
+                                    if (thes.idLocalSesion != 3) {
+                                        thes.evento.$emit('cambiar-insumos', thes.idLocal);
+                                        thes.evento.$emit('cambiar-materia-prima', thes.idLocal);
+                                    }
                                     $("#setNuevoInsumo").modal("show")
                                     thes.actualizarInputs()
                                 }

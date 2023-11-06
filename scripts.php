@@ -77,7 +77,6 @@
 <script src="vendors/sweetalert2/sweetalert2.all.min.js"></script>
 
 <!-- JSPDF -->
-<script src="vendors/jspdf/jspdf.min.js"></script>
 <script src="vendors/pdfmake2/pdfmake.min.js"></script>
 <script src="vendors/pdfmake2/pdfmake_vfs_fonts.js"></script>
 

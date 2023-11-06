@@ -8,27 +8,37 @@ class Categoria
     static function getMenus()
     {
         $tipoTabla = $_GET["tipoTabla"];
+        $local = $_GET["local"];
         $db = new Database();
         $pdo = $db->connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        if ($tipoTabla ==  1) {
+        if ($tipoTabla == 1) {
             $sql = "SELECT m.id as id, m.menu as nombre, m.estado as estado,e.estado as descripcion
             FROM tb_menu as m
-            LEFT JOIN tb_estado as e ON m.estado = e.id_estado";
-        } else if ($tipoTabla ==  2) {
+            LEFT JOIN tb_estado as e ON m.estado = e.id_estado ";
+        } else if ($tipoTabla == 2) {
             $sql = "SELECT id_sub_menu as id, sub_menu as nombre, id_menu as idPadre, sm.estado as estado, e.estado as descripcion
             FROM tb_sub_menu as sm
-            LEFT JOIN tb_estado as e ON sm.estado = e.id_estado";
-        } else if ($tipoTabla ==  3) {
-            $sql = "SELECT id_comida as id, comida as nombre, id_sub_menu as idPadre, c.estado as estado,e.estado as descripcion
+            LEFT JOIN tb_estado as e ON sm.estado = e.id_estado
+            LEFT JOIN tb_menu as m ON sm.id_menu = m.id ";
+        } else if ($tipoTabla == 3) {
+            $sql = "SELECT id_comida as id, comida as nombre, c.id_sub_menu as idPadre, c.estado as estado,e.estado as descripcion
             FROM tb_comida as c
-            LEFT JOIN tb_estado as e ON c.estado = e.id_estado";
+            LEFT JOIN tb_estado as e ON c.estado = e.id_estado
+            LEFT JOIN tb_sub_menu as sm ON c.id_sub_menu = sm.id_sub_menu
+            LEFT JOIN tb_menu as m ON sm.id_menu = m.id ";
         }
 
+        if ($local != 3) {
+            $sql .= "WHERE m.id_local = ?";
+        }
         $p = $pdo->prepare($sql);
-
-        $p->execute();
+        if ($local != 3) {
+            $p->execute(array($local));
+        } else {
+            $p->execute();
+        }
 
         $menu = $p->fetchAll(PDO::FETCH_ASSOC);
         $data = array();
@@ -201,7 +211,7 @@ class Categoria
             }
             $pdo->commit();
 
-            $respuesta =  ['msg' => $titulo, 'id' => 1];
+            $respuesta = ['msg' => $titulo, 'id' => 1];
         } catch (PDOException $e) {
             // Si hay una excepción, realiza un rollback
             $pdo->rollBack();

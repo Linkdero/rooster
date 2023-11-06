@@ -11,8 +11,6 @@
 </template>
 
 <script>
-// import  EventBus  from './eventBus.js';
-
 module.exports = {
     props: ['tipo', 'modal', 'evento'], // Aquí defines el prop miProp
 
@@ -57,17 +55,16 @@ module.exports = {
 
                     // Llama a la función que deseas ejecutar
                     $("#idSelectMateriasPrimas").val(valorSeleccionado);
+                    this.evento.$emit('id-materia-prima', valorSeleccionado);
 
-                    if (this.tipo == 2) {
-                        let precio
-                        for (let i = 0; i < this.materiasPrimas.length; i++) {
-                            if (this.materiasPrimas[i].id == valorSeleccionado) {
-                                precio = this.materiasPrimas[i].precio
-                                break
-                            }
+                    let precio
+                    for (let i = 0; i < this.materiasPrimas.length; i++) {
+                        if (this.materiasPrimas[i].id == valorSeleccionado) {
+                            precio = this.materiasPrimas[i].precio
+                            break
                         }
-                        $("#precio").val(precio);
                     }
+                    $("#precio").val(precio);
 
                 });
             }).catch(error => {

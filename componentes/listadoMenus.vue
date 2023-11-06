@@ -1,6 +1,6 @@
 <template>
     <div class="col">
-        <label for="menus">Menús {{ tipo }} </label>
+        <label for="menus">Menús </label>
         <select id="menus" class="form-control btn-xs">
             <option></option>
             <option v-for="menu in menus" :key="menu.id" :value="menu.id">

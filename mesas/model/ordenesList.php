@@ -22,26 +22,32 @@ class Orden
                 FROM tb_orden AS o
                 LEFT JOIN tb_estado as e ON o.id_estado = e.id_estado
                 LEFT JOIN tb_cliente as c ON o.id_orden = c.id_orden
-                WHERE o.fecha_inicio >= ? AND o.fecha_final <= ?";
+                WHERE 1 "; // Agregamos un 1 para construir la cláusula WHERE correctamente
 
-        $params = array($horaInicial, $horaFinal);
+        $params = []; // Un array para almacenar los parámetros a pasar en execute
 
-        if ($estado && $estado != 1) {
-            $sql .= " AND o.id_estado = ? ";
-            $params[] = $estado;
+        if ($horaInicial && $horaFinal) {
+            $sql .= " AND o.fecha_inicio >= ? AND o.fecha_final <= ?";
+            $params[] = $horaInicial; // Añadimos el primer parámetro
+            $params[] = $horaFinal; // Añadimos el segundo parámetro
         }
+
         if ($local != 3) {
             $sql .= " AND o.id_local = ?";
-            $params[] = $local;
+            $params[] = $local; // Añadimos el tercer parámetro
         }
 
+        if ($estado != 1) {
+            $sql .= " AND o.id_estado = ?";
+            $params[] = $estado; // Añadimos el cuarto parámetro
+        }
 
         // Ordenar
         $sql .= " ORDER BY o.id_orden DESC";
 
         // Ejecutar la consulta
         $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
+        $stmt->execute($params); // Pasamos el array de parámetros
 
         $ordenes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -63,6 +69,7 @@ class Orden
         echo json_encode($data);
         return $data;
     }
+
 
     static function getNombreCliente()
     {
@@ -102,6 +109,8 @@ class Orden
         $sql = "SELECT 
         o.id_orden,
         od.reg_num,
+        od.cantidad,
+        o.total,
         CASE 
             WHEN od.id_tipo = 1 THEN 'Materia Prima'
             WHEN od.id_tipo = 2 THEN 'Insumo'
@@ -152,6 +161,8 @@ class Orden
                 "descripcion" => $o["descripcion"],
                 "id_producto" => $o["id_producto"],
                 "precio" => $o["precio"],
+                "cantidad" => $o["cantidad"],
+                "total" => $o["total"],
             );
             $data[] = $sub_array;
         }

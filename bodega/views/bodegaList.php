@@ -6,11 +6,16 @@
                     <div class="x_title">
                         <h2>{{tituloModulo}}</h2>
                         <input type="hidden" id="local" value="<?php echo $_SESSION['id_local'] ?>">
+                        <ul class="nav navbar-right panel_toolbox">
+                            <a href="#" class="mt-1" style="margin-left:2.5rem;" @click="modalNuevoIngreso()"
+                                title="Nuevo Ingreso"><i class="fa-solid fa-store"></i></a>
+                        </ul>
                         <div class="clearfix"></div>
                     </div>
 
                     <div class="card-body card-body-slide" width="100%" height="100%">
-                        <table id="tblBodega" class="table responsive table-sm table-bordered table-striped" width="100%">
+                        <table id="tblBodega" class="table responsive table-sm table-bordered table-striped"
+                            width="100%">
                             <thead>
                                 <tr>
                                     <th class="text-center">ID</th>
