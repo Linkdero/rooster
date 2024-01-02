@@ -210,6 +210,25 @@ class Orden
         echo json_encode($data);
         return $data;
     }
+    static function obtenerOrden()
+    {
+        $idOrden = $_GET["id"];
+        $db = new Database();
+        $pdo = $db->connect();
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $sql = "SELECT id_orden
+        FROM tb_orden
+        WHERE id_mesa = ? AND id_estado = ?";
+
+        $p = $pdo->prepare($sql);
+
+        $p->execute(array($idOrden, 4));
+        $orden = $p->fetch();
+        $idOrden = $orden["id_orden"];
+        echo $idOrden;
+        return $idOrden;
+    }
 }
 
 //case
@@ -230,6 +249,10 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
             break;
         case 4:
             Orden::getInformacionCliente();
+            break;
+
+        case 5;
+            Orden::obtenerOrden();
             break;
     }
 }

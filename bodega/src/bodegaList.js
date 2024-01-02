@@ -373,7 +373,7 @@ let bodegaList = new Vue({
             }, 100);
         },
         ingresarBodega: function () {
-            let nombreInsumo = $("#materiasPrimas").text();
+            var nombreInsumo = $("#materiasPrimas option:selected").text();
 
             Swal.fire({
                 title: `¿Agregar ingreso de: ${nombreInsumo}?`,

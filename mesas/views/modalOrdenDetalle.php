@@ -1,20 +1,10 @@
-<div ref="idModal" id="getOrdenDetalle" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog"
-    aria-hidden="true" data-backdrop="static">
+<div ref="idModal" id="getOrdenDetalle" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header" style="padding: .5rem .5rem;">
-                <h5 class="modal-title text-primary" id="myModalLabel">Detalle de la Orden: #{{idOrden}} <i
-                        class="fas fa-burger-soda ml-2"></i></h5>
+                <h5 class="modal-title text-primary" id="myModalLabel">Detalle de la Orden: #{{idOrden}} <i class="fas fa-burger-soda ml-2"></i></h5>
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
             </div>
-            <nav class="navbar navbar-light bg-light">
-                <form class="form-inline ml-auto">
-                    <button type="button" class="btn btn-primary btn-floating rounded-circle" @click="imprimirTicket">
-                        <i class="fas fa-download"></i>
-                    </button>
-                </form>
-            </nav>
-
             <div class="modal-body">
                 <div class="container">
                     <div class="row">
@@ -27,8 +17,7 @@
 
                     <div class="row">
                         <div class="col-md-12 profile_details">
-                            <table id="tblOrdenDetalle" class="table responsive table-sm table-bordered table-striped"
-                                width="100%">
+                            <table id="tblOrdenDetalle" class="table responsive table-sm table-bordered table-striped" width="100%">
                                 <thead>
                                     <tr>
                                         <th class="text-center">Num.Insumo</th>
@@ -71,8 +60,11 @@
                                 <div class="col-12"><small class="text-muted">FINAL: </small>
                                     <h5><strong>{{ datosCliente.fecha_final || 'Orden en proceso' }}</strong></h5>
                                 </div>
-                                <div class="col-12"><small class="text-muted">TOTAL: </small>
+                                <div class="col-12"><small class="text-muted">TOTAL BRUTO: </small>
                                     <h5><strong>{{ totalConsumido || 'Orden en proceso' }}</strong></h5>
+                                </div>
+                                <div class="col-12"><small class="text-muted">TOTAL NETO: </small>
+                                    <h5><strong>{{ totalNeto || 'Orden en proceso' }}</strong></h5>
                                 </div>
                             </div>
                         </div>
@@ -110,9 +102,7 @@
 
                             <div class="row" style="z-index: 1;">
                                 <div class="col-12">
-                                    <img :src="datosCliente.foto || 'ruta_por_defecto'" alt="Imagen de mesera"
-                                        class="img-circle img-fluid"
-                                        style="width: 100px; height: 100ox;  border: 5px solid #fff; border-radius: 50%;">
+                                    <img :src="datosCliente.foto || 'ruta_por_defecto'" alt="Imagen de mesera" class="img-circle img-fluid" style="width: 100px; height: 100ox;  border: 5px solid #fff; border-radius: 50%;">
                                 </div>
                             </div>
 
@@ -121,6 +111,14 @@
                                     <h5><strong>{{ propina || 'Orden en proceso' }}</strong></h5>
                                 </div>
                             </div>
+
+                            <div class="row">
+                                <form class="form-inline">
+                                    <button type="button" class="btn btn-primary btn-floating rounded-circle" @click="imprimirTicket">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -128,4 +126,3 @@
         </div>
     </div>
 </div>
-

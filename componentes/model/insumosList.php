@@ -11,7 +11,7 @@ class Insumo
         $db = new Database();
         $pdo = $db->connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $sql = "SELECT id_insumo as id, descripcion as nombre
+        $sql = "SELECT id_insumo as id, descripcion as nombre, precio
         FROM tb_insumo
         WHERE id_comida = ? and id_estado = ?";
 
@@ -24,6 +24,7 @@ class Insumo
             $sub_array = array(
                 "id" => $i["id"],
                 "nombre" => $i["nombre"],
+                "precio" => $i["precio"],
             );
             $data[] = $sub_array;
         }

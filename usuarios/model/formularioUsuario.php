@@ -63,18 +63,20 @@ class Usuario
                 echo json_encode(['msg' => 'Usuario Agregado', 'id' => 1]);
             } else if ($tipo == 4) {
                 $id = $_POST["id"];
+
                 if (empty($password)) {
-                    $sql = "UPDATE usuarios SET usuario = ?, id_roll = ?, id_estado = ?, imagen = ? WHERE id = ?";
+                    $sql = "UPDATE usuarios SET usuario = ?,nombre = ?,apellido = ?, id_roll = ?, id_estado = ?, imagen = ? ,id_local = ?
+                    WHERE id = ?";
 
                     $p = $pdo->prepare($sql);
-
-                    $p->execute(array($usuario, $roll, 1, $foto_base64, $id));
+                    $params = ($roll != 1) ? array($usuario, $nombre, $apellido, $roll, 1, $foto_base64, $local, $id) : array($usuario, $nombre, $apellido, $roll, 1, $foto_base64, 3, $id);
+                    $p->execute($params);
                 } else {
-                    $sql = "UPDATE usuarios SET usuario = ?, id_roll = ?, id_estado = ?, password = ?, imagen = ? WHERE id = ?";
-
+                    $sql = "UPDATE usuarios SET usuario = ?,nombre = ?,apellido = ?, id_roll = ?, id_estado = ?, password = ?, imagen = ?,id_local = ? 
+                    WHERE id = ?";
                     $p = $pdo->prepare($sql);
-
-                    $p->execute(array($usuario, $roll, 1, $password, $foto_base64, $id));
+                    $params = ($roll != 1) ? array($usuario, $nombre, $apellido, $roll, 1, $password, $foto_base64, $local, $id) : array($usuario, $nombre, $apellido, $roll, 1, $password, $foto_base64, 3, $id);
+                    $p->execute($params);
                 }
                 $pdo = null;
 
@@ -115,7 +117,7 @@ class Usuario
             $idEstado = $estado[0]["id_estado"];
             $usuario = $estado[0]["usuario"];
             if ($idEstado == 1) {
-                $estadoCambiante = 2;
+                $estadoCambiante = 0;
                 $mensaje = $usuario . " desactivado";
             } else {
                 $estadoCambiante = 1;

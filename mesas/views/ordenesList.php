@@ -6,10 +6,7 @@
                     <div class="x_title">
                         <h2>{{tituloModulo}}</h2>
                         <input type="hidden" id="local" value="<?php echo $_SESSION['id_local'] ?>">
-                        <ul class="nav navbar-right panel_toolbox">
-                            <a href="#" class="mt-1" style="margin-left:2.5rem;" @click="modalNuevaMesa()"><i
-                                    class="fa-solid fa-table-picnic"></i></a>
-                        </ul>
+                    
                         <div class="clearfix"></div>
                     </div>
                     <div class="row g-2">

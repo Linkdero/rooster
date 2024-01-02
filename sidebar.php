@@ -22,35 +22,36 @@
       <div class="menu_section">
         <h3>Opciones Rapidas</h3>
         <ul class="nav side-menu">
-          <li><a><i class="fa fa-home"></i> Dashboard <span class="fa fa-chevron-down"></span></a>
+          <li><a><i class="fa-duotone fa-chart-line"></i> Dashboard <span class="fa fa-chevron-down"></span></a>
             <ul class="nav child_menu">
               <li><a href="?ref=1">Dashboard</a></li>
+              <li><a href="?ref=4">Inventario</a></li>
             </ul>
           </li>
-          <li><a><i class="fa fa-edit"></i> Mesas <span class="fa fa-chevron-down"></span></a>
+          <li><a><i class="fa-duotone fa-table-picnic"></i> Mesas <span class="fa fa-chevron-down"></span></a>
             <ul class="nav child_menu">
               <li><a href="?ref=11">Listado Mesas</a></li>
               <li><a href="?ref=12">Listado Ordenes</a></li>
             </ul>
           </li>
-          <li><a><i class="fa fa-edit"></i> Catalogos <span class="fa fa-chevron-down"></span></a>
+          <li><a><i class="fa-sharp fa-solid fa-list"></i> Catalogos <span class="fa fa-chevron-down"></span></a>
             <ul class="nav child_menu">
               <li><a href="?ref=21">Categorias</a></li>
               <li><a href="?ref=22">Medidas</a></li>
             </ul>
           </li>
-          <li><a><i class="fa fa-edit"></i> Bodega <span class="fa fa-chevron-down"></span></a>
+          <li><a><i class="fa-sharp fa-solid fa-shop-lock"></i> Bodega <span class="fa fa-chevron-down"></span></a>
             <ul class="nav child_menu">
               <li><a href="?ref=31">Materia Prima</a></li>
             </ul>
           </li>
-          <li><a><i class="fa fa-edit"></i> Insumos <span class="fa fa-chevron-down"></span></a>
+          <li><a><i class="fa-sharp fa-solid fa-burger-soda"></i> Insumos <span class="fa fa-chevron-down"></span></a>
             <ul class="nav child_menu">
               <li><a href="?ref=41">Comidas</a></li>
               <li><a href="?ref=42">Combos</a></li>
             </ul>
           </li>
-          <li><a><i class="fa fa-edit"></i> Empleados <span class="fa fa-chevron-down"></span></a>
+          <li><a><i class="fa-solid fa-users"></i> Empleados <span class="fa fa-chevron-down"></span></a>
             <ul class="nav child_menu">
               <li><a href="?ref=51">Empleados</a></li>
             </ul>
@@ -63,10 +64,10 @@
       <a data-toggle="tooltip" data-placement="top" title="Ajustes">
         <i class="fa-duotone fa-gear fa-spin"></i>
       </a>
-      <a data-toggle="tooltip" data-placement="top" title="Pantalla Completa">
-        <i class="fa-solid fa-expand"></i> </a>
-      <a data-toggle="tooltip" data-placement="top" title="Lock">
-        <i class="fa-solid fa-lock"></i> </a>
+      <a data-toggle="tooltip" data-placement="top">
+      </a>
+      <a data-toggle="tooltip" data-placement="top" >
+      </a>
       <a data-toggle="tooltip" data-placement="top" title="Cerrar Sesión" href="logout.php">
         <i class="fa-solid fa-right-from-bracket"></i> </a>
     </div>

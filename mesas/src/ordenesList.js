@@ -5,7 +5,7 @@ const ListadoCombos = httpVueLoader('./componentes/listadoCombos.vue');
 
 const EventBus = new Vue();
 
-let mesasList = new Vue({
+let ordenesList = new Vue({
     el: '#appOrdenes',
     data: {
         tituloModulo: 'Listado Ordenes',
@@ -41,7 +41,8 @@ let mesasList = new Vue({
         idLocalSesion: '',
         totalConsumido: 0,
         propina: 0,
-        totalFinal: 0
+        totalFinal: 0,
+        totalNeto: 0
 
     },
     mounted: function () {
@@ -139,8 +140,7 @@ let mesasList = new Vue({
                             emptyTable: "No hay solicitudes de Mesas para mostrar",
                             sProcessing: " <h3 class=''><i class='fa fa-sync fa-spin'></i> Cargando la información, por favor espere</h3> "
                         },
-                        "aoColumns": [
-                            {
+                        "aoColumns": [{
                                 "class": "text-center",
                                 data: 'id_orden',
                                 render: function (data, type, row) {
@@ -161,8 +161,14 @@ let mesasList = new Vue({
                                     return encabezado;
                                 },
                             },
-                            { "class": "text-center", mData: 'descripcion' },
-                            { "class": "text-center", mData: 'nom_cliente' },
+                            {
+                                "class": "text-center",
+                                mData: 'descripcion'
+                            },
+                            {
+                                "class": "text-center",
+                                mData: 'nom_cliente'
+                            },
                             {
                                 "class": "text-center",
                                 data: 'total',
@@ -172,7 +178,10 @@ let mesasList = new Vue({
                                     return `${final.toLocaleString('es-GT', { style: 'currency', currency: 'GTQ' })}`;
                                 },
                             },
-                            { "class": "text-center", mData: 'fecha_final' },
+                            {
+                                "class": "text-center",
+                                mData: 'fecha_final'
+                            },
                             {
                                 "class": "text-center",
                                 data: 'id_estado',
@@ -186,17 +195,16 @@ let mesasList = new Vue({
 
                             },
                         ],
-                        buttons: [
-                            {
+                        buttons: [{
                                 text: 'Todas <i class="fa fa-server" aria-hidden="true"></i>',
-                                className: 'bg-primary text-white btn-xs ',
+                                className: 'bg-primary text-white btn-xs',
                                 action: function (e, dt, node, config) {
                                     thes.tablaMesas.clear().destroy();
                                     thes.cargarTablaOrdenes()
                                 }
                             },
                             {
-                                text: 'En Proeso <i class="fa-solid fa-circle-xmark"></i>',
+                                text: 'En Proceso <i class="fa-solid fa-circle-xmark"></i>',
                                 className: 'bg-primary text-white btn btn-xs',
                                 action: function (e, dt, node, config) {
                                     thes.tablaMesas.clear().destroy();
@@ -209,6 +217,22 @@ let mesasList = new Vue({
                                 action: function (e, dt, node, config) {
                                     thes.tablaMesas.clear().destroy();
                                     thes.cargarTablaOrdenes(5)
+                                }
+                            },
+                            {
+                                extend: 'excel',
+                                text: 'Excel <i class="fa-solid fa-file-excel"></i>',
+                                className: 'bg-success text-white btn-xs',
+                                exportOptions: {
+                                    columns: ':visible'
+                                }
+                            },
+                            {
+                                extend: 'pdfHtml5',
+                                text: 'PDF <i class="fa-solid fa-file-pdf"></i>',
+                                className: 'bg-danger text-white btn-xs',
+                                exportOptions: {
+                                    columns: ':visible'
                                 }
                             },
                         ],
@@ -226,8 +250,7 @@ let mesasList = new Vue({
             this.bsDataTables = jQuery.fn.dataTable;
             // Set the defaults for DataTables init
             jQuery.extend(true, this.bsDataTables.defaults, {
-                dom:
-                    "<'row'<'col-sm-4'l><'col-sm-4'B><'col-sm-4'f>>" +
+                dom: "<'row'<'col-sm-4'l><'col-sm-4'B><'col-sm-4'f>>" +
                     "<'row'<'col-sm-12'tr>>" +
                     "<'row'<'col-sm-6'i><'col-sm-6'p>>",
                 buttons: [
@@ -365,14 +388,28 @@ let mesasList = new Vue({
                 console.log(datos);
                 this.propina = (datos.total * 0.10);
                 this.totalConsumido = (datos.total * 1);
+                this.totalNeto = parseInt(this.propina) + parseInt(this.totalConsumido);
                 this.totalFinal = parseInt(this.totalConsumido) + parseInt(this.propina)
 
                 // Calcular la propina (10% del total)
-                this.propina = this.propina.toLocaleString('es-GT', { style: 'currency', currency: 'GTQ' });
+                this.propina = this.propina.toLocaleString('es-GT', {
+                    style: 'currency',
+                    currency: 'GTQ'
+                });
+                this.totalNeto = this.totalNeto.toLocaleString('es-GT', {
+                    style: 'currency',
+                    currency: 'GTQ'
+                });
 
                 // Formatear el total consumido en formato de moneda y con 2 decimales
-                this.totalConsumido = this.totalConsumido.toLocaleString('es-GT', { style: 'currency', currency: 'GTQ' });
-                this.totalFinal = this.totalFinal.toLocaleString('es-GT', { style: 'currency', currency: 'GTQ' });
+                this.totalConsumido = this.totalConsumido.toLocaleString('es-GT', {
+                    style: 'currency',
+                    currency: 'GTQ'
+                });
+                this.totalFinal = this.totalFinal.toLocaleString('es-GT', {
+                    style: 'currency',
+                    currency: 'GTQ'
+                });
 
 
             }).catch(error => {
@@ -397,11 +434,10 @@ let mesasList = new Vue({
 
             var documentDefinition = {
                 pageSize: {
-                    width: 250,   // Ancho en puntos (1 punto = 1/72 pulgadas)
-                    height: 500   // Alto en puntos (1 punto = 1/72 pulgadas)
+                    width: 250, // Ancho en puntos (1 punto = 1/72 pulgadas)
+                    height: 500 // Alto en puntos (1 punto = 1/72 pulgadas)
                 },
-                content: [
-                    {
+                content: [{
                         text: 'RESTAURANTE ROOSTERS',
                         alignment: 'center',
                         fontSize: 20,
@@ -421,17 +457,15 @@ let mesasList = new Vue({
                         margin: [0, 0, 0, 5]
                     },
                     {
-                        canvas: [
-                            {
-                                type: 'line',
-                                x1: 0,
-                                y1: 0,
-                                x2: 195,
-                                y2: 0,
-                                lineWidth: 2,
-                                lineColor: '#333' // Color de la línea
-                            }
-                        ]
+                        canvas: [{
+                            type: 'line',
+                            x1: 0,
+                            y1: 0,
+                            x2: 195,
+                            y2: 0,
+                            lineWidth: 2,
+                            lineColor: '#333' // Color de la línea
+                        }]
                     },
                     {
                         text: `Mesera: ${this.datosCliente.mesera}`,
@@ -455,33 +489,53 @@ let mesasList = new Vue({
 
                     },
                     {
-                        canvas: [
-                            {
-                                type: 'line',
-                                x1: 0,
-                                y1: 0,
-                                x2: 195,
-                                y2: 0,
-                                lineWidth: 2,
-                                lineColor: '#333' // Color de la línea
-                            }
-                        ],
+                        canvas: [{
+                            type: 'line',
+                            x1: 0,
+                            y1: 0,
+                            x2: 195,
+                            y2: 0,
+                            lineWidth: 2,
+                            lineColor: '#333' // Color de la línea
+                        }],
                         margin: [0, 0, 0, 10],
                     },
                     {
                         table: {
                             body: [
-                                [
-                                    { text: 'Producto', alignment: 'center' },
-                                    { text: 'Cantidad', alignment: 'center' },
-                                    { text: 'Precio', alignment: 'center' },
-                                    { text: 'Total', alignment: 'center' }
+                                [{
+                                        text: 'Producto',
+                                        alignment: 'center'
+                                    },
+                                    {
+                                        text: 'Cantidad',
+                                        alignment: 'center'
+                                    },
+                                    {
+                                        text: 'Precio',
+                                        alignment: 'center'
+                                    },
+                                    {
+                                        text: 'Total',
+                                        alignment: 'center'
+                                    }
                                 ],
-                                ...this.ordenDetalle.map(item => [
-                                    { text: item.descripcion, alignment: 'center' },
-                                    { text: item.cantidad + 'U', alignment: 'center' },
-                                    { text: 'Q' + item.precio, alignment: 'center' },
-                                    { text: 'Q' + item.total, alignment: 'center' }
+                                ...this.ordenDetalle.map(item => [{
+                                        text: item.descripcion,
+                                        alignment: 'center'
+                                    },
+                                    {
+                                        text: item.cantidad + 'U',
+                                        alignment: 'center'
+                                    },
+                                    {
+                                        text: 'Q' + item.precio,
+                                        alignment: 'center'
+                                    },
+                                    {
+                                        text: 'Q' + item.total,
+                                        alignment: 'center'
+                                    }
                                 ]),
                             ],
                             widths: ['*', 'auto', 'auto', 'auto'],
@@ -496,17 +550,15 @@ let mesasList = new Vue({
                         margin: [0, 10, 0, 5] // Margen superior para separar la tabla del total
                     },
                     {
-                        canvas: [
-                            {
-                                type: 'line',
-                                x1: 70,
-                                y1: 0,
-                                x2: 170,
-                                y2: 0,
-                                lineWidth: 2,
-                                lineColor: '#333' // Color de la línea
-                            }
-                        ],
+                        canvas: [{
+                            type: 'line',
+                            x1: 70,
+                            y1: 0,
+                            x2: 170,
+                            y2: 0,
+                            lineWidth: 2,
+                            lineColor: '#333' // Color de la línea
+                        }],
                         margin: [0, 0, 0, 5],
                     },
                     {
@@ -525,14 +577,19 @@ let mesasList = new Vue({
                     },
                 ],
                 footer: {
-                    columns: [
-                        {
-                            stack: [
-                                { text: 'Impresión generada por el sistema de restaurante Roosters', alignment: 'center', fontSize: 10 },
-                                { text: 'Copyright © RESTAURANTE ROOSTER´S! 2023', alignment: 'center', fontSize: 10 }
-                            ]
-                        }
-                    ],
+                    columns: [{
+                        stack: [{
+                                text: 'Impresión generada por el sistema de restaurante Roosters',
+                                alignment: 'center',
+                                fontSize: 10
+                            },
+                            {
+                                text: 'Copyright © RESTAURANTE ROOSTER´S! 2023',
+                                alignment: 'center',
+                                fontSize: 10
+                            }
+                        ]
+                    }],
                     alignment: 'center'
                 },
             };
@@ -585,7 +642,9 @@ let mesasList = new Vue({
                     byteArrays.push(byteArray);
                 }
 
-                var blob = new Blob(byteArrays, { type: contentType });
+                var blob = new Blob(byteArrays, {
+                    type: contentType
+                });
                 return blob;
             }
 

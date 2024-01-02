@@ -37,7 +37,8 @@ let mesasList = new Vue({
         validarNombre: true,
         idLocal: '',
         idLocalSesion: '',
-        idEmpleado: ''
+        idEmpleado: '',
+        ordenDetalle: ''
     },
     mounted: function () {
         this.idModal = this.$refs.idModal.id;
@@ -76,6 +77,11 @@ let mesasList = new Vue({
         }
     },
     computed: {
+        camposCompletos4() {
+            return (
+                this.filasInsumos !== ''
+            );
+        },
         camposCompletos3() {
             return (
                 this.descripcion.trim() !== '');
@@ -117,6 +123,33 @@ let mesasList = new Vue({
             } else if (estado == 2) {
                 $("#setMesasModal").modal("show")
                 this.tipoModal = 2
+            } else if (estado == 3) {
+                $("#setMesasModal").modal("show")
+                this.tipoModal = 3
+                axios.get(`mesas/model/ordenesList.php`, {
+                    params: {
+                        opcion: 5,
+                        id: id
+                    }
+                }).then(response => {
+                    console.log(response.data)
+                    let idOrden = response.data
+                    axios.get(`mesas/model/ordenesList.php`, {
+                        params: {
+                            opcion: 3,
+                            id: idOrden
+                        }
+                    }).then(response => {
+                        console.log(response.data)
+                        this.ordenDetalle = response.data;
+                    }).catch(error => {
+                        console.error(error);
+                    });
+
+                }).catch(error => {
+                    console.error(error);
+                });
+
             }
             this.idMesa = id
         },
@@ -158,30 +191,34 @@ let mesasList = new Vue({
                             emptyTable: "No hay solicitudes de Mesas para mostrar",
                             sProcessing: " <h3 class=''><i class='fa fa-sync fa-spin'></i> Cargando la información, por favor espere</h3> "
                         },
-                        "aoColumns": [
-                            {
+                        "aoColumns": [{
                                 "class": "text-center",
                                 data: 'nro_mesa',
                                 render: function (data, type, row) {
                                     let encabezado;
-
-                                    if (row.id_estado == 4) {
+                                    if (row.estado_mesa == 3) {
                                         encabezado = `
-                                        <button class="btn btn-primary btn-xs" type="button" aria-haspopup="true" aria-expanded="false">
+                                        <button class="btn btn-success btn-xs disponible" type="button" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
                                         </button>`;
                                         encabezado;
                                     } else {
                                         encabezado = `
-                                        <button class="btn btn-primary btn-xs" type="button" aria-haspopup="true" aria-expanded="false">
+                                        <button class="btn btn-danger btn-xs ocupada" data-id="${data}" type="button" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
                                         </button>`;
                                     }
                                     return encabezado;
                                 },
                             },
-                            { "class": "text-center", mData: 'referencia' },
-                            { "class": "text-center", mData: 'restaurante' },
+                            {
+                                "class": "text-center",
+                                mData: 'referencia'
+                            },
+                            {
+                                "class": "text-center",
+                                mData: 'restaurante'
+                            },
                             {
                                 "class": "text-center",
                                 data: 'estado_mesa',
@@ -189,14 +226,13 @@ let mesasList = new Vue({
                                     if (data == 3) {
                                         return `<a href="#" class="badge badge-success text-white py-1" data-id="${row.id_mesa}"">${row.estado} <i class="fa-solid fa-check-to-slot mx-1"></i></a>`;
                                     } else {
-                                        return `<a href="#" class="badge badge-danger text-white py-1"data-id="${row.id_mesa}" >${row.estado} <i class="fa-solid fa-street-view mx-1"></i></a>`;
+                                        return `<a href="#" class="badge badge-danger text-white py-1" data-id="${row.id_mesa}" >${row.estado} <i class="fa-solid fa-street-view mx-1"></i></a>`;
                                     }
                                 },
 
                             },
                         ],
-                        buttons: [
-                            {
+                        buttons: [{
                                 text: 'Todas <i class="fa fa-server" aria-hidden="true"></i>',
                                 className: 'bg-primary text-white btn-xs ',
                                 action: function (e, dt, node, config) {
@@ -235,8 +271,7 @@ let mesasList = new Vue({
             this.bsDataTables = jQuery.fn.dataTable;
             // Set the defaults for DataTables init
             jQuery.extend(true, this.bsDataTables.defaults, {
-                dom:
-                    "<'row'<'col-sm-4'l><'col-sm-4'B><'col-sm-4'f>>" +
+                dom: "<'row'<'col-sm-4'l><'col-sm-4'B><'col-sm-4'f>>" +
                     "<'row'<'col-sm-12'tr>>" +
                     "<'row'<'col-sm-6'i><'col-sm-6'p>>",
                 buttons: [
@@ -307,39 +342,24 @@ let mesasList = new Vue({
                     }
                 });
             }
-
             $('#tblmesaList').on('click', '.badge-success', function () {
                 let id = $(this).data('id');
                 that.setMesa(id, 1);
                 that.validarNombre = true
                 that.nombreCliente = ''
-                setTimeout(() => {
-                    $('#tipoSeleccion').select2({
-                        placeholder: 'Tipo Seleccion',
-                        allowClear: true,
-                        width: '100%',
-                        dropdownParent: $('#' + that.idModal + ''),
-                    });
-
-                    $('#tipoSeleccion').on('change', (event) => {
-                        // Obtiene el valor seleccionado
-                        const valorSeleccionado = $(event.target).val();
-                        that.seleccionComidas = valorSeleccionado;
-                        // Imprime el nombre seleccionado
-                        console.log("Nuevo valor:", valorSeleccionado);
-                        setTimeout(() => {
-                            that.evento.$emit('cambiar-materia-prima', that.idLocal);
-                            that.evento.$emit('cambiar-insumos', that.idLocal);
-                            that.evento.$emit('cambiar-empleado', that.idLocal);
-                        }, 100);
-                    });
-                }, 100);
+                that.select2()
             });
 
             $('#tblmesaList').on('click', '.badge-danger', function () {
                 let id = $(this).data('id');
                 that.setMesa(id, 2);
                 that.getNombreCliente(id)
+            });
+
+            $('#tblmesaList').on('click', '.ocupada', function () {
+                let id = $(this).data('id');
+                that.setMesa(id, 3);
+                that.select2()
             });
         },
         getNombreCliente: function (id) {
@@ -383,34 +403,34 @@ let mesasList = new Vue({
                 if (result.isConfirmed) {
 
                     axios.get(`mesas/model/mesasList.php`, {
-                        params: {
-                            opcion: 5,
-                            id: this.idMesa,
-                            nit: this.nitCliente,
-                            direccion: this.direccionCliente,
-                            observacion: this.descripcion,
-                        }
-                    }).then(response => {
-                        console.log(response.data)
-                        if (response.data.id == 1) {
+                            params: {
+                                opcion: 5,
+                                id: this.idMesa,
+                                nit: this.nitCliente,
+                                direccion: this.direccionCliente,
+                                observacion: this.descripcion,
+                            }
+                        }).then(response => {
+                            console.log(response.data)
+                            if (response.data.id == 1) {
 
-                            Toast.fire({
-                                icon: 'success',
-                                title: response.data.msg
-                            });
-                            this.cargarTablaMesas()
-                            $("#setMesasModal").modal("hide")
-                            this.nitCliente = ''
-                            this.direccionCliente = ''
-                            this.descripcion = ''
-                        } else {
-                            Toast.fire({
-                                icon: 'error',
-                                title: response.data.msg
-                            })
-                            return
-                        }
-                    })
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: response.data.msg
+                                });
+                                this.cargarTablaMesas()
+                                $("#setMesasModal").modal("hide")
+                                this.nitCliente = ''
+                                this.direccionCliente = ''
+                                this.descripcion = ''
+                            } else {
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: response.data.msg
+                                })
+                                return
+                            }
+                        })
                         .catch(error => {
                             console.error(error);
                         });
@@ -419,7 +439,54 @@ let mesasList = new Vue({
             })
 
         },
+        actualizarMesa: function () {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            })
 
+            Swal.fire({
+                title: `Actualizar orden de la mesa: #${this.nroMesa}`,
+                text: "¡Se actualizara la orden!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '¡Si, actualizar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('opcion', 7);
+                    formData.append('filasInsumos', JSON.stringify(this.filasInsumos));
+                    formData.append('mesa', this.idMesa);
+                    axios.post('./mesas/model/mesasList.php', formData)
+                        .then(response => {
+                            console.log(response.data);
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.data.msg,
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                            $("#setMesasModal").modal("hide")
+                            this.filasInsumos = []
+                            this.progreso = 0
+                        })
+                        .catch(error => {
+                            console.error(error);
+                        });
+                }
+            })
+
+        },
         agregarFila: function () {
             let idInsumo;
             let nombreInsumo;
@@ -530,8 +597,7 @@ let mesasList = new Vue({
                                 timer: 1500
                             })
                             return
-                        }
-                        else {
+                        } else {
                             Swal.fire({
                                 icon: 'error',
                                 title: response.data.msg,
@@ -585,8 +651,30 @@ let mesasList = new Vue({
                         });
                 }
             });
-        }
+        },
+        select2: function () {
+            setTimeout(() => {
+                $('#tipoSeleccion').select2({
+                    placeholder: 'Tipo Seleccion',
+                    allowClear: false,
+                    width: '100%',
+                    dropdownParent: $(`#${this.idModal}`),
+                });
 
+                $('#tipoSeleccion').on('change', (event) => {
+                    // Obtiene el valor seleccionado
+                    const valorSeleccionado = $(event.target).val();
+                    this.seleccionComidas = valorSeleccionado;
+                    // Imprime el nombre seleccionado
+                    console.log("Nuevo valor:", valorSeleccionado);
+                    setTimeout(() => {
+                        this.evento.$emit('cambiar-materia-prima', this.idLocal);
+                        this.evento.$emit('cambiar-insumos', this.idLocal);
+                        this.evento.$emit('cambiar-empleado', this.idLocal);
+                    }, 100);
+                });
+            }, 100);
+        }
     }
 });
 

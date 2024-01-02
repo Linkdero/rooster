@@ -18,6 +18,8 @@ include_once 'styles.php';
           include_once 'configuracion/views/editarPerfil.php';
         } else if ($_GET["ref"] == 3) {
           include_once 'usuarios/views/formularioUsuario.php';
+        } else if ($_GET["ref"] == 4) {
+          include_once 'controlInventarios.php';
         }
         //Ordenes y Mesas
         else if ($_GET["ref"] == 11) {

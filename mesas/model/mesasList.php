@@ -400,7 +400,87 @@ class Mesa
         // Devuelve la respuesta
         echo json_encode($respuesta);
     }
+    static function setActualizarOrden()
+    {
+        $filasInsumos = json_decode($_POST["filasInsumos"], true);
+        $mesa = $_POST["mesa"];
 
+        try {
+            $db = new Database();
+            $pdo = $db->connect();
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $pdo->beginTransaction();
+
+            $sql = "SELECT id_orden 
+            FROM tb_orden
+            WHERE id_mesa = ? AND id_estado = ?";
+    
+            $p = $pdo->prepare($sql);
+    
+            $p->execute(array($mesa, 4));
+    
+            $orden = $p->fetch();
+            $idOrden = $orden["id_orden"];
+    
+            foreach ($filasInsumos as $insumo) {
+                $idInsumo = $insumo["idInsumo"];
+                $cantidad = $insumo["cantidad"];
+                $tipoMenu = $insumo["tipoMenu"];
+    
+                $sql = "SELECT COUNT(*) AS total_filas
+                FROM tb_orden_detalle
+                WHERE id_orden = ? AND id_insumo = ? AND id_tipo = ? ;";
+    
+                $p = $pdo->prepare($sql);
+    
+                $p->execute(array($idOrden, $idInsumo, $tipoMenu));
+    
+                $contar = $p->fetch();
+                $conteo = $contar["total_filas"];
+                if ($conteo) {
+                    $sql = "UPDATE tb_orden_detalle
+                    SET cantidad = cantidad + ?
+                    WHERE id_orden = ? AND id_insumo = ? AND id_tipo = ?;";
+    
+                    $p = $pdo->prepare($sql);
+    
+                    $p->execute(array($cantidad, $idOrden, $idInsumo, $tipoMenu));
+                } else {
+                    $sql = "SELECT reg_num
+                    FROM tb_orden_detalle
+                    WHERE id_orden = ?
+                    ORDER BY reg_num DESC
+                    LIMIT 1;";
+    
+                    $p = $pdo->prepare($sql);
+    
+                    $p->execute(array($idOrden));
+    
+                    $num = $p->fetch();
+                    $reg_num = $num["reg_num"] + 1;
+    
+                    $sql = "INSERT INTO tb_orden_detalle(id_orden, reg_num, id_insumo, cantidad, id_tipo)
+                    VALUES (?,?,?,?,?)";
+    
+                    $p = $pdo->prepare($sql);
+    
+                    $p->execute(array($idOrden, $reg_num, $idInsumo, $cantidad, $tipoMenu));
+                }
+            }
+            $pdo->commit();
+
+            $respuesta = ['msg' => 'Orden Actualizada', 'id' => 1];
+        } catch (PDOException $e) {
+            // Si hay una excepción, realiza un rollback
+            $pdo->rollBack();
+            $respuesta = ['msg' => 'ERROR', 'id' => ['errorInfo' => $e->getMessage()]];
+        } finally {
+            // Asegúrate de cerrar la conexión al finalizar
+            $pdo = null;
+        }
+
+        echo json_encode($respuesta);
+    }
 }
 
 //case
@@ -429,6 +509,9 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
 
         case 6:
             Mesa::setNuevaMesa();
+            break;
+        case 7:
+            Mesa::setActualizarOrden();
             break;
     }
 }

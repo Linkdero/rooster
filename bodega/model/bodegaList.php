@@ -62,7 +62,7 @@ class Bodega
     }
 
     //Opcion 2
-    static function setnuevaMateriaPrima()
+    static function setNuevaMateriaPrima()
     {
         try {
             $medida = $_POST["medida"];
@@ -70,6 +70,7 @@ class Bodega
             $existencia = $_POST["existencia"];
             $descripcion = $_POST["descripcion"];
             $local = $_POST["local"];
+            $fechaHoy = date("Y-m-d H:i:s");
 
             $db = new Database();
             $pdo = $db->connect();
@@ -100,6 +101,22 @@ class Bodega
 
             $p = $pdo->prepare($sql);
             $p->execute(array($descripcion, $medida, $precio, $existencia, 1, $local));
+
+            $sql = "SELECT id_materia_prima
+            FROM tb_materia_prima
+            ORDER BY id_materia_prima DESC
+            LIMIT 1;";
+
+            $p = $pdo->prepare($sql);
+            $p->execute();
+            $idMateriaPrima = $p->fetch();
+            $idMateriaPrima = $idMateriaPrima["id_materia_prima"];
+
+            $sql = "INSERT INTO tb_materia_prima_bitacora(id_materia_prima, ingreso, fecha)
+            VALUES (?,?,?)";
+
+            $p = $pdo->prepare($sql);
+            $p->execute(array($idMateriaPrima, $existencia, $fechaHoy));
 
             $respuesta = ['msg' => 'Materia Prima Agregada', 'id' => 1];
         } catch (PDOException $e) {
@@ -151,6 +168,7 @@ class Bodega
     {
         $id = $_POST["id"];
         $existencia = $_POST["existencia"];
+        $fechaHoy = date("Y-m-d H:i:s");
 
         try {
             $db = new Database();
@@ -164,6 +182,12 @@ class Bodega
             $p = $pdo->prepare($sql);
 
             $p->execute(array($existencia, $id));
+
+            $sql = "INSERT INTO tb_materia_prima_bitacora(id_materia_prima, ingreso, fecha)
+            VALUES (?,?,?)";
+
+            $p = $pdo->prepare($sql);
+            $p->execute(array($id, $existencia, $fechaHoy));
 
             $respuesta = ['msg' => 'Ingreso Exitoso', 'id' => 1];
         } catch (PDOException $e) {
@@ -189,7 +213,7 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
             break;
 
         case 2:
-            Bodega::setnuevaMateriaPrima();
+            Bodega::setNuevaMateriaPrima();
             break;
 
         case 3:

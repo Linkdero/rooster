@@ -87,6 +87,15 @@ module.exports = {
                     const valorSeleccionado = $(event.target).val();
                     // Llama a la función que deseas ejecutar
                     this.evento.$emit('id-insumo', valorSeleccionado);
+
+                    let precio
+                    for (let i = 0; i < this.insumos.length; i++) {
+                        if (this.insumos[i].id == valorSeleccionado) {
+                            precio = this.insumos[i].precio
+                            break
+                        }
+                    }
+                    $("#precio").val(precio);
                 });
 
             }).catch(error => {

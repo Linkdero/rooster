@@ -5,12 +5,17 @@ new Vue({
     titulo: 'Reporteria General',
     horaInicio: '',
     horaFinal: '',
-    conteoPlacas: '',
-    totalGanancias: ''
+    totalOrdenes: '',
+    sumaTotales: '',
+    totalNeto: '',
+    clientes: '',
+    ordenes: '',
+    observaciones: '',
+    meseras: ''
   },
   mounted: function () {
     this.fechaHoy()
-    this.datosVehiculos()
+    this.datosReporteria()
   },
   computed: {
 
@@ -48,7 +53,7 @@ new Vue({
       this.horaInicio = fechaHora
     },
 
-    datosVehiculos: function () {
+    datosReporteria: function () {
       let thes = this;
       if (this.horaFinal < this.horaInicio) {
         Swal.fire({
@@ -61,100 +66,143 @@ new Vue({
       }
 
       axios.get('./inc/dashboard.php', {
-        params: {
-          opcion: 1,
-          fechaInicial: this.horaInicio,
-          fechaFinal: this.horaFinal
-        }
-      })
+          params: {
+            opcion: 1,
+            fechaInicial: this.horaInicio,
+            fechaFinal: this.horaFinal,
+            idLocal: $("#local").val()
+          }
+        })
         .then(function (response) {
-          thes.conteoPlacas = response.data.conteo[0];
-          thes.totalGanancias = response.data.gananciasParticulares[0];
+          console.log(response.data);
 
-          // Convertir los valores de conteoPlacas a un array
-          const valoresConteoPlacas = [
-            thes.conteoPlacas.conteo_placa_1,
-            thes.conteoPlacas.conteo_placa_2,
-            thes.conteoPlacas.conteo_placa_3,
-            thes.conteoPlacas.conteo_placa_4
-          ];
+          thes.totalOrdenes = response.data.totalOrdenes;
+          thes.sumaTotales = response.data.sumaTotales;
+          thes.propinas = thes.sumaTotales * 0.1;
+          thes.totalNeto = thes.sumaTotales + thes.propinas;
 
-          // Configuración y creación de la gráfica de conteo de placas
-          const conteoPlacasCtx = document.getElementById('vehiculosComparacionPlacas').getContext('2d');
-          new Chart(conteoPlacasCtx, {
-            type: 'horizontalBar',
-            data: {
-              labels: ['Particulares', 'Taxis', 'Camiones', 'Motos'],
-              datasets: [{
-                label: 'Conteo de Placas',
-                data: valoresConteoPlacas,
-                backgroundColor: ['red', 'blue', 'green', 'yellow']
-              }]
-            },
-            options: {
-              responsive: true,
-              scales: {
-                x: {
-                  beginAtZero: true
-                }
-              }
-            }
+          thes.propinas = thes.propinas.toLocaleString('es-GT', {
+            style: 'currency',
+            currency: 'GTQ'
+          });
+          thes.sumaTotales = thes.sumaTotales.toLocaleString('es-GT', {
+            style: 'currency',
+            currency: 'GTQ'
+          });
+          thes.totalNeto = thes.totalNeto.toLocaleString('es-GT', {
+            style: 'currency',
+            currency: 'GTQ'
           });
 
-          // Convertir los valores de totalGanancias a un array
-          const valoresGanancias = [
-            thes.totalGanancias.total1,
-            thes.totalGanancias.total2,
-            thes.totalGanancias.total3,
-            thes.totalGanancias.total4
-          ];
+          thes.clientes = response.data.clientes;
+          thes.ordenes = response.data.ordenes;
+          thes.observaciones = response.data.observaciones;
+          thes.meseras = response.data.meseras;
 
-          // Configuración y creación de la gráfica de ganancias
-          const gananciasCtx = document.getElementById('vehiculosComparacionGanancias').getContext('2d');
-          new Chart(gananciasCtx, {
-            type: 'bar',
-            data: {
-              labels: ['Particulares', 'Taxis', 'Camiones', 'Motos'],
-              datasets: [{
-                label: 'Total Ganancias',
-                data: valoresGanancias,
-                backgroundColor: ['red', 'blue', 'green', 'yellow']
-              }]
-            },
-            options: {
-              responsive: true,
-              scales: {
-                y: {
-                  beginAtZero: true
-                }
-              }
-            }
-          })
-
-          // Función para convertir un valor a moneda guatemalteca
-          function convertirAMoneda(valor) {
-            return valor.toLocaleString('es-GT', {
-              style: 'currency',
-              currency: 'GTQ'
-            });
-          }
-
-          // Convertir los valores a moneda guatemalteca
-          for (let i = 1; i <= 4; i++) {
-            thes.totalGanancias['total' + i] = convertirAMoneda(thes.totalGanancias['total' + i]);
-          }
-
-          console.log(thes.conteoPlacas);
-          console.log(thes.totalGanancias);
+          thes.grafica()
+          thes.graficaMeserasProductivas()
         })
         .catch(function (error) {
-          // handle error
           console.log(error);
         })
-        .finally(function () {
-          // always executed
-        });
-    }
+    },
+    grafica() {
+      // Extrae los ID de las órdenes y los totales para el gráfico
+      const idsOrdenes = this.ordenes.map((orden) => orden.id_orden);
+      const totalesOrdenes = this.ordenes.map((orden) => orden.total);
+
+      // Configuración del gráfico lineal sin relleno
+      const ctx = this.$refs.chartOrdenes.getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: idsOrdenes,
+          datasets: [{
+            label: 'Total por Orden',
+            borderColor: 'rgba(26, 188, 156, 1)',
+            borderWidth: 1,
+            fill: false, // Desactiva el relleno
+            data: totalesOrdenes,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            xAxes: [{
+              scaleLabel: {
+                display: true,
+                labelString: 'ID de Orden',
+              },
+            }],
+            yAxes: [{
+              ticks: {
+                beginAtZero: true,
+              },
+              scaleLabel: {
+                display: true,
+                labelString: 'Total',
+              },
+            }],
+          },
+        },
+      });
+    },
+    graficaMeserasProductivas() {
+      const idsMeseras = this.meseras.map((mesera) => mesera.mesera);
+      const totalesVentasMeseras = this.meseras.map((mesera) => mesera.suma_propinas);
+
+      const cantidadIdsMeseras = idsMeseras.length;
+
+      console.log(`Cantidad de registros en idsMeseras: ${cantidadIdsMeseras}`);
+
+      // Colores personalizados para cada mesera
+      const coloresMeseras = [];
+
+      for (let i = 0; i < cantidadIdsMeseras; i++) {
+        const color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+        coloresMeseras.push(color);
+      }
+
+      console.log('Colores para cada mesera:', coloresMeseras);
+
+      // Configuración del gráfico de barras horizontales
+      const ctx = this.$refs.chartMeserosProductivos.getContext('2d');
+      new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: idsMeseras,
+          datasets: [{
+            label: 'Ventas Totales por Mesera',
+            backgroundColor: coloresMeseras,
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1,
+            data: totalesVentasMeseras,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            xAxes: [{
+              ticks: {
+                beginAtZero: true,
+              },
+              scaleLabel: {
+                display: true,
+                labelString: 'Ventas Totales',
+              },
+            }],
+            yAxes: [{
+              scaleLabel: {
+                display: true,
+                labelString: 'ID de Mesera',
+              },
+            }],
+          },
+        },
+      });
+    },
 
   },
 })
