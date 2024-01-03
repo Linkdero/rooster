@@ -51,7 +51,7 @@ class Configuracion
             $sub_array = array(
                 "id" => $u["id"],
                 "usuario" => $u["usuario"],
-                "nombre" => $u["usuario"],
+                "nombre" => $u["nombre"],
                 "roll" => $u["roll"],
                 "id_roll" => $u["id_roll"],
                 "id_estado" => $u["id_estado"],
