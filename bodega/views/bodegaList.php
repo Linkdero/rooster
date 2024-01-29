@@ -35,6 +35,8 @@
     </div>
     <iframe id="pdf_preview_v" hidden></iframe>
     <?php include 'modalNuevaMateriaPrima.php'; ?>
+    <?php include 'modalEquivalencias.php'; ?>
+
 
 </div>
 <script type="module" src="./bodega/src/bodegaList.js"> </script>

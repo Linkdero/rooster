@@ -256,11 +256,20 @@ class Mesa
             $p->execute(array($id_orden, $nombreCliente));
 
             foreach ($filasInsumos as $f) {
-                $sql = "INSERT INTO tb_orden_detalle(id_orden, reg_num, id_insumo, cantidad, id_tipo)
-                VALUES (?,?,?,?,?)";
-                $p = $pdo->prepare($sql);
+                if ($f["equivalencia"] == 'true') {
+                    $sql = "INSERT INTO tb_orden_detalle(id_orden, reg_num, equivalencia, id_equivalencia, cantidad, id_tipo)
+                    VALUES (?,?,?,?,?,?)";
+                    $p = $pdo->prepare($sql);
 
-                $p->execute(array($id_orden, $regNum, $f["idInsumo"], $f["cantidad"], $f["tipoMenu"]));
+                    $p->execute(array($id_orden, $regNum, 1, $f["idEquivalencia"], $f["cantidad"], $f["tipoMenu"]));
+                } else if ($f["equivalencia"] == 'false') {
+                    $sql = "INSERT INTO tb_orden_detalle(id_orden, reg_num, equivalencia, id_insumo, cantidad, id_tipo)
+                    VALUES (?,?,?,?,?,?)";
+                    $p = $pdo->prepare($sql);
+
+                    $p->execute(array($id_orden, $regNum, 0,$f["idInsumo"], $f["cantidad"], $f["tipoMenu"]));
+                }
+
                 $regNum++;
             }
             $pdo->commit();
@@ -414,36 +423,36 @@ class Mesa
             $sql = "SELECT id_orden 
             FROM tb_orden
             WHERE id_mesa = ? AND id_estado = ?";
-    
+
             $p = $pdo->prepare($sql);
-    
+
             $p->execute(array($mesa, 4));
-    
+
             $orden = $p->fetch();
             $idOrden = $orden["id_orden"];
-    
+
             foreach ($filasInsumos as $insumo) {
                 $idInsumo = $insumo["idInsumo"];
                 $cantidad = $insumo["cantidad"];
                 $tipoMenu = $insumo["tipoMenu"];
-    
+
                 $sql = "SELECT COUNT(*) AS total_filas
                 FROM tb_orden_detalle
                 WHERE id_orden = ? AND id_insumo = ? AND id_tipo = ? ;";
-    
+
                 $p = $pdo->prepare($sql);
-    
+
                 $p->execute(array($idOrden, $idInsumo, $tipoMenu));
-    
+
                 $contar = $p->fetch();
                 $conteo = $contar["total_filas"];
                 if ($conteo) {
                     $sql = "UPDATE tb_orden_detalle
                     SET cantidad = cantidad + ?
                     WHERE id_orden = ? AND id_insumo = ? AND id_tipo = ?;";
-    
+
                     $p = $pdo->prepare($sql);
-    
+
                     $p->execute(array($cantidad, $idOrden, $idInsumo, $tipoMenu));
                 } else {
                     $sql = "SELECT reg_num
@@ -451,19 +460,19 @@ class Mesa
                     WHERE id_orden = ?
                     ORDER BY reg_num DESC
                     LIMIT 1;";
-    
+
                     $p = $pdo->prepare($sql);
-    
+
                     $p->execute(array($idOrden));
-    
+
                     $num = $p->fetch();
                     $reg_num = $num["reg_num"] + 1;
-    
+
                     $sql = "INSERT INTO tb_orden_detalle(id_orden, reg_num, id_insumo, cantidad, id_tipo)
                     VALUES (?,?,?,?,?)";
-    
+
                     $p = $pdo->prepare($sql);
-    
+
                     $p->execute(array($idOrden, $reg_num, $idInsumo, $cantidad, $tipoMenu));
                 }
             }

@@ -56,6 +56,7 @@ module.exports = {
                         for (let i = 0; i < this.combos.length; i++) {
                             if (this.combos[i].id == valorSeleccionado) {
                                 precio = this.combos[i].precio
+                                this.evento.$emit('precio-insumo', precio);
                                 break
                             }
                         }

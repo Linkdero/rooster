@@ -61,6 +61,8 @@ module.exports = {
                     for (let i = 0; i < this.materiasPrimas.length; i++) {
                         if (this.materiasPrimas[i].id == valorSeleccionado) {
                             precio = this.materiasPrimas[i].precio
+                            this.evento.$emit('validar-equivalencia', this.materiasPrimas[i].equivalencia);
+                            this.evento.$emit('precio-insumo', precio);
                             break
                         }
                     }

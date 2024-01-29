@@ -10,16 +10,19 @@ let bodegaList = new Vue({
         tituloModulo: 'Listado Materia Prima',
         tablaBodega: '',
         nombreInsumos: 'Nueva Materia Prima',
+        tituloEquivalencia: 'Nueva Equivalencia',
         precio: '',
         medida: '',
         existencia: '',
         descripcion: '',
         idModal: '',
+        idModal2: '',
         idLocal: '',
         evento: '',
         idLocalSesion: '',
         tipoModal: 0,
-        idMateriaPrima: ''
+        idMateriaPrima: '',
+        equivalencia: '',
     },
     components: {
         'listado-medidas': ListadoMedidas,
@@ -42,10 +45,14 @@ let bodegaList = new Vue({
             this.idMateriaPrima = nuevoValor
         });
         this.idModal = this.$refs.idModal.id;
+        this.idModal2 = this.$refs.idModal2.id;
         this.cargarTablaBodega(1);
         this.baseTables();
     },
     computed: {
+        camposCompletos3() {
+            return this.medida !== '' && this.precio !== '' && this.equivalencia !== '';
+        },
         camposCompletos2() {
             return this.existencia.trim() !== '' && this.idMateriaPrima.trim() !== '';
         },
@@ -148,30 +155,34 @@ let bodegaList = new Vue({
                             emptyTable: "No hay solicitudes de Mennus para mostrar",
                             sProcessing: " <h3 class=''><i class='fa fa-sync fa-spin'></i> Cargando insumos, por favor espere</h3> "
                         },
-                        "aoColumns": [
-                            {
+                        "aoColumns": [{
                                 "class": "text-center",
                                 data: 'id',
                                 render: function (data, type, row) {
                                     let encabezado;
-
-                                    if (row.data == 1) {
+                                    if (row.id_estado == 1) {
                                         encabezado = `
-                                        <button class="btn btn-primary btn-xs" type="button" aria-haspopup="true" aria-expanded="false">
+                                        <button class="btn btn-primary btn-xs equivalencia" type="button" aria-haspopup="true" aria-expanded="false" data-id="${data}">
                                             <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
                                         </button>`;
                                         encabezado;
                                     } else {
                                         encabezado = `
-                                        <button class="btn btn-primary btn-xs" type="button" aria-haspopup="true" aria-expanded="false">
+                                        <button class="btn btn-danger btn-xs" type="button" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
                                         </button>`;
                                     }
                                     return encabezado;
                                 },
                             },
-                            { "class": "text-center", mData: 'medida' },
-                            { "class": "text-center", mData: 'nombre' },
+                            {
+                                "class": "text-center",
+                                mData: 'medida'
+                            },
+                            {
+                                "class": "text-center",
+                                mData: 'nombre'
+                            },
                             {
                                 "class": "text-center",
                                 data: 'precio',
@@ -210,8 +221,7 @@ let bodegaList = new Vue({
                                 },
                             },
                         ],
-                        buttons: [
-                            {
+                        buttons: [{
                                 text: 'Nuevo <i class="fa-solid fa-square-plus"></i>',
                                 className: 'bg-primary text-white btn-xs mx-1',
                                 action: function (e, dt, node, config) {
@@ -252,8 +262,7 @@ let bodegaList = new Vue({
             this.bsDataTables = jQuery.fn.dataTable;
             // Set the defaults for DataTables init
             jQuery.extend(true, this.bsDataTables.defaults, {
-                dom:
-                    "<'row'<'col-sm-4'l><'col-sm-4'B><'col-sm-4'f>>" +
+                dom: "<'row'<'col-sm-4'l><'col-sm-4'B><'col-sm-4'f>>" +
                     "<'row'<'col-sm-12'tr>>" +
                     "<'row'<'col-sm-6'i><'col-sm-6'p>>",
                 buttons: [
@@ -333,6 +342,15 @@ let bodegaList = new Vue({
                 } else {
                     that.setCatalogo(id, 2); // Checkbox no marcado
                 }
+                setTimeout(() => {
+                    that.cargarTablaBodega(1);
+                }, "1000");
+            });
+            $('#tblBodega').on('click', '.equivalencia', function () {
+                let id = $(this).data('id');
+                that.idMateriaPrima = id
+                $("#setNuevaEquivalencia").modal("show")
+
             });
         },
 
@@ -352,8 +370,7 @@ let bodegaList = new Vue({
                         showConfirmButton: false,
                         timer: 1500
                     })
-                }
-                else {
+                } else {
                     Swal.fire({
                         icon: 'error',
                         title: response.data.msg,
@@ -414,6 +431,37 @@ let bodegaList = new Vue({
                         });
                 }
             });
+        },
+        setNuevaEquivalencia() {
+            // Crear un objeto FormData para enviar los datos al servidor
+            var formData = new FormData();
+            formData.append('opcion', 5);
+            formData.append('equivalencia', this.equivalencia);
+            formData.append('precio', this.precio);
+            formData.append('medida', this.medida);
+            formData.append('id', this.idMateriaPrima);
+
+            // Realizar la solicitud POST al servidor
+            axios.post('./bodega/model/bodegaList.php', formData)
+                .then(response => {
+                    console.log(response.data);
+                    if (response.data.id == 1) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: response.data.msg,
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                        this.tablaBodega.clear().destroy();
+                        this.cargarTablaBodega()
+                        $("#setNuevaEquivalencia").modal("hide")
+                        this.equivalencia = ''
+                        this.precio = ''
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                });
         }
     },
 });

@@ -31,8 +31,22 @@
                                     <tr v-for="(o, index) in ordenDetalle" :key="index">
                                         <td class="text-center">{{ o.reg_num }}</td>
                                         <td class="text-center">{{ o.tipo_producto }}</td>
-                                        <td class="text-center">{{ o.descripcion }}</td>
-                                        <td class="text-center">Q{{ o.precio }}.00</td>
+                                        <td class="text-center">
+                                            <div v-if="o.descripcion == null">
+                                                {{ o.nombre_equivalencia }}
+                                            </div>
+                                            <div v-else>
+                                                {{ o.descripcion }}
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <div v-if="o.precio == null">
+                                                Q{{ o.precio_equivalencia }}.00
+                                            </div>
+                                            <div v-else>
+                                                Q{{ o.precio }}.00
+                                            </div>
+                                        </td>
                                         <td class="text-center">{{ o.cantidad }} U</td>
                                     </tr>
                                 </tbody>

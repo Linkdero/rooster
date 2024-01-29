@@ -30,8 +30,22 @@
                                     <tr v-for="(o, index) in ordenDetalle" :key="index">
                                         <td class="text-center">{{ o.reg_num }}</td>
                                         <td class="text-center">{{ o.tipo_producto }}</td>
-                                        <td class="text-center">{{ o.descripcion }}</td>
-                                        <td class="text-center">Q{{ o.precio }}.00</td>
+                                        <td class="text-center">
+                                            <div v-if="o.descripcion == null">
+                                                {{ o.nombre_equivalencia }}
+                                            </div>
+                                            <div v-else>
+                                                {{ o.descripcion }}
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <div v-if="o.precio == null">
+                                                Q{{ o.precio_equivalencia }}.00
+                                            </div>
+                                            <div v-else>
+                                                Q{{ o.precio }}.00
+                                            </div>
+                                        </td>
                                         <td class="text-center">{{ o.cantidad }} U</td>
                                     </tr>
                                 </tbody>
@@ -80,13 +94,25 @@
                                     <listado-combos :tipo="2" :modal="idModal" :evento="evento"></listado-combos>
                                 </div>
                             </div>
-
-                            <div class="col">
+                            <div v-if="validarEquivalencia">
+                                <div class="col">
+                                    <label for="cantidades">Equivalencia</label>
+                                    <br>
+                                    <label class="switch">
+                                        <input type="checkbox" v-model="estadoEquivalencia">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div v-show="!estadoEquivalencia" class="col">
                                 <label for="cantidades">Cantidades</label>
                                 <div class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
                                     <input type="number" class="input-sm form-control" id="cantidades">
                                     <span class="input-group-text"><i class="fa-sharp fa-regular fa-fork-knife"></i></span>
                                 </div>
+                            </div>
+                            <div v-show="estadoEquivalencia" class="col">
+                                <listado-equivalencias :tipo="1" :modal="idModal" :evento="evento"></listado-equivalencias>
                             </div>
 
                             <div class="col-2">
@@ -95,6 +121,11 @@
                                     <i class="fa-solid fa-circle-plus"></i>
                                 </button>
                             </div>
+
+                        </div>
+                        <div class="row">
+                            <listado-empleados :tipo="2" :modal="idModal" :evento="evento"></listado-empleados>
+
                         </div>
                         <div class="col-12">
                             <div class="card-body card-body-slide" width="100%" height="100%">
@@ -107,6 +138,7 @@
                                             <th class="text-center">Precio U</th>
                                             <th class="text-center">Total</th>
                                             <th class="text-center">Eliminar</th>
+                                            <th class="text-center">Equivalencia</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -114,7 +146,12 @@
                                             <td class="text-center">{{ fila.idInsumo }}</td>
                                             <td class="text-center">{{ fila.nombreInsumo }}</td>
                                             <td class="text-center">
-                                                <input type="number" class="form-control" v-model="fila.cantidad" @input="actualizarPrecioTotal(index)">
+                                                <div v-if="fila.equivalencia">
+                                                    <input type="number" disabled class="form-control" v-model="fila.cantidad" @input="actualizarPrecioTotal(index)">
+                                                </div>
+                                                <div v-else>
+                                                    <input type="number" class="form-control" v-model="fila.cantidad" @input="actualizarPrecioTotal(index)">
+                                                </div>
                                             </td>
                                             <td class="text-center">Q{{ fila.precioInsumo }}.00</td>
                                             <td class="text-center">Q{{ fila.precioTotal }}.00</td>
@@ -122,6 +159,10 @@
                                                 <button type="button" class="btn btn-outline-danger" @click="eliminarFila(index)">
                                                     <i class="fa-solid fa-trash-xmark"></i>
                                                 </button>
+                                            </td>
+                                            <td class="text-center">
+                                                <div v-if="fila.equivalencia">Si</div>
+                                                <div v-else>No</div>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -140,7 +181,6 @@
                                 <div class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
                                     <textarea class="form-control" id="descripcion" rows="3" v-model="descripcion"></textarea>
                                 </div>
-                                <listado-empleados :tipo="2" :modal="idModal" :evento="evento"></listado-empleados>
                             </div>
 
                         </div>

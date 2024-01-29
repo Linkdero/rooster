@@ -3,7 +3,8 @@ const ListadoMateriasPrimas = httpVueLoader('./componentes/listadoMateriaPrima.v
 const ListadoInsumos = httpVueLoader('./componentes/listadoInsumos.vue');
 const ListadoCombos = httpVueLoader('./componentes/listadoCombos.vue');
 const ListadoEmpleados = httpVueLoader('./componentes/listadoEmpleados.vue');
-const LitadoLocales = httpVueLoader('./componentes/ListadoLocales.vue');
+const LitadoLocales = httpVueLoader('./componentes/listadoLocales.vue');
+const ListadoEquivalencias = httpVueLoader('./componentes/listadoEquivalencias.vue');
 
 const EventBus = new Vue();
 
@@ -24,7 +25,6 @@ let mesasList = new Vue({
         insumos: '',
         filasInsumos: [],
         selectedInsumo: null,
-        precio: null,
         progreso: 0,
         selectComida: '',
         selectComida2: 0,
@@ -38,7 +38,11 @@ let mesasList = new Vue({
         idLocal: '',
         idLocalSesion: '',
         idEmpleado: '',
-        ordenDetalle: ''
+        ordenDetalle: '',
+        validarEquivalencia: false,
+        estadoEquivalencia: false,
+        idMateriaPrima: 0,
+        equivalenciaSeleccionada: ''
     },
     mounted: function () {
         this.idModal = this.$refs.idModal.id;
@@ -53,6 +57,21 @@ let mesasList = new Vue({
         this.evento.$on('cambiar-local', (nuevoValor) => {
             this.idLocal = nuevoValor
         });
+        this.evento.$on('validar-equivalencia', (nuevoValor) => {
+            this.validarEquivalencia = nuevoValor
+            this.estadoEquivalencia = false
+        });
+        this.evento.$on('id-materia-prima', (nuevoValor) => {
+            this.idMateriaPrima = nuevoValor
+        });
+        this.evento.$on('equivalencia-seleccionada', (nuevoValor) => {
+            this.equivalenciaSeleccionada = nuevoValor
+            console.log(this.equivalenciaSeleccionada)
+        });
+        this.evento.$on('precio-insumo', (nuevoValor) => {
+            this.precio = nuevoValor
+            console.log(this.equivalenciaSeleccionada)
+        });
         this.cargarTablaMesas();
         this.baseTables();
     },
@@ -63,17 +82,22 @@ let mesasList = new Vue({
         'listado-combos': ListadoCombos,
         'listado-empleados': ListadoEmpleados,
         'listado-locales': LitadoLocales,
+        'listado-equivalencias': ListadoEquivalencias,
     },
     watch: {
         selectComida(newValue) {
             // Esta función se ejecutará cada vez que selectComida cambie
             this.getInsumos(this.selectComida);
+
         },
         idLocal(nuevoValor) {
             this.evento.$emit('cambiar-materia-prima', nuevoValor);
             this.evento.$emit('cambiar-insumos', nuevoValor);
             this.evento.$emit('cambiar-empleado', nuevoValor);
             // this.evento.$emit('cambiar-materia-prima', nuevoValor);
+        },
+        estadoEquivalencia() {
+            this.evento.$emit('cargar-equivalencias', this.idMateriaPrima);
         }
     },
     computed: {
@@ -505,15 +529,26 @@ let mesasList = new Vue({
             }
             let cantidad = $('#cantidades').val();
 
+            precioInsumo = $("#precio").val();
+            let precioTotal = precioInsumo * cantidad;
+            let idEquivalencia = 0;
+            if (this.estadoEquivalencia) {
+                cantidad = this.equivalenciaSeleccionada.equivalencia
+                precioInsumo = this.equivalenciaSeleccionada.precio
+                precioTotal = this.equivalenciaSeleccionada.precio
+                precioTotal = this.equivalenciaSeleccionada.precio
+                idEquivalencia = this.equivalenciaSeleccionada.id
+            }
+
             if (idInsumo == '' || idInsumo == null || nombreInsumo == '' || nombreInsumo == null || cantidad == '' || cantidad == null) {
                 return;
             }
 
-            precioInsumo = $("#precio").val();
-            let precioTotal = precioInsumo * cantidad;
-
             // Verifica si el insumo ya está en la lista
-            let insumoExistente = this.filasInsumos.find(fila => fila.idInsumo === idInsumo && fila.tipoMenu === this.seleccionComidas);
+            let insumoExistente = this.filasInsumos.find(fila =>
+                fila.idInsumo === idInsumo &&
+                fila.tipoMenu === this.seleccionComidas &&
+                fila.equivalencia === this.estadoEquivalencia);
 
             // Si el insumo no está en la lista y se seleccionó una cantidad
             if (!insumoExistente && idInsumo && cantidad) {
@@ -524,7 +559,10 @@ let mesasList = new Vue({
                     cantidad: cantidad,
                     precioInsumo: precioInsumo,
                     precioTotal: precioTotal,
-                    tipoMenu: this.seleccionComidas
+                    tipoMenu: this.seleccionComidas,
+                    equivalencia: this.estadoEquivalencia,
+                    idEquivalencia: idEquivalencia
+
                 });
 
                 $('#cantidades').val('');
@@ -665,6 +703,10 @@ let mesasList = new Vue({
                     // Obtiene el valor seleccionado
                     const valorSeleccionado = $(event.target).val();
                     this.seleccionComidas = valorSeleccionado;
+                    if (this.seleccionComidas == 2 || this.seleccionComidas == 3) {
+                        this.validarEquivalencia = false
+                        this.estadoEquivalencia = false
+                    }
                     // Imprime el nombre seleccionado
                     console.log("Nuevo valor:", valorSeleccionado);
                     setTimeout(() => {

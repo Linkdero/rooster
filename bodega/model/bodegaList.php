@@ -14,7 +14,7 @@ class Bodega
 
         $tipo = $_GET["tipo"];
         if ($tipo == 1) {
-            $sql = "SELECT id_materia_prima as id, materia_prima as nombre, precio
+            $sql = "SELECT id_materia_prima as id, materia_prima as nombre, precio,equivalencia
                     FROM tb_materia_prima
                     WHERE id_estado = ? and id_local = ?";
         } else {
@@ -44,8 +44,7 @@ class Bodega
             $sub_array = [
                 "id" => $i["id"],
                 "nombre" => $i["nombre"],
-                "precio" => $i["precio"]
-
+                "precio" => $i["precio"],
             ];
 
             // Agregar elementos adicionales si $tipo no es igual a 1
@@ -54,6 +53,8 @@ class Bodega
                 $sub_array["existencias"] = $i["existencias"];
                 $sub_array["id_estado"] = $i["id_estado"];
                 $sub_array["estado"] = $i["estado"];
+            } else {
+                $sub_array["equivalencia"] = $i["equivalencia"];
             }
 
             $data[] = $sub_array;
@@ -201,6 +202,69 @@ class Bodega
         $pdo = null;
         echo json_encode($respuesta);
     }
+    static function setNuevaEquivalencia()
+    {
+        $equivalencia = $_POST["equivalencia"];
+        $precio = $_POST["precio"];
+        $medida = $_POST["medida"];
+        $id = $_POST["id"];
+        try {
+            $db = new Database();
+            $pdo = $db->connect();
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            if (!is_numeric($medida)) {
+                $sql = "SELECT id_medida
+                        FROM tb_medida
+                        WHERE medida LIKE ?";
+                $p = $pdo->prepare($sql);
+                $p->execute(array($medida));
+                $comprobante = $p->fetch(PDO::FETCH_ASSOC);
+
+                if (empty($comprobante)) {
+                    $sql = "INSERT INTO tb_medida(medida, id_estado)
+                            VALUES (?,?)";
+                    $p = $pdo->prepare($sql);
+                    $p->execute(array($medida, 1));
+
+                    $medida = $pdo->lastInsertId();
+                } else {
+                    $medida = $comprobante["id_medida"];
+                }
+            }
+
+            $sql = "SELECT COUNT(id_materia_prima) AS cantidad
+            FROM tb_materia_prima_equivalencia
+            WHERE id_materia_prima = ?";
+
+            $p = $pdo->prepare($sql);
+            $p->execute(array($id));
+            $conteo = $p->fetch();
+            $conteo = $conteo["cantidad"];
+
+            if ($conteo == 0) {
+                $sql = "UPDATE `tb_materia_prima` SET equivalencia = ?
+                WHERE id_materia_prima = ?";
+                $p = $pdo->prepare($sql);
+                $p->execute(array(true, $id));
+            }
+            $sql = "INSERT INTO tb_materia_prima_equivalencia (id_materia_prima, id_medida, equivalencia, precio)
+            VALUES (?,?,?,?)";
+            $p = $pdo->prepare($sql);
+            $p->execute(array($id, $medida, $equivalencia, $precio));
+
+            $respuesta = ['msg' => '¡Equivalencia Agregada Excitosamente!', 'id' => 1];
+        } catch (PDOException $e) {
+            $respuesta = array('msg' => 'ERROR', 'id' => $e);
+            try {
+                $pdo->rollBack();
+            } catch (Exception $e2) {
+                $respuesta = array('msg' => 'ERROR', 'id' => $e2);
+            }
+        }
+        $pdo = null;
+        echo json_encode($respuesta);
+    }
 }
 
 //case
@@ -222,6 +286,10 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
 
         case 4:
             Bodega::setNuevoIngresoBodega();
+            break;
+
+        case 5:
+            Bodega::setNuevaEquivalencia();
             break;
     }
 }

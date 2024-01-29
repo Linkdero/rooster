@@ -130,21 +130,22 @@ class Orden
             ELSE NULL
         END AS id_producto,
         CASE 
-                WHEN od.id_tipo = 1 THEN mp.precio
+            WHEN od.id_tipo = 1 THEN mp.precio
             WHEN od.id_tipo = 2 THEN i.precio
             WHEN od.id_tipo = 3 THEN c.precio
             ELSE NULL
-        END AS precio
-    FROM 
-        tb_orden o
-    LEFT JOIN 
-        tb_orden_detalle od ON o.id_orden = od.id_orden
-    LEFT JOIN 
-        tb_materia_prima mp ON od.id_tipo = 1 AND od.id_insumo = mp.id_materia_prima
-    LEFT JOIN 
-        tb_insumo i ON od.id_tipo = 2 AND od.id_insumo = i.id_insumo
-    LEFT JOIN 
-        tb_combo c ON od.id_tipo = 3 AND od.id_insumo = c.id_combo    
+        END AS precio,
+        CONCAT(m.medida , ' ', mp2.materia_prima) as nombre_equivalencia,
+        mpe.id_equivalencia,
+        mpe.precio as precio_equivalencia
+    FROM tb_orden o
+    LEFT JOIN tb_orden_detalle od ON o.id_orden = od.id_orden
+    LEFT JOIN tb_materia_prima mp ON od.id_tipo = 1 AND od.id_insumo = mp.id_materia_prima
+    LEFT JOIN tb_insumo i ON od.id_tipo = 2 AND od.id_insumo = i.id_insumo
+    LEFT JOIN tb_combo c ON od.id_tipo = 3 AND od.id_insumo = c.id_combo   
+ 	LEFT JOIN tb_materia_prima_equivalencia mpe ON od.id_equivalencia = mpe.id_equivalencia
+    LEFT JOIN tb_medida m ON mpe.id_medida = m.id_medida
+    LEFT JOIN tb_materia_prima mp2 ON mpe.id_materia_prima = mp2.id_materia_prima
     WHERE o.id_orden = ?";
 
         $p = $pdo->prepare($sql);
@@ -163,6 +164,10 @@ class Orden
                 "precio" => $o["precio"],
                 "cantidad" => $o["cantidad"],
                 "total" => $o["total"],
+                "nombre_equivalencia" => $o["nombre_equivalencia"],
+                "id_equivalencia" => $o["id_equivalencia"],
+                "precio_equivalencia" => $o["precio_equivalencia"],
+
             );
             $data[] = $sub_array;
         }

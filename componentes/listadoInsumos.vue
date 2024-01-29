@@ -92,6 +92,7 @@ module.exports = {
                     for (let i = 0; i < this.insumos.length; i++) {
                         if (this.insumos[i].id == valorSeleccionado) {
                             precio = this.insumos[i].precio
+                            this.evento.$emit('precio-insumo', precio);
                             break
                         }
                     }
