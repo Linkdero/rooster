@@ -53,7 +53,7 @@
                             </table>
                         </div>
                     </div>
-
+                    <hr>
                     <div class="row">
                         <div class="col-md-12 text-center">
                             <ul class="pagination pagination-split">
@@ -83,7 +83,7 @@
                             </div>
                         </div>
 
-                        <div class="col-sm-6">
+                        <div class="col-sm-6 border-right">
                             <div class="row">
                                 <div class="col-12"><small class="text-muted">Observaciones: </small>
                                     <span class="badge badge-info">{{ datosCliente.observacion || 'Orden en proceso'
@@ -125,12 +125,13 @@
                                     <h5><strong>{{ propina || 'Orden en proceso' }}</strong></h5>
                                 </div>
                             </div>
-
+                            <hr>
                             <div class="row">
                                 <form class="form-inline">
-                                    <button type="button" class="btn btn-primary btn-floating rounded-circle" @click="imprimirTicket">
-                                        <i class="fas fa-download"></i>
-                                    </button>
+                                    <div class="col-12"><small class="text-muted">DESCARGAR COMPROBANTE:</small>
+                                        <button type="button" class="btn btn-primary btn-floating rounded-circle" @click="imprimirTicket">
+                                            <i class="fas fa-download"></i>
+                                        </button>
                                 </form>
                             </div>
                         </div>

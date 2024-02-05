@@ -17,17 +17,21 @@ class Inventario
 
         $sql = "SELECT o.id_orden, o.fecha_final, l.descripcion, od.cantidad, od.id_tipo,
         CASE
+ 			WHEN od.equivalencia = 1 THEN CONCAT(m.medida , ' ', mp2.materia_prima)
             WHEN od.id_tipo = 1 THEN mp.materia_prima
             WHEN od.id_tipo = 2 THEN i.descripcion
             WHEN od.id_tipo = 3 THEN c.descripcion
+			ELSE 0
         END AS item_descripcion,
         CASE
+			WHEN od.equivalencia = 1 THEN mpe.precio
             WHEN od.id_tipo = 1 THEN mp.precio
             WHEN od.id_tipo = 2 THEN i.precio
             WHEN od.id_tipo = 3 THEN c.precio
         END AS item_precio,
         (od.cantidad *
             CASE
+                WHEN od.equivalencia = 1 THEN mpe.precio
                 WHEN od.id_tipo = 1 THEN mp.precio
                 WHEN od.id_tipo = 2 THEN i.precio
                 WHEN od.id_tipo = 3 THEN c.precio
@@ -39,6 +43,9 @@ class Inventario
     LEFT JOIN tb_materia_prima AS mp ON od.id_tipo = 1 AND od.id_insumo = mp.id_materia_prima
     LEFT JOIN tb_insumo AS i ON od.id_tipo = 2 AND od.id_insumo = i.id_insumo
     LEFT JOIN tb_combo AS c ON od.id_tipo = 3 AND od.id_insumo = c.id_combo
+	LEFT JOIN tb_materia_prima_equivalencia AS mpe ON od.id_equivalencia = mpe.id_equivalencia
+    LEFT JOIN tb_medida AS m ON mpe.id_medida = m.id_medida
+    LEFT JOIN tb_materia_prima AS mp2 ON mpe.id_materia_prima = mp2.id_materia_prima
     WHERE o.fecha_final >= ? AND o.fecha_final <= ? AND o.id_estado = ? ";
 
         if ($idLocal != 3) {

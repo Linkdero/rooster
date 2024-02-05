@@ -431,223 +431,249 @@ let ordenesList = new Vue({
 
         },
         imprimirTicket: function () {
+            const imagePath = './src/images/rooster.jpg';
 
-            var documentDefinition = {
-                pageSize: {
-                    width: 250, // Ancho en puntos (1 punto = 1/72 pulgadas)
-                    height: 500 // Alto en puntos (1 punto = 1/72 pulgadas)
-                },
-                content: [{
-                        text: 'RESTAURANTE ROOSTERS',
-                        alignment: 'center',
-                        fontSize: 20,
-                        bold: true,
-                        margin: [0, 0, 0, 5] // Margen inferior para separar el encabezado del contenido
-                    },
-                    {
-                        text: 'HOJA COMPROBANTE: DATOS DE FACTURACIÓN',
-                        fontSize: 11,
-                        alignment: 'center',
-                        margin: [0, 0, 0, 10]
-                    },
-                    {
-                        text: `Número de Pedido: 0${this.idOrden}\nFecha y Hora: ${this.datosCliente.fecha_final} `,
-                        fontSize: 10,
-                        alignment: 'center',
-                        margin: [0, 0, 0, 5]
-                    },
-                    {
-                        canvas: [{
-                            type: 'line',
-                            x1: 0,
-                            y1: 0,
-                            x2: 195,
-                            y2: 0,
-                            lineWidth: 2,
-                            lineColor: '#333' // Color de la línea
-                        }]
-                    },
-                    {
-                        text: `Mesera: ${this.datosCliente.mesera}`,
-                        fontSize: 12,
-                        margin: [0, 5, 0, 0],
-                        alignment: 'left'
+            // Función para convertir la imagen a base64
+            function convertImageToBase64(imagePath) {
+                return new Promise((resolve, reject) => {
+                    const fileReader = new FileReader();
 
-                    },
-                    {
-                        text: `Cliente: ${this.datosCliente.nombre} `,
-                        fontSize: 12,
-                        margin: [0, 0, 0, 0],
-                        alignment: 'left'
+                    fileReader.onload = function () {
+                        const base64Data = fileReader.result;
+                        resolve('data:image/jpeg:base64,' + base64Data);
+                    };
 
-                    },
-                    {
-                        text: `NIT: ${this.datosCliente.nit} `,
-                        fontSize: 12,
-                        margin: [0, 0, 0, 5],
-                        alignment: 'left'
-
-                    },
-                    {
-                        canvas: [{
-                            type: 'line',
-                            x1: 0,
-                            y1: 0,
-                            x2: 195,
-                            y2: 0,
-                            lineWidth: 2,
-                            lineColor: '#333' // Color de la línea
-                        }],
-                        margin: [0, 0, 0, 10],
-                    },
-                    {
-                        table: {
-                            body: [
-                                [{
-                                        text: 'Producto',
-                                        alignment: 'center'
-                                    },
-                                    {
-                                        text: 'Cantidad',
-                                        alignment: 'center'
-                                    },
-                                    {
-                                        text: 'Precio',
-                                        alignment: 'center'
-                                    },
-                                    {
-                                        text: 'Total',
-                                        alignment: 'center'
-                                    }
-                                ],
-                                ...this.ordenDetalle.map(item => [{
-                                        text: item.descripcion,
-                                        alignment: 'center'
-                                    },
-                                    {
-                                        text: item.cantidad + 'U',
-                                        alignment: 'center'
-                                    },
-                                    {
-                                        text: 'Q' + item.precio,
-                                        alignment: 'center'
-                                    },
-                                    {
-                                        text: 'Q' + item.total,
-                                        alignment: 'center'
-                                    }
-                                ]),
-                            ],
-                            widths: ['*', 'auto', 'auto', 'auto'],
-                            margin: [0, 10, 0, 10]
-                        }
-                    },
-                    {
-                        text: `Total Consumido: ${this.totalConsumido} \nPropina: ${this.propina} `,
-                        alignment: 'right',
-                        fontSize: 14,
-                        bold: true,
-                        margin: [0, 10, 0, 5] // Margen superior para separar la tabla del total
-                    },
-                    {
-                        canvas: [{
-                            type: 'line',
-                            x1: 70,
-                            y1: 0,
-                            x2: 170,
-                            y2: 0,
-                            lineWidth: 2,
-                            lineColor: '#333' // Color de la línea
-                        }],
-                        margin: [0, 0, 0, 5],
-                    },
-                    {
-                        text: `Total: ${this.totalFinal}`,
-                        alignment: 'right',
-                        fontSize: 14,
-                        bold: true,
-                        margin: [0, 0, 0, 5] // Margen superior para separar la tabla del total
-                    },
-                    {
-                        text: '¡GRACIAS POR CONSUMIR!',
-                        alignment: 'center',
-                        fontSize: 12,
-                        bold: true,
-                        margin: [0, 5, 0, 5] // Margen inferior para separar el encabezado del contenido
-                    },
-                ],
-                footer: {
-                    columns: [{
-                        stack: [{
-                                text: 'Impresión generada por el sistema de restaurante Roosters',
-                                alignment: 'center',
-                                fontSize: 10
-                            },
-                            {
-                                text: 'Copyright © RESTAURANTE ROOSTER´S! 2023',
-                                alignment: 'center',
-                                fontSize: 10
-                            }
-                        ]
-                    }],
-                    alignment: 'center'
-                },
-            };
-
-
-            // Crear el documento PDF
-            var pdfDocGenerator = pdfMake.createPdf(documentDefinition);
-
-            // Generar el PDF como base64
-            pdfDocGenerator.getBase64(function (base64) {
-                var blob = b64toBlob(base64, 'application/pdf');
-
-                // Crear un objeto blob URL para el PDF
-                var blobUrl = URL.createObjectURL(blob);
-
-                // Crear un iframe oculto
-                var iframe = document.createElement('iframe');
-                iframe.style.position = 'absolute';
-                iframe.style.left = '-9999px';
-                iframe.src = blobUrl;
-
-                // Agregar el iframe al cuerpo del documento
-                document.body.appendChild(iframe);
-
-                // Cuando el iframe haya cargado el PDF
-                iframe.onload = function () {
-                    // Intentar abrir el modal de impresión después de un breve retraso
-                    setTimeout(function () {
-                        iframe.contentWindow.print();
-                    }, 1000);
-                };
-            });
-
-            // Función para convertir base64 a blob
-            function b64toBlob(base64, contentType) {
-                contentType = contentType || '';
-                var sliceSize = 512;
-                var byteCharacters = atob(base64);
-                var byteArrays = [];
-
-                for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-                    var slice = byteCharacters.slice(offset, offset + sliceSize);
-
-                    var byteNumbers = new Array(slice.length);
-                    for (var i = 0; i < slice.length; i++) {
-                        byteNumbers[i] = slice.charCodeAt(i);
-                    }
-
-                    var byteArray = new Uint8Array(byteNumbers);
-                    byteArrays.push(byteArray);
-                }
-
-                var blob = new Blob(byteArrays, {
-                    type: contentType
+                    // Lee la imagen como un Blob
+                    fetch(imagePath)
+                        .then(response => response.blob())
+                        .then(blob => fileReader.readAsDataURL(blob))
+                        .catch(error => reject('Error al cargar la imagen: ' + error));
                 });
-                return blob;
             }
 
+            // Llamada a la función utilizando una Promesa
+            convertImageToBase64(imagePath)
+                .then(image64 => {
+                    console.log(image64);
+
+                    var documentDefinition = {
+                        pageSize: 'letter', // Tamaño de la página (carta)
+                        header: {
+                            columns: [{
+                                stack: [{
+                                        canvas: [{
+                                            type: 'rect',
+                                            alignment: 'left',
+                                            w: 700,
+                                            h: 35,
+                                            color: '#336699', // Fondo azul
+                                        }, ],
+                                        absolutePosition: {
+                                            x: 0,
+                                            y: 0
+                                        },
+                                    },
+                                    {
+                                        text: 'ROOSTER`S SPORT BAR',
+                                        fontSize: 25,
+                                        bold: true,
+                                        color: '#FFFFFF', // Texto en color blanco
+                                    },
+                                ],
+                                alignment: 'center',
+                            }, ],
+                        },
+                        content: [{
+                                text: 'HOJA COMPROBANTE: DATOS DE FACTURACIÓN',
+                                fontSize: 14,
+                                alignment: 'center',
+                            },
+                            {
+                                image: image64, // Reemplaza 'URL_DE_TU_LOGO' con la URL de tu logo
+                                width: 55, // Ajusta el ancho según tu necesidad
+                                height: 55, // Ajusta la altura según tu necesidad
+                                alignment: 'right',
+                                absolutePosition: {
+                                    x: 0,
+                                    y: 37
+                                },
+                            },
+                            {
+                                text: `Número de Pedido: 0${this.idOrden}\nFecha y Hora: ${this.datosCliente.fecha_final} `,
+                                fontSize: 12,
+                                alignment: 'center',
+                                margin: [0, 0, 0, 10],
+                            },
+                            {
+                                canvas: [{
+                                    type: 'line',
+                                    x1: 0,
+                                    y1: 0,
+                                    x2: 515,
+                                    y2: 0,
+                                    lineWidth: 1,
+                                    lineColor: '#336699', // Color de la línea
+                                }, ],
+                            },
+                            {
+                                text: `Mesera: ${this.datosCliente.mesera}`,
+                                fontSize: 16,
+                                margin: [0, 10, 0, 0],
+                                alignment: 'left',
+                            },
+                            {
+                                text: `Cliente: ${this.datosCliente.nombre} `,
+                                fontSize: 16,
+                                margin: [0, 5, 0, 0],
+                                alignment: 'left',
+                            },
+                            {
+                                text: `NIT: ${this.datosCliente.nit} `,
+                                fontSize: 16,
+                                margin: [0, 5, 0, 15],
+                                alignment: 'left',
+                            },
+                            {
+                                canvas: [{
+                                    type: 'line',
+                                    x1: 0,
+                                    y1: 0,
+                                    x2: 515,
+                                    y2: 0,
+                                    lineWidth: 1,
+                                    lineColor: '#336699', // Color de la línea
+                                }, ],
+                                margin: [0, 0, 0, 20],
+                            },
+                            {
+                                table: {
+                                    body: [
+                                        [{
+                                                text: 'Producto',
+                                                alignment: 'center',
+                                                fillColor: '#336699', // Color de fondo azul
+                                                color: '#FFFFFF', // Texto en color blanco
+                                                fontSize: 14,
+                                                bold: true,
+                                            },
+                                            {
+                                                text: 'Cantidad',
+                                                alignment: 'center',
+                                                fillColor: '#336699',
+                                                color: '#FFFFFF',
+                                                fontSize: 14,
+                                                bold: true,
+                                            },
+                                            {
+                                                text: 'Precio',
+                                                alignment: 'center',
+                                                fillColor: '#336699',
+                                                color: '#FFFFFF',
+                                                fontSize: 14,
+                                                bold: true,
+                                            },
+                                            {
+                                                text: 'Total',
+                                                alignment: 'center',
+                                                fillColor: '#336699',
+                                                color: '#FFFFFF',
+                                                fontSize: 14,
+                                                bold: true,
+                                            },
+                                        ],
+                                        ...this.ordenDetalle.map(item => [{
+                                                text: item.descripcion ? item.descripcion : item.nombre_equivalencia,
+                                                alignment: 'center',
+                                            },
+                                            {
+                                                text: item.cantidad + 'U',
+                                                alignment: 'center',
+                                            },
+                                            {
+                                                text: 'Q' + (item.precio ? item.precio : item.precio_equivalencia),
+                                                alignment: 'center',
+                                            },
+                                            {
+                                                text: 'Q' + (item.precio ? item.precio : item.precio_equivalencia) * item.cantidad,
+                                                alignment: 'center',
+                                            },
+                                        ]),
+                                    ],
+                                    widths: ['*', 'auto', 'auto', 'auto'],
+                                    margin: [0, 10, 0, 10],
+                                },
+                            },
+                            {
+                                text: `Total Consumido: ${this.totalConsumido} \nPropina: ${this.propina} `,
+                                alignment: 'right',
+                                fontSize: 16,
+                                bold: true,
+                                margin: [0, 20, 0, 10],
+                            },
+                            {
+                                canvas: [{
+                                    type: 'line',
+                                    x1: 400,
+                                    y1: 0,
+                                    x2: 540,
+                                    y2: 0,
+                                    lineWidth: 1,
+                                }, ],
+                                margin: [0, 0, 0, 10],
+                            },
+                            {
+                                text: `Total: ${this.totalFinal}`,
+                                alignment: 'right',
+                                fontSize: 20,
+                                bold: true,
+                                margin: [0, 0, 0, 10],
+                            },
+                            {
+                                text: `
+                                ¡GRACIAS POR CONSUMIR EN ROOSTERS!`,
+                                fontSize: 8,
+                                alignment: 'center',
+                                bold: true,
+                            },
+                            {
+                                text: `
+                                Apreciamos sinceramente tu visita y confianza en nuestro establecimiento. En Roosters, nos esforzamos por brindar una magnifica experiencia. Esperamos que hayas disfrutado de cada momento que compartiste en nuestra mesa. Tu satisfacción es nuestra mayor recompensa. Gracias por elegirnos como tu destino. ¡Esperamos verte nuevamente pronto!
+                                
+                                Atentamente,
+                                El equipo de Roosters`,
+                                fontSize: 8,
+                                bold: true,
+                                margin: [0, 0, 0, 0],
+                            }
+                        ],
+                        footer: {
+                            columns: [{
+                                stack: [{
+                                    text: `Impresión generada por el sistema de restaurante Roosters
+                                        Copyright © RESTAURANTE ROOSTER´S! 2024`,
+                                    alignment: 'center',
+                                    fontSize: 14,
+                                }, ],
+                            }, ],
+                            margin: [0, 0, 0, 0], // Ajusta el margen inferior según tus necesidades
+                        }
+                    };
+
+
+                    pdfMake.createPdf(documentDefinition).getBuffer((buffer) => {
+                        // Crea un blob a partir del buffer
+                        var blob = new Blob([buffer], {
+                            type: 'application/pdf'
+                        });
+
+                        // Crea un objeto URL para el blob del PDF
+                        var pdfUrl = URL.createObjectURL(blob);
+
+                        // Abre un enlace en una nueva ventana
+                        window.open(pdfUrl, '_blank');
+                    });
+                })
+                .catch(error => console.error(error));
         },
     }
 });

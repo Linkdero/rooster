@@ -267,7 +267,7 @@ class Mesa
                     VALUES (?,?,?,?,?,?)";
                     $p = $pdo->prepare($sql);
 
-                    $p->execute(array($id_orden, $regNum, 0,$f["idInsumo"], $f["cantidad"], $f["tipoMenu"]));
+                    $p->execute(array($id_orden, $regNum, 0, $f["idInsumo"], $f["cantidad"], $f["tipoMenu"]));
                 }
 
                 $regNum++;
@@ -320,22 +320,23 @@ class Mesa
             $sql = "SELECT
             SUM(
                 CASE
+				    WHEN od.equivalencia = 1 THEN (mpe.precio *od.cantidad)
                     WHEN od.id_tipo = 1 THEN mp.precio * od.cantidad
                     WHEN od.id_tipo = 2 THEN ins.precio * od.cantidad
                     WHEN od.id_tipo = 3 THEN c.precio * od.cantidad
-                    ELSE 0 -- Puedes establecer un valor por defecto si es necesario
+                    ELSE 0
                 END
             ) AS total_precio
         FROM tb_orden_detalle od
         LEFT JOIN tb_materia_prima mp ON od.id_tipo = 1 AND od.id_insumo = mp.id_materia_prima
         LEFT JOIN tb_insumo ins ON od.id_tipo = 2 AND od.id_insumo = ins.id_insumo
         LEFT JOIN tb_combo c ON od.id_tipo = 3 AND od.id_insumo = c.id_combo
-        WHERE od.id_orden = ?;
-        ";
+        LEFT JOIN tb_materia_prima_equivalencia AS mpe ON od.id_equivalencia = mpe.id_equivalencia
+        WHERE od.id_orden = ?";
 
             $p = $pdo->prepare($sql);
             $p->execute(array($idORden));
-            $sumaTotal = $p->fetch(PDO::FETCH_ASSOC);
+            $sumaTotal = $p->fetch();
             $sumaTotal = $sumaTotal["total_precio"];
 
             $sql = "UPDATE tb_orden 
@@ -431,29 +432,136 @@ class Mesa
             $orden = $p->fetch();
             $idOrden = $orden["id_orden"];
 
-            foreach ($filasInsumos as $insumo) {
-                $idInsumo = $insumo["idInsumo"];
-                $cantidad = $insumo["cantidad"];
-                $tipoMenu = $insumo["tipoMenu"];
+            foreach ($filasInsumos as $f) {
+                $idInsumo = $f["idInsumo"];
+                $cantidad = $f["cantidad"];
+                $tipoMenu = $f["tipoMenu"];
+
+                //Validación de insumos en bodega
+                if ($f["tipoMenu"] == 3) {
+                    $sql = "SELECT cd.id_insumo, SUM(cd.cantidades * ?) as cantidades
+                    FROM tb_combo_detalle as cd
+                    WHERE cd.id_combo = ?";
+                    $p = $pdo->prepare($sql);
+                    $p->execute(array($f["cantidad"], $f["idInsumo"]));
+                    $insumos = $p->fetchAll(PDO::FETCH_ASSOC);
+
+                    foreach ($insumos as $i) {
+                        $sql = "SELECT id.id_materia_prima, SUM(id.cantidades * ?) as cantidades
+                                FROM tb_insumo_detalle as id
+                                WHERE id_insumo = ?";
+                        $p = $pdo->prepare($sql);
+                        $p->execute(array($i["cantidades"], $i["id_insumo"]));
+                        $datosFinales = $p->fetchAll(PDO::FETCH_ASSOC);
+
+                        foreach ($datosFinales as $df) {
+                            $sql = "SELECT materia_prima, existencias
+                            FROM tb_materia_prima
+                            WHERE id_materia_prima = ?";
+                            $p = $pdo->prepare($sql);
+                            $p->execute(array($df["id_materia_prima"]));
+                            $insumosExistente = $p->fetchAll(PDO::FETCH_ASSOC);
+
+                            foreach ($insumosExistente as $i) {
+                                if ($i["existencias"] < $df["cantidades"]) {
+                                    json_encode(['msg' => 'Solamente hay ' . $i["existencias"] . 'U de ' . $i["materia_prima"] . ' De las' . $df["cantidades"] . 'U Solicitadas', 'id' => 2]);
+                                    return;
+                                }
+                            }
+
+                            $sql = "UPDATE tb_materia_prima 
+                                    SET existencias = existencias - ? 
+                                    WHERE id_materia_prima = ?";
+                            $p = $pdo->prepare($sql);
+                            $p->execute(array($df["cantidades"], $df["id_materia_prima"]));
+                        }
+                    }
+                } else if ($f["tipoMenu"] == 2) {
+                    $sql = "SELECT id.id_materia_prima, SUM(id.cantidades * ?) as cantidades
+                    FROM tb_insumo_detalle as id
+                    WHERE id_insumo = ?";
+                    $p = $pdo->prepare($sql);
+                    $p->execute(array($f["cantidad"], $f["idInsumo"]));
+                    $insumos = $p->fetchAll(PDO::FETCH_ASSOC);
+
+                    foreach ($insumos as $i) {
+                        $sql = "SELECT materia_prima, existencias
+                        FROM tb_materia_prima
+                        WHERE id_materia_prima = ?";
+                        $p = $pdo->prepare($sql);
+                        $p->execute(array($i["id_materia_prima"]));
+                        $insumosExistente = $p->fetchAll(PDO::FETCH_ASSOC);
+
+                        foreach ($insumosExistente as $i2) {
+                            if ($i2["existencias"] < $i["cantidades"]) {
+                                json_encode(['msg' => 'Solamente hay ' . $i2["existencias"] . 'U de ' . $i2["materia_prima"] . ' De las' . $i["cantidades"] . 'U Solicitadas', 'id' => 2]);
+                                return;
+                            }
+                        }
+
+                        $sql = "UPDATE tb_materia_prima 
+                                    SET existencias = existencias - ? 
+                                    WHERE id_materia_prima = ?";
+                        $p = $pdo->prepare($sql);
+                        $p->execute(array($i["cantidades"], $i["id_materia_prima"]));
+                    }
+                } else if ($f["tipoMenu"] == 1) {
+                    $sql = "SELECT materia_prima, existencias
+                    FROM tb_materia_prima
+                    WHERE id_materia_prima = ?";
+                    $p = $pdo->prepare($sql);
+                    $p->execute(array($f["idInsumo"]));
+                    $insumosExistente = $p->fetchAll(PDO::FETCH_ASSOC);
+
+                    foreach ($insumosExistente as $i) {
+                        if ($i["existencias"] < $f["cantidad"]) {
+                            echo json_encode(['msg' => 'Solamente hay ' . $i["existencias"] . 'U de ' . $i["materia_prima"] . ' De las' . $f["cantidad"] . 'U Solicitadas', 'id' => 2]);
+                            return;
+                        }
+                    }
+
+                    $sql = "UPDATE tb_materia_prima 
+                    SET existencias = existencias - ? 
+                    WHERE id_materia_prima = ?";
+                    $p = $pdo->prepare($sql);
+                    $p->execute(array($f["cantidad"], $f["idInsumo"]));
+                }
+                //Aqui finaliza la validación si hay suficientes insumos
 
                 $sql = "SELECT COUNT(*) AS total_filas
                 FROM tb_orden_detalle
-                WHERE id_orden = ? AND id_insumo = ? AND id_tipo = ? ;";
+                WHERE id_orden = ? AND id_tipo = ? ";
 
-                $p = $pdo->prepare($sql);
+                if ($f["equivalencia"] == 'true') {
+                    $sql .= 'AND id_equivalencia = ?';
 
-                $p->execute(array($idOrden, $idInsumo, $tipoMenu));
+                    $p = $pdo->prepare($sql);
+                    $p->execute(array($idOrden, $tipoMenu, $f["idEquivalencia"]));
+                } else {
+                    $sql .= 'AND id_insumo = ?';
+
+                    $p = $pdo->prepare($sql);
+                    $p->execute(array($idOrden, $tipoMenu, $idInsumo));
+                }
 
                 $contar = $p->fetch();
                 $conteo = $contar["total_filas"];
                 if ($conteo) {
                     $sql = "UPDATE tb_orden_detalle
                     SET cantidad = cantidad + ?
-                    WHERE id_orden = ? AND id_insumo = ? AND id_tipo = ?;";
+                    WHERE id_orden = ? AND id_tipo = ? ";
 
-                    $p = $pdo->prepare($sql);
+                    if ($f["equivalencia"] == 'true') {
+                        $sql .= 'AND id_equivalencia = ?';
 
-                    $p->execute(array($cantidad, $idOrden, $idInsumo, $tipoMenu));
+                        $p = $pdo->prepare($sql);
+                        $p->execute(array(1, $idOrden, $tipoMenu, $f["idEquivalencia"]));
+                    } else {
+                        $sql .= 'AND id_insumo = ?';
+
+                        $p = $pdo->prepare($sql);
+                        $p->execute(array($cantidad, $idOrden, $tipoMenu, $idInsumo));
+                    }
                 } else {
                     $sql = "SELECT reg_num
                     FROM tb_orden_detalle

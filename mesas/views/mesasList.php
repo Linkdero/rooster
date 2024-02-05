@@ -33,6 +33,6 @@
     <iframe id="pdf_preview_v" hidden></iframe>
 
     <?php include 'modalMesas.php';
-    include 'modalNuevaMesa.php';?>
+    include 'modalNuevaMesa.php'; ?>
 </div>
 <script type="module" src="./mesas/src/mesasList.js"> </script>

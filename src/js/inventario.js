@@ -580,7 +580,7 @@ let salidas = new Vue({
                 this.cargarTablaInventarioSalidas();
             } else if (this.tipoTabla == 2) {
                 this.cargarTablaInventarioEntradas();
-            } else if (this.tipoTabla == 3){
+            } else if (this.tipoTabla == 3) {
                 this.cargarTablaInventarioMeseras()
             }
         }
