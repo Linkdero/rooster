@@ -41,8 +41,8 @@ include_once 'src.php'; ?>
               <br />
 
               <div>
-                <h1><i class="fa-solid fa-turkey"></i> Bienvenido a Rooster´s!</h1>
-                <p>©2023 Todos los derechos del sistema reservados al Restaurante Rooster´s!
+                <h1>¡Bienvenido a Rooster´s! <i class="fa-solid fa-beer-mug"></i></h1>
+                <p>© ¡2024 Todos los derechos del sistema reservados al Restaurante Rooster´s!
                 </p>
               </div>
             </div>

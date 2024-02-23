@@ -8,6 +8,8 @@ class Comida
     static function getComidas()
     {
         $local = $_GET["id"];
+        $estado = $_GET["estado"];
+
         $db = new Database();
         $pdo = $db->connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -17,17 +19,17 @@ class Comida
         LEFT JOIN tb_estado as e ON i.id_estado = e.id_estado
         LEFT JOIN tb_comida as c ON i.id_comida = c.id_comida
         LEFT JOIN tb_sub_menu as sm ON c.id_sub_menu = sm.id_sub_menu
-        LEFT JOIN tb_menu as m ON sm.id_menu = m.id ";
+        LEFT JOIN tb_menu as m ON sm.id_menu = m.id
+        WHERE i.id_estado = ? ";
         if ($local != 3) {
-            $sql .= "WHERE m.id_local = ?";
+            $sql .= "AND m.id_local = ?";
         }
         $p = $pdo->prepare($sql);
 
         if ($local != 3) {
-            $p->execute(array($local));
+            $p->execute(array($estado, $local));
         } else {
-            $p->execute();
-
+            $p->execute(array($estado));
         }
 
         $insumo = $p->fetchAll(PDO::FETCH_ASSOC);

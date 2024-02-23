@@ -7,9 +7,9 @@ const EventBus = new Vue();
 let comidasList = new Vue({
     el: '#appComidas',
     data: {
-        tituloModulo: 'Listado Comidas',
+        tituloModulo: 'Listado Cubetazos',
         tablaInsumos: '',
-        nombreInsumos: 'Nuevo Insumo',
+        nombreInsumos: 'Nuevo Cubetazo',
         insumo: '',
         materiaPrima: '',
         precio: '',
@@ -130,13 +130,14 @@ let comidasList = new Vue({
                 }
             })
         },
-        cargarTablaInsumos: function () {
+        cargarTablaInsumos: function (estado) {
 
             let thes = this;
             axios.get(`insumos/model/comidasList.php`, {
                 params: {
                     opcion: 1,
-                    id: this.idLocalSesion
+                    id: this.idLocalSesion,
+                    estado: estado
                 }
             }).then(response => {
                 console.log(response.data);
@@ -167,7 +168,7 @@ let comidasList = new Vue({
                                 render: function (data, type, row) {
                                     let encabezado;
 
-                                    if (row.data == 1) {
+                                    if (row.id_estado == 1) {
                                         encabezado = `
                                         <button class="btn btn-primary btn-xs" type="button" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
@@ -175,7 +176,7 @@ let comidasList = new Vue({
                                         encabezado;
                                     } else {
                                         encabezado = `
-                                        <button class="btn btn-primary btn-xs" type="button" aria-haspopup="true" aria-expanded="false">
+                                        <button class="btn btn-danger btn-xs" type="button" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
                                         </button>`;
                                     }
@@ -240,7 +241,21 @@ let comidasList = new Vue({
                                 exportOptions: {
                                     columns: ':visible'
                                 }
-                            }
+                            },
+                            {
+                                text: 'Inhabilitada <i class="fa-sharp fa-solid fa-circle-xmark"></i>',
+                                className: 'bg-primary text-white btn-xs mx-1',
+                                action: function (e, dt, node, config) {
+                                    thes.cargarTablaInsumos(2);
+                                }
+                            },
+                            {
+                                text: 'Activos <i class="fa-solid fa-check"></i>',
+                                className: 'bg-primary text-white btn-xs mx-1',
+                                action: function (e, dt, node, config) {
+                                    thes.cargarTablaInsumos(1);
+                                }
+                            },
                         ],
 
                         data: response.data,
@@ -335,8 +350,14 @@ let comidasList = new Vue({
 
                 if (isChecked) {
                     that.setCatalogo(id, 1); // Checkbox marcado
+                    setTimeout(() => {
+                        that.cargarTablaInsumos(1);
+                    }, "1000");
                 } else {
                     that.setCatalogo(id, 2); // Checkbox no marcado
+                    setTimeout(() => {
+                        that.cargarTablaInsumos(2);
+                    }, "1000");
                 }
             });
         },

@@ -10,16 +10,18 @@ let mesasList = new Vue({
         evento: '',
         tablaMeseras: '',
         direccion: '',
-        evento: '',
         idModal: '',
         nombre: '',
         apellido: '',
-        direccion: '',
         idPlaza: '',
         foto: '',
         base64Image: '',
         idPermiso: '',
-        idLocal: ''
+        idLocal: '',
+        Toast: '',
+        tipoModal: 1,
+        plazaActual: '',
+        localActual: '',
     },
     components: {
         'listado-plazas': ListadoPlazas,
@@ -32,9 +34,20 @@ let mesasList = new Vue({
         },
     },
     mounted: function () {
+        this.Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        })
         this.idPermiso = $("#permiso").val();
         this.idModal = this.$refs.idModal.id;
-        this.evento = EventBus; 
+        this.evento = EventBus;
         this.idLocal = $("#local").val();
 
         this.evento.$on('cambiar-plaza', (nuevoValor) => {
@@ -45,6 +58,13 @@ let mesasList = new Vue({
         });
         this.cargarTablaEmpleados();
         this.baseTables();
+    },
+    watch: {
+        tipoModal(valor) {
+            if (valor == 2) {
+                this.cargarInformacionEmpleado()
+            }
+        }
     },
 
     methods: {
@@ -64,15 +84,12 @@ let mesasList = new Vue({
             }).then(response => {
                 console.log(response.data);
                 this.tablaMeseras = response.data;
-                // Clear any previous DataTable instance
                 if ($.fn.DataTable.isDataTable("#tblEmpleados")) {
                     $("#tblEmpleados").DataTable().destroy();
                 }
 
-                // Initialize DataTables only if data is available
                 if (response.data) {
-                    // DataTable initialization
-                    this.tablaMesas = $("#tblEmpleados").DataTable({
+                    this.tablaEmpleados = $("#tblEmpleados").DataTable({
                         "ordering": false,
                         "pageLength": 10,
                         "bProcessing": true,
@@ -118,6 +135,7 @@ let mesasList = new Vue({
                                 },
                             },
                             { "class": "text-center", mData: 'nombre' },
+                            { "class": "text-center", mData: 'direccion' },
                             { "class": "text-center", mData: 'locales' },
                             {
                                 "class": "text-center",
@@ -273,11 +291,11 @@ let mesasList = new Vue({
 
             $('#tblEmpleados').on('click', '.detalle', function () {
                 let id = $(this).data('id');
-                console.log(id)
-                $("#getOrdenDetalle").modal("show")
-                that.idOrden = id
-                that.getDetalleOrden(that.idOrden)
+                that.tipoModal = 2
+                that.idEmpleado = id
+                $("#setNuevoEmpleado").modal("show")
             });
+
             $('#tblEmpleados').on('change', '.switch input', function () {
                 let id = $(this).data('id');
                 let isChecked = $(this).is(':checked');
@@ -290,6 +308,16 @@ let mesasList = new Vue({
             });
         },
         modalNuevoEmpleado: function () {
+            this.tipoModal = 1
+            this.nombre = ''
+            this.apellido = ''
+            this.direccion = ''
+            this.foto = ''
+            this.base64Image = ''
+            this.idPlaza = ''
+            this.idLocal = ''
+            this.plazaActual = ''
+            this.localActual = ''
             $("#setNuevoEmpleado").modal("show")
         },
         openImageUploader() {
@@ -344,29 +372,27 @@ let mesasList = new Vue({
                 }
             });
         },
-        actualizarUsuario: function () {
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer);
-                    toast.addEventListener('mouseleave', Swal.resumeTimer);
-                }
-            });
+        crearEmpleado: function () {
             if (this.idPermiso != 1) {
                 this.idLocal = $("#local").val();
             }
+            let titulo;
+            let descripcion;
+            if (this.tipoModal == 1) {
+                titulo = '¿Generar nuevo Empleado?'
+                descripcion = "Se agregara un nuevo Empleado al Sistema!"
+            } else {
+                titulo = '¿Actualizar Empleado?'
+                descripcion = "¡Se actualizara el Empleado!"
+            }
             Swal.fire({
-                title: '¿Generar nuevo Empleado?',
-                text: "Se agregara un nuevo Empleado al Sistema!",
+                title: titulo,
+                text: descripcion,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: '¡Si, Generar!',
+                confirmButtonText: '¡Si, Confirmar!',
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -379,6 +405,8 @@ let mesasList = new Vue({
                     formData.append('plaza', this.idPlaza);
                     formData.append('local', this.idLocal);
                     formData.append('foto', this.base64Image);
+                    formData.append('tipoModal', this.tipoModal);
+                    formData.append('idEmpleado', this.idEmpleado);
 
                     // Realizar la solicitud POST al servidor
                     axios.post('./empleados/model/empleadosList.php', formData)
@@ -386,14 +414,15 @@ let mesasList = new Vue({
                             console.log(response.data);
 
                             if (response.data.id == 1) {
-                                Toast.fire({
+                                this.Toast.fire({
                                     icon: 'success',
                                     title: response.data.msg
                                 });
+                                this.idLocal = $("#local").val();
                                 $("#setNuevoEmpleado").modal("hide")
-                                this.cargarTablaEmpleados()
+                                this.cargarTablaEmpleados(0)
                             } else {
-                                Toast.fire({
+                                this.Toast.fire({
                                     icon: 'error',
                                     title: response.data.msg
                                 });
@@ -406,66 +435,52 @@ let mesasList = new Vue({
             });
         },
         setEmpleado: function (id, estado) {
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer);
-                    toast.addEventListener('mouseleave', Swal.resumeTimer);
-                }
-            });
-            let titulo;
-            let descripcion;
-            if (estado == 1) {
-                titulo = '¿Activar Empleado?'
-                descripcion = '!Se dara de alta al empleado en el sistema!'
-            } else {
-                titulo = '¿Desactivar Empleado?'
-                descripcion = '!Se dara de baja al empleado en el sistema!'
-            }
-            Swal.fire({
-                title: titulo,
-                text: descripcion,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: '¡Si, Desactivar!',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Crear un objeto FormData para enviar los datos al servidor
-                    var formData = new FormData();
-                    formData.append('opcion', 3);
-                    formData.append('id', id);
-                    formData.append('estado', estado);
+            var formData = new FormData();
+            formData.append('opcion', 3);
+            formData.append('id', id);
+            formData.append('estado', estado);
 
-                    // Realizar la solicitud POST al servidor
-                    axios.post('./empleados/model/empleadosList.php', formData)
-                        .then(response => {
-                            console.log(response.data);
+            // Realizar la solicitud POST al servidor
+            axios.post('./empleados/model/empleadosList.php', formData)
+                .then(response => {
+                    console.log(response.data);
 
-                            if (response.data.id == 1) {
-                                Toast.fire({
-                                    icon: 'success',
-                                    title: response.data.msg
-                                });
-                                $("#setNuevoEmpleado").modal("hide")
-                                this.cargarTablaEmpleados()
-                            } else {
-                                Toast.fire({
-                                    icon: 'error',
-                                    title: response.data.msg
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error(error);
+                    if (response.data.id == 1) {
+                        this.Toast.fire({
+                            icon: 'success',
+                            title: response.data.msg
                         });
+                        this.cargarTablaEmpleados()
+                    } else {
+                        this.Toast.fire({
+                            icon: 'error',
+                            title: response.data.msg
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        },
+        cargarInformacionEmpleado() {
+            axios.get('empleados/model/empleadosList.php', {
+                params: {
+                    opcion: 4,
+                    idEmpleado: this.idEmpleado
                 }
+            }).then((response) => {
+                console.log(response.data);
+                this.nombre = response.data.nombre
+                this.apellido = response.data.apellido
+                this.direccion = response.data.direccion
+                this.foto = response.data.foto
+                this.base64Image = response.data.foto
+                this.idPlaza = response.data.id_plaza
+                this.idLocal = response.data.id_local
+                this.plazaActual = response.data.plaza
+                this.localActual = response.data.descripcion
+            }).catch((error) => {
+                console.log(error);
             });
         }
     }

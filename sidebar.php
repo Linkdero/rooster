@@ -43,11 +43,12 @@
           <li><a><i class="fa-sharp fa-solid fa-shop-lock"></i> Bodega <span class="fa fa-chevron-down"></span></a>
             <ul class="nav child_menu">
               <li><a href="?ref=31">Materia Prima</a></li>
+              <li><a href="?ref=32">Comidas</a></li>
             </ul>
           </li>
           <li><a><i class="fa-sharp fa-solid fa-burger-soda"></i> Insumos <span class="fa fa-chevron-down"></span></a>
             <ul class="nav child_menu">
-              <li><a href="?ref=41">Comidas</a></li>
+              <li><a href="?ref=41">Cubetazo</a></li>
               <li><a href="?ref=42">Combos</a></li>
             </ul>
           </li>
@@ -66,7 +67,7 @@
       </a>
       <a data-toggle="tooltip" data-placement="top">
       </a>
-      <a data-toggle="tooltip" data-placement="top" >
+      <a data-toggle="tooltip" data-placement="top">
       </a>
       <a data-toggle="tooltip" data-placement="top" title="Cerrar Sesión" href="logout.php">
         <i class="fa-solid fa-right-from-bracket"></i> </a>

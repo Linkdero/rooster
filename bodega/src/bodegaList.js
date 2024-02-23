@@ -125,13 +125,15 @@ let bodegaList = new Vue({
                 }
             });
         },
-        cargarTablaBodega: function () {
+
+        cargarTablaBodega: function (estado) {
             let thes = this;
             axios.get(`bodega/model/bodegaList.php`, {
                 params: {
                     opcion: 1,
                     tipo: 2,
-                    id: this.idLocalSesion
+                    id: this.idLocalSesion,
+                    estado: estado
                 }
             }).then(response => {
                 console.log(response.data);
@@ -156,72 +158,75 @@ let bodegaList = new Vue({
                             sProcessing: " <h3 class=''><i class='fa fa-sync fa-spin'></i> Cargando insumos, por favor espere</h3> "
                         },
                         "aoColumns": [{
-                                "class": "text-center",
-                                data: 'id',
-                                render: function (data, type, row) {
-                                    let encabezado;
-                                    if (row.id_estado == 1) {
-                                        encabezado = `
+                            "class": "text-center",
+                            data: 'id',
+                            render: function (data, type, row) {
+                                let encabezado;
+                                if (row.id_estado == 1) {
+                                    encabezado = `
                                         <button class="btn btn-primary btn-xs equivalencia" type="button" aria-haspopup="true" aria-expanded="false" data-id="${data}">
                                             <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
                                         </button>`;
-                                        encabezado;
-                                    } else {
-                                        encabezado = `
+                                    encabezado;
+                                } else {
+                                    encabezado = `
                                         <button class="btn btn-danger btn-xs" type="button" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
                                         </button>`;
-                                    }
-                                    return encabezado;
-                                },
+                                }
+                                return encabezado;
                             },
-                            {
-                                "class": "text-center",
-                                mData: 'medida'
-                            },
-                            {
-                                "class": "text-center",
-                                mData: 'nombre'
-                            },
-                            {
-                                "class": "text-center",
-                                data: 'precio',
-                                render: function (data, type, row) {
-                                    let encabezado;
-                                    encabezado = `Q${data}`;
+                        },
+                        {
+                            "class": "text-center",
+                            mData: 'medida'
+                        },
+                        {
+                            "class": "text-center",
+                            mData: 'nombre'
+                        },
+                        {
+                            "class": "text-center",
+                            data: 'precio',
+                            render: function (data, type, row) {
+                                let encabezado;
+                                encabezado = `Q${data}`;
 
-                                    return encabezado;
-                                },
+                                return encabezado;
                             },
-                            {
-                                "class": "text-center",
-                                data: 'existencias',
-                                render: function (data, type, row) {
-                                    let encabezado;
-                                    encabezado = `${data} U`;
+                        },
+                        {
+                            "class": "text-center",
+                            data: 'existencias',
+                            render: function (data, type, row) {
+                                let encabezado;
+                                encabezado = `${data} U`;
 
-                                    return encabezado;
-                                },
+                                return encabezado;
                             },
-                            {
-                                "class": "text-center",
-                                data: 'id_estado',
-                                render: function (data, type, row) {
-                                    if (data == 1) {
-                                        return `<label class="switch">
+                        },
+                        {
+                            "class": "text-center",
+                            data: 'id_estado',
+                            render: function (data, type, row) {
+                                if (data == 1) {
+                                    return `<label class="switch">
                                             <input type="checkbox" checked data-id="${row.id}">
                                             <span class="slider round"></span>
-                                        </label>`;
-                                    } else {
-                                        return `<label class="switch">
+                                        </label>
+                                        <i class="fa-solid fa-pen-to-square"></i>`;
+                                } else {
+                                    return `<label class="switch">
                                             <input type="checkbox" data-id="${row.id}">
                                             <span class="slider round"></span>
-                                        </label>`;
-                                    }
-                                },
+                                        </label>
+                                        <i class="fa-solid fa-pen-to-square"></i>`;
+                                }
                             },
+                        },
                         ],
-                        buttons: [{
+                        buttons: [
+                            {
                                 text: 'Nuevo <i class="fa-solid fa-square-plus"></i>',
                                 className: 'bg-primary text-white btn-xs mx-1',
                                 action: function (e, dt, node, config) {
@@ -245,7 +250,21 @@ let bodegaList = new Vue({
                                 exportOptions: {
                                     columns: ':visible'
                                 }
-                            }
+                            },
+                            {
+                                text: 'Inhabilitada <i class="fa-sharp fa-solid fa-circle-xmark"></i>',
+                                className: 'bg-primary text-white btn-xs mx-1',
+                                action: function (e, dt, node, config) {
+                                    thes.cargarTablaBodega(2);
+                                }
+                            },
+                            {
+                                text: 'Activos <i class="fa-solid fa-check"></i>',
+                                className: 'bg-primary text-white btn-xs mx-1',
+                                action: function (e, dt, node, config) {
+                                    thes.cargarTablaBodega(1);
+                                }
+                            },
                         ],
 
                         data: response.data,
@@ -339,12 +358,15 @@ let bodegaList = new Vue({
 
                 if (isChecked) {
                     that.setCatalogo(id, 1); // Checkbox marcado
+                    setTimeout(() => {
+                        that.cargarTablaBodega(1);
+                    }, "1000");
                 } else {
                     that.setCatalogo(id, 2); // Checkbox no marcado
+                    setTimeout(() => {
+                        that.cargarTablaBodega(2);
+                    }, "1000");
                 }
-                setTimeout(() => {
-                    that.cargarTablaBodega(1);
-                }, "1000");
             });
             $('#tblBodega').on('click', '.equivalencia', function () {
                 let id = $(this).data('id');

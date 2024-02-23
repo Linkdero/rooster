@@ -68,7 +68,7 @@
                                 <select id="tipoSeleccion" class="form-control btn-xs" v-model="seleccionComidas">
                                     <option></option>
                                     <option value="1">Materia Prima</option>
-                                    <option value="2">Comida</option>
+                                    <option value="2">Cubetazo</option>
                                     <option value="3">Combo</option>
 
                                 </select>

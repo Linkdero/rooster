@@ -8,6 +8,8 @@ class Bodega
     static function getMateriaPrima()
     {
         $local = $_GET["id"];
+        $estado = $_GET["estado"];
+        
         $db = new Database();
         $pdo = $db->connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -21,9 +23,10 @@ class Bodega
             $sql = "SELECT mp.id_materia_prima as id, mp.materia_prima as nombre, m.medida, mp.precio, mp.existencias, mp.id_estado, e.estado
                     FROM tb_materia_prima as mp
                     LEFT JOIN tb_estado as e ON mp.id_estado = e.id_estado
-                    LEFT JOIN tb_medida as m ON mp.id_medida = m.id_medida ";
+                    LEFT JOIN tb_medida as m ON mp.id_medida = m.id_medida
+                    WHERE mp.id_estado = ? ";
             if ($local != 3) {
-                $sql .= "WHERE mp.id_local = ?";
+                $sql .= " AND mp.id_local = ?";
             }
         }
 
@@ -32,9 +35,9 @@ class Bodega
             $p->execute(array(1, $local));
         } else {
             if ($local != 3) {
-                $p->execute(array($local));
+                $p->execute(array($estado, $local));
             } else {
-                $p->execute();
+                $p->execute(array($estado));
             }
         }
         $insumo = $p->fetchAll(PDO::FETCH_ASSOC);

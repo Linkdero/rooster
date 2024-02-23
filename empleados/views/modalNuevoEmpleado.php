@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header" style="padding: .5rem .5rem;">
-                <h5 class="modal-title text-primary" id="myModalLabel">Nuevo Empleado <i class="fa-solid fa-burger-soda ml-2"></i></h5>
+                <h5 class="modal-title text-primary" id="myModalLabel">{{tituloModal}} <i class="fa-solid fa-burger-soda ml-2"></i></h5>
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
             </div>
             <div class="modal-body">
@@ -32,6 +32,7 @@
                                         <textarea class="form-control" id="direccion" rows="3" v-model="direccion"></textarea>
                                     </div>
                                 </div>
+                                <div class="ln_solid"></div>
 
                                 <div class="form-group row ">
                                     <listado-plazas :evento="evento"> </listado-plazas>
@@ -39,8 +40,16 @@
                                         <listado-locales :evento="evento"> </listado-locales>
                                     </div>
                                 </div>
-
-                                <div class="ln_solid"></div>
+                                <div v-if="tipoModal == 2" class="form-group row ">
+                                    <div class="col">
+                                        <label class="control-label col-md-3 col-sm-3 ">Plaza Actual </label>
+                                        <input disabled type="text" class="form-control" v-model="plazaActual">
+                                    </div>
+                                    <div class="col">
+                                        <label class="control-label col-md-3 col-sm-3 ">Local Actual </label>
+                                        <input disabled type="text" class="form-control" v-model="localActual">
+                                    </div>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -66,7 +75,7 @@
                                 <div class="modal-footer" style="margin-bottom: -1rem;">
                                 </div>
                             </form>
-                            <button class="btn btn-success btn-xs" :disabled="!camposCompletos" @click="actualizarUsuario">Crear <i class="fa-solid fa-user-plus ml-1"></i></button>
+                            <button class="btn btn-success btn-xs" :disabled="!camposCompletos" @click="crearEmpleado">Crear <i class="fa-solid fa-user-plus ml-1"></i></button>
                         </div>
                     </div>
                 </div>
