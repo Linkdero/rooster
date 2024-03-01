@@ -8,9 +8,8 @@
                         <input type="hidden" id="local" value="<?php echo $_SESSION['id_local'] ?>">
                         <div class="clearfix"></div>
                     </div>
-
                     <div class="card-body card-body-slide" width="100%" height="100%">
-                        <table id="tblBodega" class="table responsive table-sm table-bordered table-striped" width="100%">
+                        <table id="tblAlimentos" class="table responsive table-sm table-bordered table-striped" width="100%">
                             <thead>
                                 <tr>
                                     <th class="text-center">ID</th>
@@ -28,9 +27,8 @@
         </div>
     </div>
     <iframe id="pdf_preview_v" hidden></iframe>
-    <?php include 'modalNuevaMateriaPrima.php'; ?>
-    <?php include 'modalEquivalencias.php'; ?>
+    <?php include 'modalNuevoAlimento.php'; ?>
 
 
 </div>
-<script type="module" src="./bodega/src/bodegaList.js"> </script>
+<script type="module" src="./bodega/src/alimentosList.js"> </script>

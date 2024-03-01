@@ -43,7 +43,7 @@
           <li><a><i class="fa-sharp fa-solid fa-shop-lock"></i> Bodega <span class="fa fa-chevron-down"></span></a>
             <ul class="nav child_menu">
               <li><a href="?ref=31">Materia Prima</a></li>
-              <li><a href="?ref=32">Comidas</a></li>
+              <li><a href="?ref=32">Alimentos</a></li>
             </ul>
           </li>
           <li><a><i class="fa-sharp fa-solid fa-burger-soda"></i> Insumos <span class="fa fa-chevron-down"></span></a>

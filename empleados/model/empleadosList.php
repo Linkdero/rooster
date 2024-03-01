@@ -27,7 +27,7 @@ class Empleados
             FROM tb_empleados as em
             LEFT JOIN tb_estado as e ON em.id_estado = e.id_estado
             LEFT JOIN tb_local as l ON em.id_local = l.id_local
-        WHERE 1=1 ";
+            WHERE 1=1 ";
 
         $params = array();
 

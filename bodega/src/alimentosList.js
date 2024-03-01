@@ -1,42 +1,63 @@
 const EventBus = new Vue();
+const LitadoLocales = httpVueLoader('./componentes/ListadoLocales.vue');
 
 let bodegaList = new Vue({
     el: '#appAlimentos',
     data: {
         tituloModulo: 'Listado Alimentos',
+        idLocalSesion: '',
+        estado: '',
+        nombreModal: 'Nuevo Alimento',
+        idLocal: '',
+        nombre: '',
+        descripcion: '',
+        precio: '',
+        idLocal: ''
     },
     components: {
-
+        'listado-locales': LitadoLocales,
     },
     mounted: function () {
         this.evento = EventBus;
         this.idLocalSesion = $("#local").val();
-        this.cargarTablaBodega(1);
+        this.estado = 1
+        this.idLocalSesion = $("#local").val();
+        if (this.idLocalSesion != 3) {
+            this.idLocal = $("#local").val();
+        }
+        this.evento.$on('cambiar-local', (nuevoValor) => {
+            this.idLocal = nuevoValor
+        });
+        this.cargarTablaAlimentos(1);
         this.baseTables();
     },
     computed: {
+        camposCompletos() {
+            return this.idLocal.trim() !== '' && this.nombre.trim() !== '' && this.descripcion.trim() !== '' && this.precio.trim() !== '';
+        },
     },
     watch: {
 
     },
     methods: {
-        cargarTablaBodega: function () {
+        cargarTablaAlimentos: function () {
             let thes = this;
-            axios.get(`bodega/model/bodegaList.php`, {
+            axios.get(`bodega/model/alimentosList.php`, {
                 params: {
                     opcion: 1,
                     tipo: 2,
-                    id: this.idLocalSesion
+                    id: this.idLocalSesion,
+                    estado: this.estado
                 }
             }).then(response => {
                 console.log(response.data);
-                if ($.fn.DataTable.isDataTable("#tblBodega")) {
-                    $("#tblBodega").DataTable().destroy();
+                if ($.fn.DataTable.isDataTable("#tblAlimentos")) {
+                    $("#tblAlimentos").DataTable().destroy();
                 }
 
                 if (response.data) {
                     // DataTable initialization
-                    this.tablaBodega = $("#tblBodega").DataTable({
+                    this.tablaBodega = $("#tblAlimentos").DataTable({
                         "ordering": false,
                         "pageLength": 10,
                         "bProcessing": true,
@@ -47,12 +68,12 @@ let bodegaList = new Vue({
                         scrollX: true,
                         scrollY: '50vh',
                         language: {
-                            emptyTable: "No hay solicitudes de Mennus para mostrar",
+                            emptyTable: "No hay solicitudes de Alimentos para mostrar",
                             sProcessing: " <h3 class=''><i class='fa fa-sync fa-spin'></i> Cargando insumos, por favor espere</h3> "
                         },
                         "aoColumns": [{
                             "class": "text-center",
-                            data: 'id',
+                            data: 'id_alimento',
                             render: function (data, type, row) {
                                 let encabezado;
                                 if (row.id_estado == 1) {
@@ -72,28 +93,18 @@ let bodegaList = new Vue({
                         },
                         {
                             "class": "text-center",
-                            mData: 'medida'
+                            mData: 'alimento_nombre'
                         },
                         {
                             "class": "text-center",
-                            mData: 'nombre'
+                            mData: 'alimento_descripcion'
                         },
                         {
                             "class": "text-center",
-                            data: 'precio',
+                            data: 'precio_alimento',
                             render: function (data, type, row) {
                                 let encabezado;
                                 encabezado = `Q${data}`;
-
-                                return encabezado;
-                            },
-                        },
-                        {
-                            "class": "text-center",
-                            data: 'existencias',
-                            render: function (data, type, row) {
-                                let encabezado;
-                                encabezado = `${data} U`;
 
                                 return encabezado;
                             },
@@ -120,9 +131,7 @@ let bodegaList = new Vue({
                             text: 'Nuevo <i class="fa-solid fa-square-plus"></i>',
                             className: 'bg-primary text-white btn-xs mx-1',
                             action: function (e, dt, node, config) {
-                                $("#setNuevoInsumo").modal("show")
-                                thes.tipoModal = 1
-                                thes.actualizarInputs()
+                                $("#setNuevoAlimento").modal("show")
                             }
                         },
                         {
@@ -228,7 +237,7 @@ let bodegaList = new Vue({
                     }
                 });
             }
-            $('#tblBodega').on('change', '.switch input', function () {
+            $('#tblAlimentos').on('change', '.switch input', function () {
                 let id = $(this).data('id');
                 let isChecked = $(this).is(':checked');
 
@@ -238,10 +247,10 @@ let bodegaList = new Vue({
                     that.setCatalogo(id, 2); // Checkbox no marcado
                 }
                 setTimeout(() => {
-                    that.cargarTablaBodega(1);
+                    that.cargarTablaAlimentos(1);
                 }, "1000");
             });
-            $('#tblBodega').on('click', '.equivalencia', function () {
+            $('#tblAlimentos').on('click', '.equivalencia', function () {
                 let id = $(this).data('id');
                 that.idMateriaPrima = id
                 $("#setNuevaEquivalencia").modal("show")

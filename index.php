@@ -36,6 +36,8 @@ include_once 'styles.php';
         //Bodega
         else if ($_GET["ref"] == 31) {
           include_once 'bodega/views/bodegaList.php';
+        } else if ($_GET["ref"] == 32) {
+          include_once 'bodega/views/alimentosList.php';
         }
         //Insumos
         else if ($_GET["ref"] == 41) {
