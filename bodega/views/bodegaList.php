@@ -7,15 +7,14 @@
                         <h2>{{tituloModulo}}</h2>
                         <input type="hidden" id="local" value="<?php echo $_SESSION['id_local'] ?>">
                         <ul class="nav navbar-right panel_toolbox">
-                            <a href="#" class="mt-1" style="margin-left:2.5rem;" @click="modalNuevoIngreso()"
-                                title="Nuevo Ingreso"><i class="fa-solid fa-store"></i></a>
+                            <a href="#" class="mt-1" style="margin-left:1.5rem;" @click="modalNuevaMateriaPrima()" title="Nuevo Insumo Bodega"><i class="fa-solid fa-circle-plus"></i></a>
+                            <a href="#" class="mt-1" style="margin-left:1.5rem;" @click="modalNuevoIngreso()" title="Nuevo Ingreso a la Bodega"><i class="fa-solid fa-cart-plus"></i></a>
                         </ul>
                         <div class="clearfix"></div>
                     </div>
 
                     <div class="card-body card-body-slide" width="100%" height="100%">
-                        <table id="tblBodega" class="table responsive table-sm table-bordered table-striped"
-                            width="100%">
+                        <table id="tblBodega" class="table responsive table-sm table-bordered table-striped" width="100%">
                             <thead>
                                 <tr>
                                     <th class="text-center">ID</th>
@@ -36,7 +35,5 @@
     <iframe id="pdf_preview_v" hidden></iframe>
     <?php include 'modalNuevaMateriaPrima.php'; ?>
     <?php include 'modalEquivalencias.php'; ?>
-
-
 </div>
 <script type="module" src="./bodega/src/bodegaList.js"> </script>

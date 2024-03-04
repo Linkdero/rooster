@@ -30,7 +30,7 @@ let mesasList = new Vue({
     },
     computed: {
         camposCompletos() {
-            return this.nombre.trim() !== '' && this.apellido.trim() !== '' && this.base64Image.trim() !== '' && this.idPlaza.trim() !== '' && this.direccion.trim() !== '';
+            return this.nombre.trim() !== '' && this.apellido.trim() !== '' && this.base64Image.trim() !== '' && this.idPlaza !== '' && this.direccion.trim() !== '';
         },
     },
     mounted: function () {

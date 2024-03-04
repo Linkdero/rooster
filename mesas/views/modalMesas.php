@@ -24,13 +24,14 @@
                                         <th class="text-center">Descripcion</th>
                                         <th class="text-center">Precio</th>
                                         <th class="text-center">Cantidades</th>
+                                        <th class="text-center">Estado</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="(o, index) in ordenDetalle" :key="index">
-                                        <td class="text-center">{{ o.reg_num }}</td>
-                                        <td class="text-center">{{ o.tipo_producto }}</td>
-                                        <td class="text-center">
+                                        <td class="text-center fw-bold" :class="o.estado_insumo == 0 ? 'text-danger' : 'text-primary'">{{ o.reg_num }}</td>
+                                        <td class="text-center fw-bold" :class="o.estado_insumo == 0 ? 'text-danger' : 'text-primary'">{{ o.tipo_producto }}</td>
+                                        <td class="text-center fw-bold" :class="o.estado_insumo == 0 ? 'text-danger' : 'text-primary'">
                                             <div v-if="o.descripcion == null">
                                                 {{ o.nombre_equivalencia }}
                                             </div>
@@ -38,7 +39,7 @@
                                                 {{ o.descripcion }}
                                             </div>
                                         </td>
-                                        <td class="text-center">
+                                        <td class="text-center fw-bold" :class="o.estado_insumo == 0 ? 'text-danger' : 'text-primary'">
                                             <div v-if="o.precio == null">
                                                 Q{{ o.precio_equivalencia }}.00
                                             </div>
@@ -46,7 +47,11 @@
                                                 Q{{ o.precio }}.00
                                             </div>
                                         </td>
-                                        <td class="text-center">{{ o.cantidad }} U</td>
+                                        <td class="text-center fw-bold" :class="o.estado_insumo == 0 ? 'text-danger' : 'text-primary'">{{ o.cantidad }} U</td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn-sm" :class="o.estado_insumo == 0 ? 'btn btn-outline-primary' :'btn btn-outline-danger'" @click="setActualizarEstadoInsumo(o.estado_insumo,o.id_producto,o.id_tipo,o.id_orden)">
+                                                {{o.estado_insumo == 0 ? 'Activar' :'Cancelar' }} </button>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -70,7 +75,7 @@
                                     <option value="1">Materia Prima</option>
                                     <option value="2">Cubetazo</option>
                                     <option value="3">Combo</option>
-
+                                    <option value="4">Alimentos</option>
                                 </select>
                             </div>
                             <div class="col-4" v-if="seleccionComidas == 1">
@@ -92,6 +97,11 @@
                             <div class="col-4" v-if="seleccionComidas == 3">
                                 <div class="row">
                                     <listado-combos :tipo="2" :modal="idModal" :evento="evento"></listado-combos>
+                                </div>
+                            </div>
+                            <div class="col-4" v-if="seleccionComidas == 4">
+                                <div class="row">
+                                    <listado-alimentos :tipo="1" :modal="idModal" :evento="evento"></listado-alimentos>
                                 </div>
                             </div>
                             <div v-if="validarEquivalencia">
@@ -226,6 +236,7 @@
                 </div>
                 <div v-if="tipoModal == 2">
                     <button type="button" class="btn btn-primary btn-xs" :disabled="!camposCompletos2" @click="finalizarMesa()">Finalizar Orden<i class="fa-solid fa-octagon-plus ml-1"></i></button>
+                    <button type="button" class="btn btn-success btn-xs"  @click="finalizarMesa()">Consumidor Final<i class="fa-solid fa-octagon-plus ml-1"></i></button>
                 </div>
                 <div v-if="tipoModal == 3">
                     <button type="button" class="btn btn-primary btn-xs" :disabled="!camposCompletos4" @click="actualizarMesa()">Actualizar Orden <i class="fa-solid fa-pen-to-square"></i></button>

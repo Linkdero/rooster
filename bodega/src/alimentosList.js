@@ -7,12 +7,14 @@ let bodegaList = new Vue({
         tituloModulo: 'Listado Alimentos',
         idLocalSesion: '',
         estado: '',
-        nombreModal: 'Nuevo Alimento',
+        nombreModal: '',
         idLocal: '',
         nombre: '',
         descripcion: '',
         precio: '',
-        idLocal: ''
+        idLocal: '',
+        idAlimento: '',
+        tipoModal: 0
     },
     components: {
         'listado-locales': LitadoLocales,
@@ -37,7 +39,13 @@ let bodegaList = new Vue({
         },
     },
     watch: {
-
+        tipoModal(valor) {
+            if (valor == 1) {
+                this.nombreModal = 'Nuevo Alimento'
+            } if (valor == 2) {
+                this.nombreModal = 'Editar Alimento'
+            }
+        }
     },
     methods: {
         cargarTablaAlimentos: function () {
@@ -72,84 +80,77 @@ let bodegaList = new Vue({
                             sProcessing: " <h3 class=''><i class='fa fa-sync fa-spin'></i> Cargando insumos, por favor espere</h3> "
                         },
                         "aoColumns": [{
-                            "class": "text-center",
-                            data: 'id_alimento',
-                            render: function (data, type, row) {
-                                let encabezado;
-                                if (row.id_estado == 1) {
-                                    encabezado = `
-                                        <button class="btn btn-primary btn-xs equivalencia" type="button" aria-haspopup="true" aria-expanded="false" data-id="${data}">
+                                "class": "text-center",
+                                data: 'id_alimento',
+                                render: function (data, type, row) {
+                                    let encabezado;
+                                    if (row.id_estado == 1) {
+                                        encabezado = `
+                                        <button class="btn btn-primary btn-xs editar" type="button" aria-haspopup="true" aria-expanded="false" data-id="${data}">
                                             <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
                                         </button>`;
-                                    encabezado;
-                                } else {
-                                    encabezado = `
-                                        <button class="btn btn-danger btn-xs" type="button" aria-haspopup="true" aria-expanded="false">
+                                        encabezado;
+                                    } else {
+                                        encabezado = `
+                                        <button class="btn btn-danger btn-xs editar" type="button" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
                                         </button>`;
-                                }
-                                return encabezado;
+                                    }
+                                    return encabezado;
+                                },
                             },
-                        },
-                        {
-                            "class": "text-center",
-                            mData: 'alimento_nombre'
-                        },
-                        {
-                            "class": "text-center",
-                            mData: 'alimento_descripcion'
-                        },
-                        {
-                            "class": "text-center",
-                            data: 'precio_alimento',
-                            render: function (data, type, row) {
-                                let encabezado;
-                                encabezado = `Q${data}`;
+                            {
+                                "class": "text-center",
+                                mData: 'alimento_nombre'
+                            },
+                            {
+                                "class": "text-center",
+                                mData: 'alimento_descripcion'
+                            },
+                            {
+                                "class": "text-center",
+                                data: 'precio_alimento',
+                                render: function (data, type, row) {
+                                    let encabezado;
+                                    encabezado = `Q${data}`;
 
-                                return encabezado;
+                                    return encabezado;
+                                },
                             },
-                        },
-                        {
-                            "class": "text-center",
-                            data: 'id_estado',
-                            render: function (data, type, row) {
-                                if (data == 1) {
-                                    return `<label class="switch">
+                            {
+                                "class": "text-center",
+                                data: 'id_estado',
+                                render: function (data, type, row) {
+                                    if (data == 1) {
+                                        return `<label class="switch">
                                             <input type="checkbox" checked data-id="${row.id}">
                                             <span class="slider round"></span>
                                         </label>`;
-                                } else {
-                                    return `<label class="switch">
+                                    } else {
+                                        return `<label class="switch">
                                             <input type="checkbox" data-id="${row.id}">
                                             <span class="slider round"></span>
                                         </label>`;
-                                }
+                                    }
+                                },
                             },
-                        },
                         ],
                         buttons: [{
-                            text: 'Nuevo <i class="fa-solid fa-square-plus"></i>',
-                            className: 'bg-primary text-white btn-xs mx-1',
-                            action: function (e, dt, node, config) {
-                                $("#setNuevoAlimento").modal("show")
+                                extend: 'excel',
+                                text: 'Excel <i class="fa-solid fa-file-excel"></i>',
+                                className: 'bg-success text-white btn-xs mx-1',
+                                exportOptions: {
+                                    columns: ':visible'
+                                }
+                            },
+                            {
+                                extend: 'pdfHtml5',
+                                text: 'PDF <i class="fa-solid fa-file-pdf"></i>',
+                                className: 'bg-danger text-white btn-xs mx-1',
+                                exportOptions: {
+                                    columns: ':visible'
+                                }
                             }
-                        },
-                        {
-                            extend: 'excel',
-                            text: 'Excel <i class="fa-solid fa-file-excel"></i>',
-                            className: 'bg-success text-white btn-xs mx-1',
-                            exportOptions: {
-                                columns: ':visible'
-                            }
-                        },
-                        {
-                            extend: 'pdfHtml5',
-                            text: 'PDF <i class="fa-solid fa-file-pdf"></i>',
-                            className: 'bg-danger text-white btn-xs mx-1',
-                            exportOptions: {
-                                columns: ':visible'
-                            }
-                        }
                         ],
 
                         data: response.data,
@@ -250,12 +251,60 @@ let bodegaList = new Vue({
                     that.cargarTablaAlimentos(1);
                 }, "1000");
             });
-            $('#tblAlimentos').on('click', '.equivalencia', function () {
+            $('#tblAlimentos').on('click', '.editar', function () {
                 let id = $(this).data('id');
-                that.idMateriaPrima = id
-                $("#setNuevaEquivalencia").modal("show")
-
+                that.idAlimento = id
+                that.tipoModal = 2
+                $("#setNuevoAlimento").modal("show")
             });
         },
+        setNuevoAlimento() {
+            Swal.fire({
+                title: '¿Generar Nuevo Alimento?',
+                text: "¡Se agregara un nuevo alimento (Independiente de la bodega)!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Si, Generar!',
+                cancelmButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Crear un objeto FormData para enviar los datos al servidor
+                    var formData = new FormData();
+                    formData.append('opcion', 2);
+                    formData.append('nombre', this.nombre);
+                    formData.append('descripcion', this.descripcion);
+                    formData.append('local', this.idLocal);
+                    formData.append('precio', this.precio);
+
+                    // Realizar la solicitud POST al servidor
+                    axios.post('./bodega/model/alimentosList.php', formData)
+                        .then(response => {
+                            console.log(response.data);
+                            if (response.data.id == 1) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.data.msg,
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                })
+                                this.cargarTablaAlimentos()
+                                $("#setNuevoAlimento").modal("hide")
+                                this.precio = ''
+                                this.nombre = ''
+                                this.descripcion = ''
+                            }
+                        })
+                        .catch(error => {
+                            console.error(error);
+                        });
+                }
+            });
+        },
+        modalNuevoAlimento() {
+            this.tipoModal = 1
+            $("#setNuevoAlimento").modal("show")
+        }
     },
 });

@@ -261,13 +261,13 @@ class Mesa
                     VALUES (?,?,?,?,?,?)";
                     $p = $pdo->prepare($sql);
 
-                    $p->execute(array($id_orden, $regNum, 1, $f["idEquivalencia"], $f["cantidad"], $f["tipoMenu"]));
+                    $p->execute(array($id_orden, $regNum, 1, $f["idEquivalencia"], $f["cantidad"], $f["tipoMenu"], 1));
                 } else if ($f["equivalencia"] == 'false') {
                     $sql = "INSERT INTO tb_orden_detalle(id_orden, reg_num, equivalencia, id_insumo, cantidad, id_tipo)
                     VALUES (?,?,?,?,?,?)";
                     $p = $pdo->prepare($sql);
 
-                    $p->execute(array($id_orden, $regNum, 0, $f["idInsumo"], $f["cantidad"], $f["tipoMenu"]));
+                    $p->execute(array($id_orden, $regNum, 0, $f["idInsumo"], $f["cantidad"], $f["tipoMenu"], 1));
                 }
 
                 $regNum++;
@@ -324,6 +324,7 @@ class Mesa
                     WHEN od.id_tipo = 1 THEN mp.precio * od.cantidad
                     WHEN od.id_tipo = 2 THEN ins.precio * od.cantidad
                     WHEN od.id_tipo = 3 THEN c.precio * od.cantidad
+                    WHEN od.id_tipo = 4 THEN a.precio_alimento * od.cantidad
                     ELSE 0
                 END
             ) AS total_precio
@@ -332,6 +333,7 @@ class Mesa
         LEFT JOIN tb_insumo ins ON od.id_tipo = 2 AND od.id_insumo = ins.id_insumo
         LEFT JOIN tb_combo c ON od.id_tipo = 3 AND od.id_insumo = c.id_combo
         LEFT JOIN tb_materia_prima_equivalencia AS mpe ON od.id_equivalencia = mpe.id_equivalencia
+        LEFT JOIN tb_alimento AS a ON od.id_tipo = 4 AND od.id_insumo = a.id_alimento
         WHERE od.id_orden = ?";
 
             $p = $pdo->prepare($sql);

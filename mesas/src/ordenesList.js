@@ -457,7 +457,7 @@ let ordenesList = new Vue({
                     console.log(image64);
 
                     var documentDefinition = {
-                        pageSize: 'letter', // Tamaño de la página (carta)
+                        pageSize: { width: 80, height: 210 }, // Tamaño de la página en mm
                         header: {
                             columns: [{
                                 stack: [{

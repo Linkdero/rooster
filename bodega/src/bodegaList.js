@@ -9,7 +9,7 @@ let bodegaList = new Vue({
     data: {
         tituloModulo: 'Listado Materia Prima',
         tablaBodega: '',
-        nombreInsumos: 'Nueva Materia Prima',
+        nombreModal: '',
         tituloEquivalencia: 'Nueva Equivalencia',
         precio: '',
         medida: '',
@@ -54,7 +54,7 @@ let bodegaList = new Vue({
             return this.medida !== '' && this.precio !== '' && this.equivalencia !== '';
         },
         camposCompletos2() {
-            return this.existencia.trim() !== '' && this.idMateriaPrima.trim() !== '';
+            return this.existencia !== '' && this.idMateriaPrima !== '';
         },
         camposCompletos() {
             return this.precio.trim() !== '' && this.medida.trim() !== '' && this.precio.trim() !== '' && this.existencia.trim() !== '' && this.descripcion.trim() !== '';
@@ -70,6 +70,17 @@ let bodegaList = new Vue({
         idLocal(nuevoValor) {
             this.evento.$emit('cambiar-materia-prima', nuevoValor);
             // this.evento.$emit('cambiar-materia-prima', nuevoValor);
+        },
+        tipoModal(valor) {
+            if (valor == 1) {
+                this.nombreModal = 'Nueva Materia Prima'
+            } else if (valor == 2) {
+                this.nombreModal = 'Nuevo Ingreso a la Bodega'
+            } else if (valor == 3) {
+                this.nombreModal = 'Editar Materia Prima'
+            } else {
+                this.nombreModal = 'Nueva Equivalencia para la Materia'
+            }
         }
     },
     methods: {
@@ -158,84 +169,78 @@ let bodegaList = new Vue({
                             sProcessing: " <h3 class=''><i class='fa fa-sync fa-spin'></i> Cargando insumos, por favor espere</h3> "
                         },
                         "aoColumns": [{
-                            "class": "text-center",
-                            data: 'id',
-                            render: function (data, type, row) {
-                                let encabezado;
-                                if (row.id_estado == 1) {
-                                    encabezado = `
+                                "class": "text-center",
+                                data: 'id',
+                                render: function (data, type, row) {
+                                    let encabezado;
+                                    if (row.id_estado == 1) {
+                                        encabezado = `
                                         <button class="btn btn-primary btn-xs equivalencia" type="button" aria-haspopup="true" aria-expanded="false" data-id="${data}">
                                             <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
                                         </button>`;
-                                    encabezado;
-                                } else {
-                                    encabezado = `
+                                        encabezado;
+                                    } else {
+                                        encabezado = `
                                         <button class="btn btn-danger btn-xs" type="button" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
                                         </button>`;
-                                }
-                                return encabezado;
+                                    }
+                                    return encabezado;
+                                },
                             },
-                        },
-                        {
-                            "class": "text-center",
-                            mData: 'medida'
-                        },
-                        {
-                            "class": "text-center",
-                            mData: 'nombre'
-                        },
-                        {
-                            "class": "text-center",
-                            data: 'precio',
-                            render: function (data, type, row) {
-                                let encabezado;
-                                encabezado = `Q${data}`;
+                            {
+                                "class": "text-center",
+                                mData: 'medida'
+                            },
+                            {
+                                "class": "text-center",
+                                mData: 'nombre'
+                            },
+                            {
+                                "class": "text-center",
+                                data: 'precio',
+                                render: function (data, type, row) {
+                                    let encabezado;
+                                    encabezado = `Q${data}`;
 
-                                return encabezado;
+                                    return encabezado;
+                                },
                             },
-                        },
-                        {
-                            "class": "text-center",
-                            data: 'existencias',
-                            render: function (data, type, row) {
-                                let encabezado;
-                                encabezado = `${data} U`;
+                            {
+                                "class": "text-center",
+                                data: 'existencias',
+                                render: function (data, type, row) {
+                                    let encabezado;
+                                    encabezado = `${data} U`;
 
-                                return encabezado;
+                                    return encabezado;
+                                },
                             },
-                        },
-                        {
-                            "class": "text-center",
-                            data: 'id_estado',
-                            render: function (data, type, row) {
-                                if (data == 1) {
-                                    return `<label class="switch">
+                            {
+                                "class": "text-center",
+                                data: 'id_estado',
+                                render: function (data, type, row) {
+                                    if (data == 1) {
+                                        return `<label class="switch">
                                             <input type="checkbox" checked data-id="${row.id}">
                                             <span class="slider round"></span>
                                         </label>
-                                        <i class="fa-solid fa-pen-to-square"></i>`;
-                                } else {
-                                    return `<label class="switch">
+                                        <span class="btn btn-primary btn-xs detalle" data-id="${row.id}">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </span>`;
+                                    } else {
+                                        return `<label class="switch">
                                             <input type="checkbox" data-id="${row.id}">
                                             <span class="slider round"></span>
                                         </label>
-                                        <i class="fa-solid fa-pen-to-square"></i>`;
-                                }
+                                        <span class="btn btn-danger btn-xs detalle" data-id="${row.id}">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </span>`;
+                                    }
+                                },
                             },
-                        },
                         ],
-                        buttons: [
-                            {
-                                text: 'Nuevo <i class="fa-solid fa-square-plus"></i>',
-                                className: 'bg-primary text-white btn-xs mx-1',
-                                action: function (e, dt, node, config) {
-                                    $("#setNuevoInsumo").modal("show")
-                                    thes.tipoModal = 1
-                                    thes.actualizarInputs()
-                                }
-                            },
-                            {
+                        buttons: [{
                                 extend: 'excel',
                                 text: 'Excel <i class="fa-solid fa-file-excel"></i>',
                                 className: 'bg-success text-white btn-xs mx-1',
@@ -372,7 +377,13 @@ let bodegaList = new Vue({
                 let id = $(this).data('id');
                 that.idMateriaPrima = id
                 $("#setNuevaEquivalencia").modal("show")
-
+            });
+            $('#tblBodega').on('click', '.detalle', function () {
+                let id = $(this).data('id');
+                that.idMateriaPrima = id
+                that.tipoModal = 3
+                $("#setNuevoInsumo").modal("show")
+                that.getDetalleMateriaPrima()
             });
         },
 
@@ -484,6 +495,74 @@ let bodegaList = new Vue({
                 .catch(error => {
                     console.error(error);
                 });
+        },
+        modalNuevaMateriaPrima() {
+            $("#setNuevoInsumo").modal("show")
+            this.tipoModal = 1
+            this.actualizarInputs()
+        },
+        getDetalleMateriaPrima() {
+            axios.get('bodega/model/bodegaList.php', {
+                params: {
+                    opcion: 6,
+                    id: this.idMateriaPrima,
+                }
+            }).then((response) => {
+                console.log(response.data);
+                let materiaPrima = response.data;
+                this.precio = materiaPrima.precio
+                this.descripcion = materiaPrima.nombre
+                this.existencia = materiaPrima.existencias
+            }).catch((error) => {
+                console.log(error);
+            });
+        },
+        setActualizarMateriaPrima() {
+            Swal.fire({
+                title: `Actualizar materia prima: ${this.idMateriaPrima}?`,
+                text: `Se actualizara a  ${this.descripcion}`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '¡Si, Actualizar!',
+                cancelmButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Crear un objeto FormData para enviar los datos al servidor
+                    var formData = new FormData();
+                    formData.append('opcion', 7);
+                    formData.append('precio', this.precio);
+                    formData.append('existencia', this.existencia);
+                    formData.append('local', this.idLocal);
+                    formData.append('id', this.idMateriaPrima);
+                    formData.append('descripcion', this.descripcion);
+                    formData.append('medida', this.medida);
+
+                    // Realizar la solicitud POST al servidor
+                    axios.post('./bodega/model/bodegaList.php', formData)
+                        .then(response => {
+                            console.log(response.data);
+                            if (response.data.id == 1) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.data.msg,
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                })
+                                this.cargarTablaBodega(1)
+                                $("#setNuevoInsumo").modal("hide")
+                                this.precio = ''
+                                this.existencia = ''
+                                this.idMateriaPrima = ''
+                                this.descripcion = ''
+                            }
+                        })
+                        .catch(error => {
+                            console.error(error);
+                        });
+                }
+            });
         }
     },
 });

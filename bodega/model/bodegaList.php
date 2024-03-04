@@ -9,7 +9,7 @@ class Bodega
     {
         $local = $_GET["id"];
         $estado = $_GET["estado"];
-        
+
         $db = new Database();
         $pdo = $db->connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -268,6 +268,70 @@ class Bodega
         $pdo = null;
         echo json_encode($respuesta);
     }
+
+    static function getDetalleMateriaPrima()
+    {
+        $id = $_GET["id"];
+
+        $db = new Database();
+        $pdo = $db->connect();
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $sql = "SELECT materia_prima, precio, existencias
+        FROM tb_materia_prima
+        WHERE id_materia_prima = ?";
+
+
+        $p = $pdo->prepare($sql);
+        $p->execute(array($id));
+
+        $materiaPrima = $p->fetchAll(PDO::FETCH_ASSOC);
+        $data = array();
+
+        foreach ($materiaPrima as $m) {
+            $data = [
+                "nombre" => $m["materia_prima"],
+                "precio" => $m["precio"],
+                "existencias" => $m["existencias"],
+            ];
+        }
+        echo json_encode($data);
+    }
+
+    static function setEditarMateriaPrima()
+    {
+        $existencia = $_POST["existencia"];
+        $precio = $_POST["precio"];
+        $local = $_POST["local"];
+        $medida = $_POST["medida"];
+        $id = $_POST["id"];
+        $descripcion = $_POST["descripcion"];
+
+        try {
+            $db = new Database();
+            $pdo = $db->connect();
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            $sql = "UPDATE tb_materia_prima
+            SET materia_prima= ?,id_medida= ?,precio= ?,existencias= ?, id_local= ?
+            WHERE id_materia_prima = ?";
+
+            $p = $pdo->prepare($sql);
+
+            $p->execute(array($descripcion, $medida, $precio, $existencia, $local, $id));
+
+            $respuesta = ['msg' => 'Materia Prima Actualizada', 'id' => 1];
+        } catch (PDOException $e) {
+            $respuesta = array('msg' => 'ERROR', 'id' => $e);
+            try {
+                $pdo->rollBack();
+            } catch (Exception $e2) {
+                $respuesta = array('msg' => 'ERROR', 'id' => $e2);
+            }
+        }
+        $pdo = null;
+        echo json_encode($respuesta);
+    }
 }
 
 //case
@@ -293,6 +357,12 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
 
         case 5:
             Bodega::setNuevaEquivalencia();
+            break;
+        case 6:
+            Bodega::getDetalleMateriaPrima();
+            break;
+        case 7:
+            Bodega::setEditarMateriaPrima();
             break;
     }
 }

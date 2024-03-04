@@ -115,8 +115,7 @@ let comidasList = new Vue({
                             this.actualizarInputs()
                             this.filasInsumos = []
                             this.progreso = 0
-                        }
-                        else {
+                        } else {
                             Swal.fire({
                                 icon: 'error',
                                 title: response.data.msg,
@@ -161,8 +160,7 @@ let comidasList = new Vue({
                             emptyTable: "No hay solicitudes de Mennus para mostrar",
                             sProcessing: " <h3 class=''><i class='fa fa-sync fa-spin'></i> Cargando insumos, por favor espere</h3> "
                         },
-                        "aoColumns": [
-                            {
+                        "aoColumns": [{
                                 "class": "text-center",
                                 data: 'id',
                                 render: function (data, type, row) {
@@ -183,8 +181,14 @@ let comidasList = new Vue({
                                     return encabezado;
                                 },
                             },
-                            { "class": "text-center", mData: 'comida' },
-                            { "class": "text-center", mData: 'nombre' },
+                            {
+                                "class": "text-center",
+                                mData: 'comida'
+                            },
+                            {
+                                "class": "text-center",
+                                mData: 'nombre'
+                            },
                             {
                                 "class": "text-center",
                                 data: 'precio',
@@ -213,20 +217,7 @@ let comidasList = new Vue({
                                 },
                             },
                         ],
-                        buttons: [
-                            {
-                                text: 'Nuevo <i class="fa-solid fa-square-plus"></i>',
-                                className: 'bg-primary text-white btn-xs mx-1',
-                                action: function (e, dt, node, config) {
-                                    if (thes.idLocalSesion != 3) {
-                                        thes.evento.$emit('cambiar-insumos', thes.idLocal);
-                                        thes.evento.$emit('cambiar-materia-prima', thes.idLocal);
-                                    }
-                                    $("#setNuevoInsumo").modal("show")
-                                    thes.actualizarInputs()
-                                }
-                            },
-                            {
+                        buttons: [{
                                 extend: 'excel',
                                 text: 'Excel <i class="fa-solid fa-file-excel"></i>',
                                 className: 'bg-success text-white btn-xs mx-1',
@@ -272,8 +263,7 @@ let comidasList = new Vue({
             this.bsDataTables = jQuery.fn.dataTable;
             // Set the defaults for DataTables init
             jQuery.extend(true, this.bsDataTables.defaults, {
-                dom:
-                    "<'row'<'col-sm-4'l><'col-sm-4'B><'col-sm-4'f>>" +
+                dom: "<'row'<'col-sm-4'l><'col-sm-4'B><'col-sm-4'f>>" +
                     "<'row'<'col-sm-12'tr>>" +
                     "<'row'<'col-sm-6'i><'col-sm-6'p>>",
                 buttons: [
@@ -378,8 +368,7 @@ let comidasList = new Vue({
                         showConfirmButton: false,
                         timer: 1500
                     })
-                }
-                else {
+                } else {
                     Swal.fire({
                         icon: 'error',
                         title: response.data.msg,
@@ -445,5 +434,13 @@ let comidasList = new Vue({
             }
             console.log(this.filasInsumos);
         },
+        modalNuevaComida() {
+            if (this.idLocalSesion != 3) {
+                this.evento.$emit('cambiar-insumos', this.idLocal);
+                this.evento.$emit('cambiar-materia-prima', this.idLocal);
+            }
+            $("#setNuevoInsumo").modal("show")
+            this.actualizarInputs()
+        }
     },
 });

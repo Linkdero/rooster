@@ -35,6 +35,7 @@ module.exports = {
                 params: {
                     opcion: 1,
                     tipo: this.tipo,
+                    estado: 1,
                     id: id
                 }
             }).then(response => {

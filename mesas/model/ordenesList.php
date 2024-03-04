@@ -115,29 +115,36 @@ class Orden
             WHEN od.id_tipo = 1 THEN 'Materia Prima'
             WHEN od.id_tipo = 2 THEN 'Insumo'
             WHEN od.id_tipo = 3 THEN 'Combo'
+            WHEN od.id_tipo = 4 THEN 'Alimento'
             ELSE 'Tipo Desconocido'
         END AS tipo_producto,
         CASE 
             WHEN od.id_tipo = 1 THEN mp.materia_prima
             WHEN od.id_tipo = 2 THEN i.descripcion
             WHEN od.id_tipo = 3 THEN c.descripcion
+            WHEN od.id_tipo = 4 THEN a.alimento_nombre
             ELSE NULL
         END AS descripcion,
         CASE 
             WHEN od.id_tipo = 1 THEN mp.id_materia_prima
             WHEN od.id_tipo = 2 THEN i.id_insumo
             WHEN od.id_tipo = 3 THEN c.id_combo
+            WHEN od.id_tipo = 4 THEN a.id_alimento
             ELSE NULL
         END AS id_producto,
         CASE 
             WHEN od.id_tipo = 1 THEN mp.precio
             WHEN od.id_tipo = 2 THEN i.precio
             WHEN od.id_tipo = 3 THEN c.precio
+            WHEN od.id_tipo = 4 THEN a.precio_alimento
+
             ELSE NULL
         END AS precio,
         CONCAT(m.medida , ' ', mp2.materia_prima) as nombre_equivalencia,
         mpe.id_equivalencia,
-        mpe.precio as precio_equivalencia
+        mpe.precio as precio_equivalencia,
+        od.estado as estado_insumo,
+        od.id_tipo
     FROM tb_orden o
     LEFT JOIN tb_orden_detalle od ON o.id_orden = od.id_orden
     LEFT JOIN tb_materia_prima mp ON od.id_tipo = 1 AND od.id_insumo = mp.id_materia_prima
@@ -146,6 +153,7 @@ class Orden
  	LEFT JOIN tb_materia_prima_equivalencia mpe ON od.id_equivalencia = mpe.id_equivalencia
     LEFT JOIN tb_medida m ON mpe.id_medida = m.id_medida
     LEFT JOIN tb_materia_prima mp2 ON mpe.id_materia_prima = mp2.id_materia_prima
+    LEFT JOIN tb_alimento AS a ON od.id_tipo = 4 AND od.id_insumo = a.id_alimento 
     WHERE o.id_orden = ?";
 
         $p = $pdo->prepare($sql);
@@ -167,7 +175,8 @@ class Orden
                 "nombre_equivalencia" => $o["nombre_equivalencia"],
                 "id_equivalencia" => $o["id_equivalencia"],
                 "precio_equivalencia" => $o["precio_equivalencia"],
-
+                "estado_insumo" => $o["estado_insumo"],
+                "id_tipo" => $o["id_tipo"],
             );
             $data[] = $sub_array;
         }
@@ -234,6 +243,45 @@ class Orden
         echo $idOrden;
         return $idOrden;
     }
+    static function setActualizarEstadoInsumo()
+    {
+        $estado = $_POST["estado"];
+        $id = $_POST["id"];
+        $tipo = $_POST["tipo"];
+        if ($estado) {
+            $estado = 0;
+        } else {
+            $estado = 1;
+        }
+        try {
+            $db = new Database();
+            $pdo = $db->connect();
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $pdo->beginTransaction();
+
+            $sql = "UPDATE tb_orden_detalle
+            SET estado = ?
+            WHERE id_insumo = ? AND id_tipo = ?";
+
+            $p = $pdo->prepare($sql);
+
+            $p->execute(array($estado, $id, $tipo));
+
+            $pdo->commit();
+
+            $respuesta = ['msg' => 'Estado Actualizado', 'id' => 1];
+        } catch (PDOException $e) {
+            // Si hay una excepción, realiza un rollback
+            $pdo->rollBack();
+            $respuesta = ['msg' => 'ERROR', 'id' => ['errorInfo' => $e->getMessage()]];
+        } finally {
+            // Asegúrate de cerrar la conexión al finalizar
+            $pdo = null;
+        }
+
+        // Devuelve la respuesta
+        echo json_encode($respuesta);
+    }
 }
 
 //case
@@ -252,12 +300,17 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
         case 3:
             Orden::getOrdenDetalle();
             break;
+
         case 4:
             Orden::getInformacionCliente();
             break;
 
         case 5;
             Orden::obtenerOrden();
+            break;
+
+        case 6;
+            Orden::setActualizarEstadoInsumo();
             break;
     }
 }

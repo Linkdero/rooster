@@ -10,7 +10,9 @@ try {
     $db = new Database();
     $pdo = $db->connect();
 
-    $sql = "SELECT id, usuario, password, id_local,nombre, apellido, id_roll, imagen FROM usuarios WHERE usuario = ? AND password = ? AND id_estado = ?";
+    $sql = "SELECT id, usuario, password, id_local,nombre, apellido, id_roll, imagen
+    FROM usuarios 
+    WHERE usuario = ? AND password = ? AND id_estado = ?";
 
     $p = $pdo->prepare($sql);
     $p->execute(array($usuario, $contrasena, 1));

@@ -21,6 +21,7 @@ class Inventario
             WHEN od.id_tipo = 1 THEN mp.materia_prima
             WHEN od.id_tipo = 2 THEN i.descripcion
             WHEN od.id_tipo = 3 THEN c.descripcion
+            WHEN od.id_tipo = 4 THEN a.alimento_nombre
 			ELSE 0
         END AS item_descripcion,
         CASE
@@ -28,6 +29,7 @@ class Inventario
             WHEN od.id_tipo = 1 THEN mp.precio
             WHEN od.id_tipo = 2 THEN i.precio
             WHEN od.id_tipo = 3 THEN c.precio
+            WHEN od.id_tipo = 4 THEN a.precio_alimento
         END AS item_precio,
         (od.cantidad *
             CASE
@@ -35,6 +37,7 @@ class Inventario
                 WHEN od.id_tipo = 1 THEN mp.precio
                 WHEN od.id_tipo = 2 THEN i.precio
                 WHEN od.id_tipo = 3 THEN c.precio
+                WHEN od.id_tipo = 4 THEN a.precio_alimento
             END) AS total
     FROM tb_orden AS o
     LEFT JOIN tb_orden_detalle AS od ON o.id_orden = od.id_orden
@@ -46,6 +49,7 @@ class Inventario
 	LEFT JOIN tb_materia_prima_equivalencia AS mpe ON od.id_equivalencia = mpe.id_equivalencia
     LEFT JOIN tb_medida AS m ON mpe.id_medida = m.id_medida
     LEFT JOIN tb_materia_prima AS mp2 ON mpe.id_materia_prima = mp2.id_materia_prima
+    LEFT JOIN tb_alimento AS a ON od.id_tipo = 4 AND od.id_insumo = a.id_alimento 
     WHERE o.fecha_final >= ? AND o.fecha_final <= ? AND o.id_estado = ? ";
 
         if ($idLocal != 3) {

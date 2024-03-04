@@ -5,6 +5,7 @@ const ListadoCombos = httpVueLoader('./componentes/listadoCombos.vue');
 const ListadoEmpleados = httpVueLoader('./componentes/listadoEmpleados.vue');
 const LitadoLocales = httpVueLoader('./componentes/listadoLocales.vue');
 const ListadoEquivalencias = httpVueLoader('./componentes/listadoEquivalencias.vue');
+const ListadoAlimentos = httpVueLoader('./componentes/listadoAlimentos.vue');
 
 const EventBus = new Vue();
 
@@ -42,7 +43,8 @@ let mesasList = new Vue({
         validarEquivalencia: false,
         estadoEquivalencia: false,
         idMateriaPrima: 0,
-        equivalenciaSeleccionada: ''
+        equivalenciaSeleccionada: '',
+        idAlimento: '',
     },
     mounted: function () {
         this.idModal = this.$refs.idModal.id;
@@ -72,6 +74,10 @@ let mesasList = new Vue({
             this.precio = nuevoValor
             console.log(this.equivalenciaSeleccionada)
         });
+        this.evento.$on('id-alimento', (nuevoValor) => {
+            this.idAlimento = nuevoValor
+            console.log(this.idAlimento)
+        });
         this.cargarTablaMesas();
         this.baseTables();
     },
@@ -83,6 +89,7 @@ let mesasList = new Vue({
         'listado-empleados': ListadoEmpleados,
         'listado-locales': LitadoLocales,
         'listado-equivalencias': ListadoEquivalencias,
+        'listado-alimentos': ListadoAlimentos,
     },
     watch: {
         selectComida(newValue) {
@@ -94,6 +101,7 @@ let mesasList = new Vue({
             this.evento.$emit('cambiar-materia-prima', nuevoValor);
             this.evento.$emit('cambiar-insumos', nuevoValor);
             this.evento.$emit('cambiar-empleado', nuevoValor);
+            this.evento.$emit('cambiar-alimentos', nuevoValor);
             // this.evento.$emit('cambiar-materia-prima', nuevoValor);
         },
         estadoEquivalencia() {
@@ -401,7 +409,7 @@ let mesasList = new Vue({
             });
         },
 
-        finalizarMesa: function () {
+        finalizarMesa: function (tipo) {
             const Toast = Swal.mixin({
                 toast: true,
                 position: 'top-end',
@@ -526,7 +534,11 @@ let mesasList = new Vue({
             } else if (this.seleccionComidas == 3) {
                 idInsumo = $('#combos').val();
                 nombreInsumo = $('#combos option:selected').text();
+            } else if (this.seleccionComidas == 4) {
+                idInsumo = $('#alimentos').val();
+                nombreInsumo = $('#alimentos option:selected').text();
             }
+
             let cantidad = $('#cantidades').val();
 
             precioInsumo = $("#precio").val();
@@ -713,10 +725,43 @@ let mesasList = new Vue({
                         this.evento.$emit('cambiar-materia-prima', this.idLocal);
                         this.evento.$emit('cambiar-insumos', this.idLocal);
                         this.evento.$emit('cambiar-empleado', this.idLocal);
+                        this.evento.$emit('cambiar-alimentos', this.idLocal);
                     }, 100);
                 });
             }, 100);
-        }
+        },
+        setActualizarEstadoInsumo: function (estado, id, tipo, orden) {
+            var formData = new FormData();
+            formData.append('opcion', 6);
+            formData.append('estado', estado);
+            formData.append('id', id);
+            formData.append('tipo', tipo);
+            // Realizar la solicitud POST al servidor
+            axios.post('./mesas/model/ordenesList.php', formData)
+                .then(response => {
+                    console.log(response.data);
+                    Swal.fire({
+                        icon: 'success',
+                        title: response.data.msg,
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                    axios.get(`mesas/model/ordenesList.php`, {
+                        params: {
+                            opcion: 3,
+                            id: orden
+                        }
+                    }).then(response => {
+                        console.log(response.data)
+                        this.ordenDetalle = response.data;
+                    }).catch(error => {
+                        console.error(error);
+                    });
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        },
     }
 });
 

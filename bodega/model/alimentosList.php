@@ -16,11 +16,11 @@ class Alimento
 
         $tipo = $_GET["tipo"];
         if ($tipo == 1) {
-            $sql = "SELECT id_materia_prima as id, materia_prima as nombre, precio,equivalencia
-                    FROM tb_materia_prima
-                    WHERE id_estado = ? and id_local = ?";
+            $sql = "SELECT id_alimento as id, alimento_nombre as nombre, precio_alimento as precio
+                    FROM tb_alimento
+                    WHERE id_estado = ? AND id_local = ?";
         } else {
-            $sql = "SELECT id_alimento,alimento_nombre, alimento_descripcion,precio_alimento, id_estado
+            $sql = "SELECT id_alimento as id ,alimento_nombre as nombre, alimento_descripcion,precio_alimento as precio, id_estado
             FROM tb_alimento
             WHERE id_estado = ? ";
             if ($local != 3) {
@@ -43,9 +43,9 @@ class Alimento
 
         foreach ($alimentos as $a) {
             $sub_array = [
-                "id_alimento" => $a["id_alimento"],
-                "alimento_nombre" => $a["alimento_nombre"],
-                "precio_alimento" => $a["precio_alimento"],
+                "id_alimento" => $a["id"],
+                "alimento_nombre" => $a["nombre"],
+                "precio_alimento" => $a["precio"],
             ];
 
             if ($tipo != 1) {
@@ -57,6 +57,38 @@ class Alimento
         }
         echo json_encode($data);
     }
+
+    static function setNuevoAlimento()
+    {
+        $local = $_POST["local"];
+        $nombre = $_POST["nombre"];
+        $descripcion = $_POST["descripcion"];
+        $precio = $_POST["precio"];
+
+        try {
+            $db = new Database();
+            $pdo = $db->connect();
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            $sql = "INSERT INTO tb_alimento(alimento_nombre, alimento_descripcion, precio_alimento, id_estado, id_local)
+            VALUES (?,?,?,?,?)";
+
+            $p = $pdo->prepare($sql);
+
+            $p->execute(array($nombre, $descripcion, $precio, 1, $local));
+
+            $respuesta = ['msg' => 'Ingreso Exitoso', 'id' => 1];
+        } catch (PDOException $e) {
+            $respuesta = array('msg' => 'ERROR', 'id' => $e);
+            try {
+                $pdo->rollBack();
+            } catch (Exception $e2) {
+                $respuesta = array('msg' => 'ERROR', 'id' => $e2);
+            }
+        }
+        $pdo = null;
+        echo json_encode($respuesta);
+    }
 }
 
 //case
@@ -66,6 +98,9 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
     switch ($opcion) {
         case 1:
             Alimento::getAlimentos();
+            break;
+        case 2:
+            Alimento::setNuevoAlimento();
             break;
     }
 }
