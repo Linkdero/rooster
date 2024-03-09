@@ -7,9 +7,21 @@ let medidasList = new Vue({
         tipoModal: '',
         nombreCatalogo: '',
         descripcion: '',
-        nombreModal: 'Nueva Medida'
+        nombreModal: 'Nueva Medida',
+        Toast: ''
     },
     mounted: function () {
+        this.Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
         this.cargarTablaMedidas();
         this.baseTables();
     },
@@ -265,17 +277,6 @@ let medidasList = new Vue({
             });
         },
         setMedida: function (id, estado) {
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer);
-                    toast.addEventListener('mouseleave', Swal.resumeTimer);
-                }
-            });
             let titulo;
             let descripcion;
             if (estado == 1) {
@@ -308,13 +309,13 @@ let medidasList = new Vue({
                             console.log(response.data);
 
                             if (response.data.id == 1) {
-                                Toast.fire({
+                                this.Toast.fire({
                                     icon: 'success',
                                     title: response.data.msg
                                 });
                                 this.cargarTablaMedidas()
                             } else {
-                                Toast.fire({
+                                this.Toast.fire({
                                     icon: 'error',
                                     title: response.data.msg
                                 });

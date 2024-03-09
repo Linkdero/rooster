@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header" style="padding: .5rem .5rem;">
-                <h5 class="modal-title text-primary" id="myModalLabel">{{nombreModal}}: : {{idMateriaPrima}}<i class="fa-solid fa-rectangle-list ml-2"></i></h5>
+                <h5 class="modal-title text-primary" id="myModalLabel">{{nombreModal}}: {{idMateriaPrima}}<i class="fa-solid fa-rectangle-list ml-2"></i></h5>
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
             </div>
             <div class="modal-body">

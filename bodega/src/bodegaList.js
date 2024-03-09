@@ -169,107 +169,107 @@ let bodegaList = new Vue({
                             sProcessing: " <h3 class=''><i class='fa fa-sync fa-spin'></i> Cargando insumos, por favor espere</h3> "
                         },
                         "aoColumns": [{
-                                "class": "text-center",
-                                data: 'id',
-                                render: function (data, type, row) {
-                                    let encabezado;
-                                    if (row.id_estado == 1) {
-                                        encabezado = `
+                            "class": "text-center",
+                            data: 'id',
+                            render: function (data, type, row) {
+                                let encabezado;
+                                if (row.id_estado == 1) {
+                                    encabezado = `
                                         <button class="btn btn-primary btn-xs equivalencia" type="button" aria-haspopup="true" aria-expanded="false" data-id="${data}">
                                             <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
                                         </button>`;
-                                        encabezado;
-                                    } else {
-                                        encabezado = `
+                                    encabezado;
+                                } else {
+                                    encabezado = `
                                         <button class="btn btn-danger btn-xs" type="button" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
                                         </button>`;
-                                    }
-                                    return encabezado;
-                                },
+                                }
+                                return encabezado;
                             },
-                            {
-                                "class": "text-center",
-                                mData: 'medida'
-                            },
-                            {
-                                "class": "text-center",
-                                mData: 'nombre'
-                            },
-                            {
-                                "class": "text-center",
-                                data: 'precio',
-                                render: function (data, type, row) {
-                                    let encabezado;
-                                    encabezado = `Q${data}`;
+                        },
+                        {
+                            "class": "text-center",
+                            mData: 'medida'
+                        },
+                        {
+                            "class": "text-center",
+                            mData: 'nombre'
+                        },
+                        {
+                            "class": "text-center",
+                            data: 'precio',
+                            render: function (data, type, row) {
+                                let encabezado;
+                                encabezado = `Q${data}`;
 
-                                    return encabezado;
-                                },
+                                return encabezado;
                             },
-                            {
-                                "class": "text-center",
-                                data: 'existencias',
-                                render: function (data, type, row) {
-                                    let encabezado;
-                                    encabezado = `${data} U`;
+                        },
+                        {
+                            "class": "text-center",
+                            data: 'existencias',
+                            render: function (data, type, row) {
+                                let encabezado;
+                                encabezado = `${data} U`;
 
-                                    return encabezado;
-                                },
+                                return encabezado;
                             },
-                            {
-                                "class": "text-center",
-                                data: 'id_estado',
-                                render: function (data, type, row) {
-                                    if (data == 1) {
-                                        return `<label class="switch">
+                        },
+                        {
+                            "class": "text-center",
+                            data: 'id_estado',
+                            render: function (data, type, row) {
+                                if (data == 1) {
+                                    return `<label class="switch">
                                             <input type="checkbox" checked data-id="${row.id}">
                                             <span class="slider round"></span>
                                         </label>
-                                        <span class="btn btn-primary btn-xs detalle" data-id="${row.id}">
+                                        <button class="btn btn-primary btn-xs detalle" data-id="${row.id}">
                                         <i class="fa-solid fa-pen-to-square"></i>
-                                    </span>`;
-                                    } else {
-                                        return `<label class="switch">
+                                    </button>`;
+                                } else {
+                                    return `<label class="switch">
                                             <input type="checkbox" data-id="${row.id}">
                                             <span class="slider round"></span>
                                         </label>
-                                        <span class="btn btn-danger btn-xs detalle" data-id="${row.id}">
+                                        <button class="btn btn-danger btn-xs detalle" data-id="${row.id}">
                                         <i class="fa-solid fa-pen-to-square"></i>
-                                    </span>`;
-                                    }
-                                },
+                                    </button>`;
+                                }
                             },
+                        },
                         ],
                         buttons: [{
-                                extend: 'excel',
-                                text: 'Excel <i class="fa-solid fa-file-excel"></i>',
-                                className: 'bg-success text-white btn-xs mx-1',
-                                exportOptions: {
-                                    columns: ':visible'
-                                }
-                            },
-                            {
-                                extend: 'pdfHtml5',
-                                text: 'PDF <i class="fa-solid fa-file-pdf"></i>',
-                                className: 'bg-danger text-white btn-xs mx-1',
-                                exportOptions: {
-                                    columns: ':visible'
-                                }
-                            },
-                            {
-                                text: 'Inhabilitada <i class="fa-sharp fa-solid fa-circle-xmark"></i>',
-                                className: 'bg-primary text-white btn-xs mx-1',
-                                action: function (e, dt, node, config) {
-                                    thes.cargarTablaBodega(2);
-                                }
-                            },
-                            {
-                                text: 'Activos <i class="fa-solid fa-check"></i>',
-                                className: 'bg-primary text-white btn-xs mx-1',
-                                action: function (e, dt, node, config) {
-                                    thes.cargarTablaBodega(1);
-                                }
-                            },
+                            extend: 'excel',
+                            text: 'Excel <i class="fa-solid fa-file-excel"></i>',
+                            className: 'bg-success text-white btn-xs mx-1',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'pdfHtml5',
+                            text: 'PDF <i class="fa-solid fa-file-pdf"></i>',
+                            className: 'bg-danger text-white btn-xs mx-1',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            text: 'Inhabilitada <i class="fa-sharp fa-solid fa-circle-xmark"></i>',
+                            className: 'bg-primary text-white btn-xs mx-1',
+                            action: function (e, dt, node, config) {
+                                thes.cargarTablaBodega(2);
+                            }
+                        },
+                        {
+                            text: 'Activos <i class="fa-solid fa-check"></i>',
+                            className: 'bg-primary text-white btn-xs mx-1',
+                            action: function (e, dt, node, config) {
+                                thes.cargarTablaBodega(1);
+                            }
+                        },
                         ],
 
                         data: response.data,
@@ -384,6 +384,16 @@ let bodegaList = new Vue({
                 that.tipoModal = 3
                 $("#setNuevoInsumo").modal("show")
                 that.getDetalleMateriaPrima()
+            });
+            $('[data-dismiss="modal"]').on('click', function () {
+                that.medida = ''
+                that.precio = ''
+                that.existencia = ''
+                that.descripcion = ''
+                that.idLocal = ''
+                that.equivalencia = ''
+                that.idMateriaPrimas = ''
+                that.$forceUpdate();
             });
         },
 

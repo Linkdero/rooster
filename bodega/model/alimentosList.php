@@ -89,6 +89,100 @@ class Alimento
         $pdo = null;
         echo json_encode($respuesta);
     }
+
+    static function getAlimentoDetalle()
+    {
+        $id = $_GET["id"];
+
+        $db = new Database();
+        $pdo = $db->connect();
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $sql = "SELECT id_alimento as id, alimento_nombre as nombre, precio_alimento as precio, alimento_descripcion as descripcion
+                FROM tb_alimento
+                WHERE id_alimento = ?";
+
+
+        $p = $pdo->prepare($sql);
+        $p->execute(array($id));
+
+        $alimentos = $p->fetchAll(PDO::FETCH_ASSOC);
+        $data = array();
+
+        foreach ($alimentos as $a) {
+            $data = [
+                "id_alimento" => $a["id"],
+                "alimento_nombre" => $a["nombre"],
+                "precio_alimento" => $a["precio"],
+                "alimento_descripcion" => $a["descripcion"],
+            ];
+        }
+        echo json_encode($data);
+    }
+
+    static function setActualizarAlimento()
+    {
+        $local = $_POST["local"];
+        $nombre = $_POST["nombre"];
+        $descripcion = $_POST["descripcion"];
+        $precio = $_POST["precio"];
+        $idAlimento = $_POST["idAlimento"];
+
+        try {
+            $db = new Database();
+            $pdo = $db->connect();
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            $sql = "UPDATE tb_alimento
+            SET alimento_nombre= ? ,alimento_descripcion= ?, precio_alimento= ?, id_local= ?
+            WHERE id_alimento = ?";
+
+            $p = $pdo->prepare($sql);
+
+            $p->execute(array($nombre, $descripcion, $precio, $local, $idAlimento));
+
+            $respuesta = ['msg' => '¡Actualización Exitosa!', 'id' => 1];
+        } catch (PDOException $e) {
+            $respuesta = array('msg' => 'ERROR', 'id' => $e);
+            try {
+                $pdo->rollBack();
+            } catch (Exception $e2) {
+                $respuesta = array('msg' => 'ERROR', 'id' => $e2);
+            }
+        }
+        $pdo = null;
+        echo json_encode($respuesta);
+    }
+
+    static function setEstadoAlimento()
+    {
+        $idAlimento = $_POST["idAlimento"];
+        $estado = $_POST["estado"];
+
+        try {
+            $db = new Database();
+            $pdo = $db->connect();
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            $sql = "UPDATE tb_alimento
+            SET id_estado = ?
+            WHERE id_alimento = ?";
+
+            $p = $pdo->prepare($sql);
+            $p->execute(array($estado, $idAlimento));
+
+            $respuesta = ['msg' => '¡Actualización Exitosa!', 'id' => 1];
+        } catch (PDOException $e) {
+            $respuesta = array('msg' => 'ERROR', 'id' => $e);
+            try {
+                $pdo->rollBack();
+            } catch (Exception $e2) {
+                $respuesta = array('msg' => 'ERROR', 'id' => $e2);
+            }
+        }
+        $pdo = null;
+        echo json_encode($respuesta);
+    }
 }
 
 //case
@@ -101,6 +195,15 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
             break;
         case 2:
             Alimento::setNuevoAlimento();
+            break;
+        case 3:
+            Alimento::getAlimentoDetalle();
+            break;
+        case 4:
+            Alimento::setActualizarAlimento();
+            break;
+        case 5:
+            Alimento::setEstadoAlimento();
             break;
     }
 }

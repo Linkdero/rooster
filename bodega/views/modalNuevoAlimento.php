@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title text-primary" id="myModalLabel">{{nombreModal}}<i class="fa-solid fa-utensils ml-2"></i></h5>
+                <h5 class="modal-title text-primary" id="myModalLabel">{{nombreModal}}: {{idAlimento}} <i class="fa-solid fa-utensils ml-2"></i></h5>
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
                 <input type="hidden" id="local" value="<?php echo $_SESSION['id_local'] ?>">
             </div>
@@ -11,7 +11,7 @@
                     <div class="form-row">
                         <div class="col-12">
                             <div class="x_title">
-                                <h2>Datos Materia Prima</h2>
+                                <h2>Datos Alimento</h2>
                                 <div class="clearfix"></div>
                             </div>
                         </div>
@@ -34,7 +34,7 @@
                 </div>
                 <div class="modal-footer" style="margin-bottom: -1rem;">
                     <button type="button" class="btn btn-danger btn-xs" data-dismiss="modal">Cerrar <i class="fa-solid fa-circle-xmark ml-1"></i></button>
-                    <button type="button" class="btn btn-primary btn-xs" :disabled="!camposCompletos" @click="setNuevoAlimento()">Generar Nuevo Alimento <i class="fa-solid fa-octagon-plus ml-1"></i></button>
+                    <button type="button" class="btn btn-xs" :class="tipoModal == 1 ? 'btn-primary' : 'btn-success' " :disabled="!camposCompletos" @click="tipoModal == 1 ? setNuevoAlimento() : setActualizarAlimento()">{{tipoModal == 1 ? 'Generar Nuevo Alimento' : 'Actualizar Alimento'}} <i class="fa-solid fa-octagon-plus ml-1"></i></button>
                 </div>
             </div>
         </div>
