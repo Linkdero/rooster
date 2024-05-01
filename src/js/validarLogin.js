@@ -25,35 +25,33 @@ new Vue({
                 timer: 3000,
                 timerProgressBar: true,
                 didOpen: (toast) => {
-                  toast.addEventListener('mouseenter', Swal.stopTimer)
-                  toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
                 }
-              })
+            })
 
-            axios.get(`inc/processLogin.php`,{
-            params: {
-                username: username,
-                password:password
-              }
-            }).then(response => {
-                console.log(response.data)
-                if (response.data.id == 1){
-                    
-                    Toast.fire({
-                        icon: 'success',
-                        title: response.data.msg
-                    });
+            axios.get(`inc/processLogin.php`, {
+                    params: {
+                        username: username,
+                        password: password
+                    }
+                }).then(response => {
+                    console.log(response.data)
+                    if (response.data.id == 1) {
 
-                }else{
-                      Toast.fire({
-                        icon: 'error',
-                        title: response.data.msg
-                      })
-                      return
-                }
-                console.log("Redireccionando...");
-                window.location.href = 'index.php';
-
+                        Toast.fire({
+                            icon: 'success',
+                            title: response.data.msg
+                        });
+                        console.log("Redireccionando...");
+                        window.location.href = 'index.php';
+                    } else {
+                        Toast.fire({
+                            icon: 'error',
+                            title: response.data.msg
+                        })
+                        return
+                    }
                 })
                 .catch(error => {
                     console.error(error);

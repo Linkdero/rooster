@@ -123,7 +123,7 @@ let bodegaList = new Vue({
                                 })
 
                                 this.tablaBodega.clear().destroy();
-                                this.cargarTablaBodega()
+                                this.cargarTablaBodega(1)
                                 $("#setNuevoInsumo").modal("hide")
                                 this.precio = ''
                                 this.existencia = ''
@@ -464,7 +464,7 @@ let bodegaList = new Vue({
                                     timer: 1500
                                 })
                                 this.tablaBodega.clear().destroy();
-                                this.cargarTablaBodega()
+                                this.cargarTablaBodega(1)
                                 $("#setNuevoInsumo").modal("hide")
                                 this.existencia = ''
                             }
@@ -496,7 +496,7 @@ let bodegaList = new Vue({
                             timer: 1500
                         })
                         this.tablaBodega.clear().destroy();
-                        this.cargarTablaBodega()
+                        this.cargarTablaBodega(1)
                         $("#setNuevaEquivalencia").modal("hide")
                         this.equivalencia = ''
                         this.precio = ''

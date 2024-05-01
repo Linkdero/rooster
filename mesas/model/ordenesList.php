@@ -143,8 +143,8 @@ class Orden
         CONCAT(m.medida , ' ', mp2.materia_prima) as nombre_equivalencia,
         mpe.id_equivalencia,
         mpe.precio as precio_equivalencia,
-        od.estado as estado_insumo,
-        od.id_tipo
+        od.id_tipo,
+        od.estado as estado_insumo
     FROM tb_orden o
     LEFT JOIN tb_orden_detalle od ON o.id_orden = od.id_orden
     LEFT JOIN tb_materia_prima mp ON od.id_tipo = 1 AND od.id_insumo = mp.id_materia_prima
@@ -177,6 +177,7 @@ class Orden
                 "precio_equivalencia" => $o["precio_equivalencia"],
                 "estado_insumo" => $o["estado_insumo"],
                 "id_tipo" => $o["id_tipo"],
+                "estado_insumo" => $o["estado_insumo"],
             );
             $data[] = $sub_array;
         }
@@ -282,6 +283,108 @@ class Orden
         // Devuelve la respuesta
         echo json_encode($respuesta);
     }
+
+    static function getTragosChicaRooster()
+    {
+        $idOrden = $_GET["id"];
+        $correlativo = 1;
+        $db = new Database();
+        $pdo = $db->connect();
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $sql = "SELECT tcr.id_empleado, CONCAT(e.nombre ,' ' ,e.apellido) AS nombre_mesera,
+        tcr.id_materia_prima, mp.materia_prima,cantidad, tcr.precio
+        FROM tbl_trago_chica_rooster AS tcr
+        LEFT OUTER JOIN tb_empleados AS e ON tcr.id_empleado = e.id_empleado
+        LEFT OUTER JOIN tb_materia_prima AS mp ON tcr.id_materia_prima = mp.id_materia_prima
+        WHERE id_orden = ?";
+
+        $p = $pdo->prepare($sql);
+
+        $p->execute(array($idOrden));
+
+        $trago = $p->fetchAll(PDO::FETCH_ASSOC);
+        $data = array();
+        foreach ($trago as $t) {
+            $sub_array = array(
+                "correlativo" => $correlativo,
+                "id_empleado" => $t["id_empleado"],
+                "nombre_mesera" => $t["nombre_mesera"],
+                "id_materia_prima" => $t["id_materia_prima"],
+                "materia_prima" => $t["materia_prima"],
+                "cantidad" => $t["cantidad"],
+                "precio" => $t["precio"]
+            );
+            $data[] = $sub_array;
+            $correlativo++;
+        }
+        echo json_encode($data);
+        return $data;
+    }
+
+    static function setTragosChicaRooster()
+    {
+        // Obtener datos del POST
+        $tragos = $_POST["tragos"];
+        $idOrden = $_POST["orden"];
+
+        // Decodificar la cadena JSON de tragos
+        $tragos = json_decode($tragos, true);
+
+        try {
+            $db = new Database();
+            $pdo = $db->connect();
+
+            // Establecer el modo de error y comenzar la transacción
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $pdo->beginTransaction();
+
+            foreach ($tragos as $t) {
+                $id_materia_prima = $t["id_materia_prima"];
+                $id_empleado = $t["id_empleado"];
+                $cantidad = $t["cantidad"];
+                $precio = $t["precio"];
+
+                // Verificar si ya existe un registro para este trago en la orden
+                $sql = "SELECT COUNT(id_orden) as conteo
+                        FROM tbl_trago_chica_rooster
+                        WHERE id_orden = ? AND id_materia_prima = ? AND id_empleado = ?";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$idOrden, $id_materia_prima, $id_empleado]);
+                $conteo = $stmt->fetchColumn();
+
+                if ($conteo) {
+                    // Actualizar el registro existente
+                    $sql = "UPDATE tbl_trago_chica_rooster
+                            SET cantidad = ?, precio = ?
+                            WHERE id_orden = ? AND id_materia_prima = ? AND id_empleado = ?";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute([$cantidad, $precio, $idOrden, $id_materia_prima, $id_empleado]);
+                } else {
+                    // Insertar un nuevo registro
+                    $sql = "INSERT INTO tbl_trago_chica_rooster (id_orden, id_empleado, id_materia_prima, cantidad, precio)
+                            VALUES (?, ?, ?, ?, ?)";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute([$idOrden, $id_empleado, $id_materia_prima, $cantidad, $precio]);
+                }
+            }
+
+            // Confirmar la transacción si todas las operaciones se completaron correctamente
+            $pdo->commit();
+
+            $respuesta = ['msg' => 'Tragos Actualizados', 'id' => 1];
+        } catch (PDOException $e) {
+            // Si hay una excepción, realizar un rollback y capturar el mensaje de error
+            $pdo->rollBack();
+            $respuesta = ['msg' => 'ERROR', 'id' => ['errorInfo' => $e->getMessage()]];
+        } finally {
+            // Cerrar la conexión PDO al finalizar
+            $pdo = null;
+        }
+
+        // Devolver la respuesta como JSON
+        echo json_encode($respuesta);
+    }
 }
 
 //case
@@ -311,6 +414,13 @@ if (isset($_POST['opcion']) || isset($_GET['opcion'])) {
 
         case 6;
             Orden::setActualizarEstadoInsumo();
+            break;
+
+        case 7;
+            Orden::getTragosChicaRooster();
+            break;
+        case 8;
+            Orden::setTragosChicaRooster();
             break;
     }
 }

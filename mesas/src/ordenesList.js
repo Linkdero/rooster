@@ -42,8 +42,9 @@ let ordenesList = new Vue({
         totalConsumido: 0,
         propina: 0,
         totalFinal: 0,
-        totalNeto: 0
-
+        totalNeto: 0,
+        tragoChicas: '',
+        totalTragos: ''
     },
     mounted: function () {
         this.idModal = this.$refs.idModal.id;
@@ -173,7 +174,7 @@ let ordenesList = new Vue({
                                 "class": "text-center",
                                 data: 'total',
                                 render: function (data, type, row) {
-                                    let propina = data * 0.10;
+                                    let propina = data * 0.15;
                                     let final = parseInt(data) + parseInt(propina);
                                     return `${final.toLocaleString('es-GT', { style: 'currency', currency: 'GTQ' })}`;
                                 },
@@ -378,18 +379,42 @@ let ordenesList = new Vue({
         getDetalleOrden: function (id) {
             axios.get(`mesas/model/ordenesList.php`, {
                 params: {
+                    opcion: 7,
+                    id: id
+                }
+            }).then(response => {
+                console.log(response.data)
+                this.tragoChicas = response.data;
+            }).catch(error => {
+                console.error(error);
+            });
+
+            axios.get(`mesas/model/ordenesList.php`, {
+                params: {
                     opcion: 3,
                     id: id
                 }
             }).then(response => {
-                console.log(response.data);
                 this.ordenDetalle = response.data;
+                this.totalTragos = 0;
+                if (this.ordenDetalle[0].total == 0) {
+                    let totalNoVacio = 0;
+                    this.ordenDetalle.map((datos, index) => {
+                        totalNoVacio = totalNoVacio + (datos.cantidad * datos.precio)
+                    });
+                    this.ordenDetalle[0].total = totalNoVacio
+                }
+
+                this.tragoChicas.map((datos, index) => {
+                    this.totalTragos = this.totalTragos + (datos.cantidad * datos.precio)
+                });
+
                 let datos = this.ordenDetalle[0];
                 console.log(datos);
-                this.propina = (datos.total * 0.10);
+                this.propina = (datos.total * 0.15);
                 this.totalConsumido = (datos.total * 1);
-                this.totalNeto = parseInt(this.propina) + parseInt(this.totalConsumido);
-                this.totalFinal = parseInt(this.totalConsumido) + parseInt(this.propina)
+                this.totalNeto = parseInt(this.totalTragos) + parseInt(this.totalConsumido);
+                this.totalFinal = parseInt(this.totalConsumido) + parseInt(this.propina) + parseInt(this.totalTragos)
 
                 // Calcular la propina (10% del total)
                 this.propina = this.propina.toLocaleString('es-GT', {
@@ -410,7 +435,10 @@ let ordenesList = new Vue({
                     style: 'currency',
                     currency: 'GTQ'
                 });
-
+                this.totalTragos = this.totalTragos.toLocaleString('es-GT', {
+                    style: 'currency',
+                    currency: 'GTQ'
+                });
 
             }).catch(error => {
                 console.error(error);
@@ -455,9 +483,11 @@ let ordenesList = new Vue({
             convertImageToBase64(imagePath)
                 .then(image64 => {
                     console.log(image64);
-
                     var documentDefinition = {
-                        pageSize: { width: 80, height: 210 }, // Tamaño de la página en mm
+                        pageSize: {
+                            width: 297,
+                            height: 840
+                        }, // 80x297mm
                         header: {
                             columns: [{
                                 stack: [{
@@ -490,12 +520,12 @@ let ordenesList = new Vue({
                             },
                             {
                                 image: image64, // Reemplaza 'URL_DE_TU_LOGO' con la URL de tu logo
-                                width: 55, // Ajusta el ancho según tu necesidad
-                                height: 55, // Ajusta la altura según tu necesidad
+                                width: 30, // Ajusta el ancho según tu necesidad
+                                height: 30, // Ajusta la altura según tu necesidad
                                 alignment: 'right',
                                 absolutePosition: {
                                     x: 0,
-                                    y: 37
+                                    y: 55
                                 },
                             },
                             {
@@ -509,7 +539,7 @@ let ordenesList = new Vue({
                                     type: 'line',
                                     x1: 0,
                                     y1: 0,
-                                    x2: 515,
+                                    x2: 215,
                                     y2: 0,
                                     lineWidth: 1,
                                     lineColor: '#336699', // Color de la línea
@@ -538,7 +568,7 @@ let ordenesList = new Vue({
                                     type: 'line',
                                     x1: 0,
                                     y1: 0,
-                                    x2: 515,
+                                    x2: 215,
                                     y2: 0,
                                     lineWidth: 1,
                                     lineColor: '#336699', // Color de la línea
@@ -581,30 +611,124 @@ let ordenesList = new Vue({
                                                 bold: true,
                                             },
                                         ],
-                                        ...this.ordenDetalle.map(item => [{
-                                                text: item.descripcion ? item.descripcion : item.nombre_equivalencia,
-                                                alignment: 'center',
-                                            },
-                                            {
-                                                text: item.cantidad + 'U',
-                                                alignment: 'center',
-                                            },
-                                            {
-                                                text: 'Q' + (item.precio ? item.precio : item.precio_equivalencia),
-                                                alignment: 'center',
-                                            },
-                                            {
-                                                text: 'Q' + (item.precio ? item.precio : item.precio_equivalencia) * item.cantidad,
-                                                alignment: 'center',
-                                            },
-                                        ]),
+                                        ...this.ordenDetalle.map(item => {
+                                            let descripcion = ''
+                                            let cantidad = ''
+                                            let precio = ''
+                                            let total = ''
+                                            if (item.estado_insumo == 1) {
+                                                descripcion = item.descripcion ? item.descripcion : item.nombre_equivalencia;
+                                                cantidad = item.cantidad + 'U';
+                                                precio = 'Q' + (item.precio ? item.precio : item.precio_equivalencia);
+                                                total = 'Q' + (item.precio ? item.precio : item.precio_equivalencia) * item.cantidad;
+                                            }
+
+                                            return [{
+                                                    text: descripcion,
+                                                    alignment: 'center',
+                                                },
+                                                {
+                                                    text: cantidad,
+                                                    alignment: 'center',
+                                                },
+                                                {
+                                                    text: precio,
+                                                    alignment: 'center',
+                                                },
+                                                {
+                                                    text: total,
+                                                    alignment: 'center',
+                                                },
+                                            ];
+                                        }),
                                     ],
                                     widths: ['*', 'auto', 'auto', 'auto'],
                                     margin: [0, 10, 0, 10],
                                 },
                             },
                             {
-                                text: `Total Consumido: ${this.totalConsumido} \nPropina: ${this.propina} `,
+                                canvas: [{
+                                    type: 'line',
+                                    x1: 0,
+                                    y1: 0,
+                                    x2: 0,
+                                    y2: 0,
+                                    lineWidth: 1,
+                                    lineColor: '#336699', // Color de la línea
+                                }, ],
+                                margin: [0, 0, 0, 10],
+                            },
+                            {
+                                table: {
+                                    body: [
+                                        [{
+                                                text: 'Chica',
+                                                fillColor: '#336699',
+                                                color: '#FFFFFF',
+                                                fontSize: 14,
+                                                bold: true,
+                                            },
+                                            {
+                                                text: 'Trago',
+                                                fillColor: '#336699',
+                                                color: '#FFFFFF',
+                                                fontSize: 14,
+                                                bold: true,
+                                            },
+                                            {
+                                                text: 'Consumido',
+                                                fillColor: '#336699',
+                                                color: '#FFFFFF',
+                                                fontSize: 14,
+                                                bold: true,
+                                            },
+                                            {
+                                                text: 'Total',
+                                                fillColor: '#336699',
+                                                color: '#FFFFFF',
+                                                fontSize: 14,
+                                                bold: true,
+                                            },
+                                        ],
+                                        ...this.tragoChicas.map(item => {
+                                            let chica = ''
+                                            let insumo = ''
+                                            let precio = ''
+                                            let cantidad = ''
+                                            let total = ''
+                                            let consumido = ''
+                                            chica = item.nombre_mesera;
+                                            insumo = item.materia_prima;
+                                            cantidad = item.cantidad + 'U';
+                                            precio = 'Q' + item.precio;
+                                            total = 'Q' + (item.precio * item.cantidad);
+                                            consumido = precio + ' * ' + cantidad
+                                            return [{
+                                                    text: chica,
+                                                    alignment: 'center',
+                                                },
+                                                {
+                                                    text: insumo,
+                                                    alignment: 'center',
+                                                },
+                                                {
+                                                    text: consumido,
+                                                    alignment: 'center',
+                                                },
+                                                {
+                                                    text: total,
+                                                    alignment: 'center',
+                                                },
+                                            ];
+                                        }),
+                                    ],
+                                    widths: ['*', 'auto', 'auto', 'auto'],
+                                    margin: [0, 10, 0, 10],
+                                },
+                            },
+
+                            {
+                                text: `Total Consumido: ${this.totalConsumido} \nTragos Invitados: ${this.totalTragos} \nPropina: ${this.validarPropina == 1 ? this.propina : 0} `,
                                 alignment: 'right',
                                 fontSize: 16,
                                 bold: true,
@@ -622,7 +746,7 @@ let ordenesList = new Vue({
                                 margin: [0, 0, 0, 10],
                             },
                             {
-                                text: `Total: ${this.totalFinal}`,
+                                text: `Total: ${this.validarPropina == 1 ? (this.totalFinal) : ( this.totalNeto)}`,
                                 alignment: 'right',
                                 fontSize: 20,
                                 bold: true,

@@ -55,7 +55,8 @@ let bodegaList = new Vue({
         tipoModal(valor) {
             if (valor == 1) {
                 this.nombreModal = 'Nuevo Alimento'
-            } if (valor == 2) {
+            }
+            if (valor == 2) {
                 this.nombreModal = 'Editar Alimento'
             }
         }
@@ -93,93 +94,93 @@ let bodegaList = new Vue({
                             sProcessing: " <h3 class=''><i class='fa fa-sync fa-spin'></i> Cargando insumos, por favor espere</h3> "
                         },
                         "aoColumns": [{
-                            "class": "text-center",
-                            data: 'id_alimento',
-                            render: function (data, type, row) {
-                                let encabezado;
-                                if (row.id_estado == 1) {
-                                    encabezado = `
+                                "class": "text-center",
+                                data: 'id_alimento',
+                                render: function (data, type, row) {
+                                    let encabezado;
+                                    if (row.id_estado == 1) {
+                                        encabezado = `
                                         <button class="btn btn-primary btn-xs editar" type="button" aria-haspopup="true" aria-expanded="false" data-id="${data}">
                                             <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
                                         </button>`;
-                                    encabezado;
-                                } else {
-                                    encabezado = `
+                                        encabezado;
+                                    } else {
+                                        encabezado = `
                                         <button class="btn btn-danger btn-xs editar" type="button" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
                                         </button>`;
-                                }
-                                return encabezado;
+                                    }
+                                    return encabezado;
+                                },
                             },
-                        },
-                        {
-                            "class": "text-center",
-                            mData: 'alimento_nombre'
-                        },
-                        {
-                            "class": "text-center",
-                            mData: 'alimento_descripcion'
-                        },
-                        {
-                            "class": "text-center",
-                            data: 'precio_alimento',
-                            render: function (data, type, row) {
-                                let encabezado;
-                                encabezado = `Q${data}`;
+                            {
+                                "class": "text-center",
+                                mData: 'alimento_nombre'
+                            },
+                            {
+                                "class": "text-center",
+                                mData: 'alimento_descripcion'
+                            },
+                            {
+                                "class": "text-center",
+                                data: 'precio_alimento',
+                                render: function (data, type, row) {
+                                    let encabezado;
+                                    encabezado = `Q${data}`;
 
-                                return encabezado;
+                                    return encabezado;
+                                },
                             },
-                        },
-                        {
-                            "class": "text-center",
-                            data: 'id_estado',
-                            render: function (data, type, row) {
-                                if (data == 1) {
-                                    return `<label class="switch">
+                            {
+                                "class": "text-center",
+                                data: 'id_estado',
+                                render: function (data, type, row) {
+                                    if (data == 1) {
+                                        return `<label class="switch">
                                             <input type="checkbox" checked data-id="${row.id_alimento}">
                                             <span class="slider round"></span>
                                         </label>`;
-                                } else {
-                                    return `<label class="switch">
+                                    } else {
+                                        return `<label class="switch">
                                             <input type="checkbox" data-id="${row.id_alimento}">
                                             <span class="slider round"></span>
                                         </label>`;
-                                }
+                                    }
+                                },
                             },
-                        },
                         ],
                         buttons: [{
-                            extend: 'excel',
-                            text: 'Excel <i class="fa-solid fa-file-excel"></i>',
-                            className: 'bg-success text-white btn-xs mx-1',
-                            exportOptions: {
-                                columns: ':visible'
-                            }
-                        },
-                        {
-                            extend: 'pdfHtml5',
-                            text: 'PDF <i class="fa-solid fa-file-pdf"></i>',
-                            className: 'bg-danger text-white btn-xs mx-1',
-                            exportOptions: {
-                                columns: ':visible'
-                            }
-                        },
-                        {
-                            text: 'Inhabilitadas <i class="fa-sharp fa-solid fa-circle-xmark"></i>',
-                            className: 'bg-primary text-white btn-xs mx-1',
-                            action: function (e, dt, node, config) {
-                                thes.estado = 2
-                                thes.cargarTablaAlimentos();
-                            }
-                        },
-                        {
-                            text: 'Activos <i class="fa-solid fa-check"></i>',
-                            className: 'bg-primary text-white btn-xs mx-1',
-                            action: function (e, dt, node, config) {
-                                thes.estado = 1
-                                thes.cargarTablaAlimentos();
-                            }
-                        },
+                                extend: 'excel',
+                                text: 'Excel <i class="fa-solid fa-file-excel"></i>',
+                                className: 'bg-success text-white btn-xs mx-1',
+                                exportOptions: {
+                                    columns: ':visible'
+                                }
+                            },
+                            {
+                                extend: 'pdfHtml5',
+                                text: 'PDF <i class="fa-solid fa-file-pdf"></i>',
+                                className: 'bg-danger text-white btn-xs mx-1',
+                                exportOptions: {
+                                    columns: ':visible'
+                                }
+                            },
+                            {
+                                text: 'Inhabilitadas <i class="fa-sharp fa-solid fa-circle-xmark"></i>',
+                                className: 'bg-primary text-white btn-xs mx-1',
+                                action: function (e, dt, node, config) {
+                                    thes.estado = 2
+                                    thes.cargarTablaAlimentos();
+                                }
+                            },
+                            {
+                                text: 'Activos <i class="fa-solid fa-check"></i>',
+                                className: 'bg-primary text-white btn-xs mx-1',
+                                action: function (e, dt, node, config) {
+                                    thes.estado = 1
+                                    thes.cargarTablaAlimentos();
+                                }
+                            },
                         ],
 
                         data: response.data,

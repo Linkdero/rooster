@@ -1,6 +1,9 @@
 <?php
 include '../../inc/database.php';
 date_default_timezone_set("America/Guatemala");
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 class Mesa
 {
@@ -261,13 +264,13 @@ class Mesa
                     VALUES (?,?,?,?,?,?)";
                     $p = $pdo->prepare($sql);
 
-                    $p->execute(array($id_orden, $regNum, 1, $f["idEquivalencia"], $f["cantidad"], $f["tipoMenu"], 1));
+                    $p->execute(array($id_orden, $regNum, 1, $f["idEquivalencia"], $f["cantidad"], $f["tipoMenu"]));
                 } else if ($f["equivalencia"] == 'false') {
                     $sql = "INSERT INTO tb_orden_detalle(id_orden, reg_num, equivalencia, id_insumo, cantidad, id_tipo)
                     VALUES (?,?,?,?,?,?)";
                     $p = $pdo->prepare($sql);
 
-                    $p->execute(array($id_orden, $regNum, 0, $f["idInsumo"], $f["cantidad"], $f["tipoMenu"], 1));
+                    $p->execute(array($id_orden, $regNum, 0, $f["idInsumo"], $f["cantidad"], $f["tipoMenu"]));
                 }
 
                 $regNum++;
@@ -320,28 +323,28 @@ class Mesa
             $sql = "SELECT
             SUM(
                 CASE
-				    WHEN od.equivalencia = 1 THEN (mpe.precio *od.cantidad)
-                    WHEN od.id_tipo = 1 THEN mp.precio * od.cantidad
-                    WHEN od.id_tipo = 2 THEN ins.precio * od.cantidad
-                    WHEN od.id_tipo = 3 THEN c.precio * od.cantidad
-                    WHEN od.id_tipo = 4 THEN a.precio_alimento * od.cantidad
+				    WHEN od.equivalencia = 1 AND od.estado = 1 THEN (mpe.precio *od.cantidad)
+                    WHEN od.id_tipo = 1 AND od.estado = 1 THEN mp.precio * od.cantidad
+                    WHEN od.id_tipo = 2 AND od.estado = 1 THEN ins.precio * od.cantidad
+                    WHEN od.id_tipo = 3 AND od.estado = 1 THEN c.precio * od.cantidad
+                    WHEN od.id_tipo = 4 AND od.estado = 1 THEN a.precio_alimento * od.cantidad
                     ELSE 0
                 END
             ) AS total_precio
-        FROM tb_orden_detalle od
-        LEFT JOIN tb_materia_prima mp ON od.id_tipo = 1 AND od.id_insumo = mp.id_materia_prima
-        LEFT JOIN tb_insumo ins ON od.id_tipo = 2 AND od.id_insumo = ins.id_insumo
-        LEFT JOIN tb_combo c ON od.id_tipo = 3 AND od.id_insumo = c.id_combo
-        LEFT JOIN tb_materia_prima_equivalencia AS mpe ON od.id_equivalencia = mpe.id_equivalencia
-        LEFT JOIN tb_alimento AS a ON od.id_tipo = 4 AND od.id_insumo = a.id_alimento
-        WHERE od.id_orden = ?";
+            FROM tb_orden_detalle od
+            LEFT JOIN tb_materia_prima mp ON od.id_tipo = 1 AND od.id_insumo = mp.id_materia_prima
+            LEFT JOIN tb_insumo ins ON od.id_tipo = 2 AND od.id_insumo = ins.id_insumo
+            LEFT JOIN tb_combo c ON od.id_tipo = 3 AND od.id_insumo = c.id_combo
+            LEFT JOIN tb_materia_prima_equivalencia AS mpe ON od.id_equivalencia = mpe.id_equivalencia
+            LEFT JOIN tb_alimento AS a ON od.id_tipo = 4 AND od.id_insumo = a.id_alimento
+            WHERE od.id_orden = ?";
 
             $p = $pdo->prepare($sql);
             $p->execute(array($idORden));
             $sumaTotal = $p->fetch();
             $sumaTotal = $sumaTotal["total_precio"];
 
-            $sql = "UPDATE tb_orden 
+            $sql = "UPDATE tb_orden
             SET total=?,fecha_final=?,id_estado=?
             WHERE id_orden = ?";
 
@@ -423,7 +426,7 @@ class Mesa
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $pdo->beginTransaction();
 
-            $sql = "SELECT id_orden 
+            $sql = "SELECT id_orden
             FROM tb_orden
             WHERE id_mesa = ? AND id_estado = ?";
 

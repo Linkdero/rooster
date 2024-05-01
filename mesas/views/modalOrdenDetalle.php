@@ -25,6 +25,7 @@
                                         <th class="text-center">Descripcion</th>
                                         <th class="text-center">Precio</th>
                                         <th class="text-center">Cantidades</th>
+                                        <th class="text-center">Estado</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -48,12 +49,49 @@
                                             </div>
                                         </td>
                                         <td class="text-center">{{ o.cantidad }} U</td>
+                                        <td class="text-center font-weight-bolder" :class="o.estado_insumo == 1 ? 'text-primary' : 'text-danger'">
+                                            {{ o.estado_insumo == 1 ? 'Consumido': 'Cancelado' }}
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                    <hr>
+
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <ul class="pagination pagination-split">
+                                <li><a href="#">TRAGOS CHICA ROOSTERS</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="row ">
+                        <div class="col-md-12 profile_details" width="100%" height="100%">
+                            <table id="tblTragoChicas" class="table responsive table-sm table-bordered table-striped" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Correlativo</th>
+                                        <th class="text-center">Descripcion</th>
+                                        <th class="text-center">Precio</th>
+                                        <th class="text-center">Cantidades</th>
+                                        <th class="text-center">Chica</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(t, index) in tragoChicas" :key="index">
+                                        <td class="text-center fw-bold">{{ t.correlativo }}</td>
+                                        <td class="text-center fw-bold">{{ t.materia_prima }}</td>
+                                        <td class="text-center fw-bold">Q{{t.precio}}.00 </td>
+                                        <td class="text-center fw-bold">{{t.cantidad}} U</td>
+                                        <td class="text-center fw-bold">{{ t.nombre_mesera }}</td>
+
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-12 text-center">
                             <ul class="pagination pagination-split">
@@ -74,7 +112,7 @@
                                 <div class="col-12"><small class="text-muted">FINAL: </small>
                                     <h5><strong>{{ datosCliente.fecha_final || 'Orden en proceso' }}</strong></h5>
                                 </div>
-                                <div class="col-12"><small class="text-muted">TOTAL BRUTO: </small>
+                                <div class="col-12"><small class="text-muted">TOTAL CONSUMIDO: </small>
                                     <h5><strong>{{ totalConsumido || 'Orden en proceso' }}</strong></h5>
                                 </div>
                                 <div class="col-12"><small class="text-muted">TOTAL NETO: </small>
@@ -103,6 +141,9 @@
                                 </div>
                                 <div class="col-12"><small class="text-muted">Local: </small>
                                     <h5><strong>{{ datosCliente.locales || 'Orden en proceso' }}</strong></h5>
+                                </div>
+                                <div class="col-12"><small class="text-muted">Total Tragos: </small>
+                                    <h5><strong>{{ totalTragos }}</strong></h5>
                                 </div>
                             </div>
                         </div>

@@ -6,7 +6,7 @@
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
             </div>
             <div class="modal-body">
-                <div v-if="tipoModal != 3">
+                <div v-if="tipoModal != 3 && tipoModal != 4">
                     <?php include 'datosMesa.php'; ?>
                     <div class="x_title">
                         <div class="clearfix"></div>
@@ -59,7 +59,7 @@
                     </div>
                 </div>
 
-                <div v-if="tipoModal == 1 || tipoModal == 3">
+                <div v-if="tipoModal == 1 || tipoModal == 3 ||  tipoModal == 4">
                     <div class="form-row">
                         <div class="col-12">
                             <div class="x_title">
@@ -73,9 +73,9 @@
                                 <select id="tipoSeleccion" class="form-control btn-xs" v-model="seleccionComidas">
                                     <option></option>
                                     <option value="1">Materia Prima</option>
-                                    <option value="2">Cubetazo</option>
-                                    <option value="3">Combo</option>
-                                    <option value="4">Alimentos</option>
+                                    <option value="2" v-if="tipoModal != 4">Cubetazo</option>
+                                    <option value="3" v-if="tipoModal != 4">Combo</option>
+                                    <option value="4" v-if="tipoModal != 4">Alimentos</option>
                                 </select>
                             </div>
                             <div class="col-4" v-if="seleccionComidas == 1">
@@ -104,7 +104,7 @@
                                     <listado-alimentos :tipo="1" :modal="idModal" :evento="evento"></listado-alimentos>
                                 </div>
                             </div>
-                            <div v-if="validarEquivalencia">
+                            <div v-if="validarEquivalencia && tipoModal != 4">
                                 <div class="col">
                                     <label for="cantidades">Equivalencia</label>
                                     <br>
@@ -131,13 +131,12 @@
                                     <i class="fa-solid fa-circle-plus"></i>
                                 </button>
                             </div>
-
+                            <div class="col-12 mt-1">
+                                <listado-empleados :tipo="2" :modal="idModal" :evento="evento"></listado-empleados>
+                            </div>
                         </div>
-                        <div class="row">
-                            <listado-empleados :tipo="2" :modal="idModal" :evento="evento"></listado-empleados>
 
-                        </div>
-                        <div class="col-12">
+                        <div class="col-12" v-if="tipoModal != 4">
                             <div class="card-body card-body-slide" width="100%" height="100%">
                                 <table id="tblInsumos" class="table responsive table-sm table-bordered table-striped" width="100%">
                                     <thead>
@@ -183,10 +182,43 @@
 
                             </div>
                         </div>
+                        <div class="col-12 " v-if="tipoModal == 4">
+                            <div class="card-body card-body-slide" width="100%" height="100%">
+
+                                <table id="tblTragoChicas" class="table responsive table-sm table-bordered table-striped" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">Correlativo</th>
+                                            <th class="text-center">Descripcion</th>
+                                            <th class="text-center">Precio</th>
+                                            <th class="text-center">Cantidades</th>
+                                            <th class="text-center">Chica</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(t, index) in tragoChicas" :key="index">
+                                            <td class="text-center fw-bold">{{ t.correlativo }}</td>
+                                            <td class="text-center fw-bold">{{ t.materia_prima }}</td>
+                                            <td class="text-center fw-bold">
+                                                <input type="number" class="form-control form-control-sm" v-model="t.precio ">
+                                            </td>
+                                            <td class="text-center fw-bold">
+                                                <input type="number" class="form-control form-control-sm" v-model="t.cantidad ">
+                                            </td>
+                                            <td class="text-center fw-bold">{{ t.nombre_mesera }}</td>
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" :style="{ width: progreso + '%' }" aria-valuenow="progreso" aria-valuemin="0" aria-valuemax="100">{{ progreso }}%</div>
+                                </div>
+                            </div>
+                        </div>
                         <input type="hidden" id="precio" class="btn btn-outline-primary form-control btn-xs" v-model="precio" />
 
                         <div class="col">
-                            <div v-if="tipoModal != 3">
+                            <div v-if="tipoModal != 3 && tipoModal != 4">
                                 <label for="descripcion">Descripción</label>
                                 <div class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
                                     <textarea class="form-control" id="descripcion" rows="3" v-model="descripcion"></textarea>
@@ -236,10 +268,13 @@
                 </div>
                 <div v-if="tipoModal == 2">
                     <button type="button" class="btn btn-primary btn-xs" :disabled="!camposCompletos2" @click="finalizarMesa()">Finalizar Orden<i class="fa-solid fa-octagon-plus ml-1"></i></button>
-                    <button type="button" class="btn btn-success btn-xs"  @click="finalizarMesa()">Consumidor Final<i class="fa-solid fa-octagon-plus ml-1"></i></button>
+                    <button type="button" class="btn btn-success btn-xs" @click="finalizarMesa()">Consumidor Final<i class="fa-solid fa-octagon-plus ml-1"></i></button>
                 </div>
                 <div v-if="tipoModal == 3">
                     <button type="button" class="btn btn-primary btn-xs" :disabled="!camposCompletos4" @click="actualizarMesa()">Actualizar Orden <i class="fa-solid fa-pen-to-square"></i></button>
+                </div>
+                <div v-if="tipoModal == 4">
+                    <button type="button" class="btn btn-primary btn-xs" @click="actualizarTragos()">Actualizar Tragos <i class="fa-solid fa-glass"></i></button>
                 </div>
             </div>
         </div>
