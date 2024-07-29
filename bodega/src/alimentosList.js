@@ -1,5 +1,5 @@
 const EventBus = new Vue();
-const LitadoLocales = httpVueLoader('./componentes/ListadoLocales.vue');
+const LitadoLocales = httpVueLoader('./componentes/listadoLocales.vue');
 
 let bodegaList = new Vue({
     el: '#appAlimentos',

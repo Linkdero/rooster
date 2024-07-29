@@ -166,6 +166,15 @@
                                     <h5><strong>{{ propina || 'Orden en proceso' }}</strong></h5>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-12"><small class="text-muted">VALIDAR PROPINA:</small>
+                                    <br>
+                                    <label class="switch">
+                                        <input class="danger" type="checkbox" v-model="validarPropina">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
                             <hr>
                             <div class="row">
                                 <form class="form-inline">

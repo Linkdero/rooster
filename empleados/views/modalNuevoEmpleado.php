@@ -47,7 +47,7 @@
                                     </div>
                                     <div class="col">
                                         <label class="control-label col-md-3 col-sm-3 ">Local Actual </label>
-                                        <input disabled type="text" class="form-control" v-model="localActual">
+                                        <textarea disabled class="form-control" rows="2" v-model="localActual"></textarea>
                                     </div>
                                 </div>
                             </form>

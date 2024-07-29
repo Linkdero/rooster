@@ -1,4 +1,4 @@
-const LitadoLocales = httpVueLoader('./componentes/ListadoLocales.vue');
+const LitadoLocales = httpVueLoader('./componentes/listadoLocales.vue');
 const LitadoMenus = httpVueLoader('./componentes/listadoMenus.vue');
 const LitadoSubMenus = httpVueLoader('./componentes/listadoSubMenus.vue');
 

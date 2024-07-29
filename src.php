@@ -10,8 +10,7 @@
   <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/761/761777.png" type="image/ico" />
 
   <title>Rooster´s!!</title>
-
-  <!-- Bootstrap -->
+ <!-- Bootstrap -->
   <link href="vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Font Awesome -->
   <link href="vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
@@ -90,4 +89,3 @@
 
 <!-- Enlace a Bootstrap Toggle JS (puedes usar el CDN o descargarlo) -->
 <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
-

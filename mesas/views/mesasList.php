@@ -31,8 +31,8 @@
         </div>
     </div>
     <iframe id="pdf_preview_v" hidden></iframe>
+    <modal-mesas :evento="evento" :key="key" :mesa="idMesaSeleccionada" :tipo="idTipo"> </modal-mesas>
 
-    <?php include 'modalMesas.php';
-    include 'modalNuevaMesa.php'; ?>
+    <?php include 'modalNuevaMesa.php'; ?>
 </div>
 <script type="module" src="./mesas/src/mesasList.js"> </script>

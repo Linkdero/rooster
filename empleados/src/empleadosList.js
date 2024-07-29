@@ -1,5 +1,5 @@
 const ListadoPlazas = httpVueLoader('./componentes/listadoPlazas.vue');
-const LitadoLocales = httpVueLoader('./componentes/ListadoLocales.vue');
+const LitadoLocales = httpVueLoader('./componentes/listadoLocales.vue');
 
 const EventBus = new Vue();
 let mesasList = new Vue({
@@ -58,13 +58,6 @@ let mesasList = new Vue({
         });
         this.cargarTablaEmpleados();
         this.baseTables();
-    },
-    watch: {
-        tipoModal(valor) {
-            if (valor == 2) {
-                this.cargarInformacionEmpleado()
-            }
-        }
     },
 
     methods: {
@@ -293,6 +286,7 @@ let mesasList = new Vue({
                 let id = $(this).data('id');
                 that.tipoModal = 2
                 that.idEmpleado = id
+                that.cargarInformacionEmpleado()
                 $("#setNuevoEmpleado").modal("show")
             });
 

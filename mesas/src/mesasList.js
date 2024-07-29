@@ -6,6 +6,7 @@ const ListadoEmpleados = httpVueLoader('./componentes/listadoEmpleados.vue');
 const LitadoLocales = httpVueLoader('./componentes/listadoLocales.vue');
 const ListadoEquivalencias = httpVueLoader('./componentes/listadoEquivalencias.vue');
 const ListadoAlimentos = httpVueLoader('./componentes/listadoAlimentos.vue');
+const ModalMesas = httpVueLoader('./mesas/src/components/modalMesas.vue');
 
 const EventBus = new Vue();
 
@@ -47,10 +48,13 @@ let mesasList = new Vue({
         idAlimento: '',
         Toast: '',
         tragoChicas: '',
-        idOrden: ''
+        idOrden: '',
+        idMesaSeleccionada: '',
+        key: 0,
+        idTipo: 0
     },
     mounted: function () {
-        this.idModal = this.$refs.idModal.id;
+        // this.idModal = this.$refs.idModal.id;
         this.evento = EventBus;
         this.idLocalSesion = $("#local").val();
         if (this.idLocalSesion != 3) {
@@ -104,6 +108,7 @@ let mesasList = new Vue({
         'listado-locales': LitadoLocales,
         'listado-equivalencias': ListadoEquivalencias,
         'listado-alimentos': ListadoAlimentos,
+        'modal-mesas': ModalMesas
     },
     watch: {
         selectComida(newValue) {
@@ -163,7 +168,7 @@ let mesasList = new Vue({
                 }
             });
             if (estado == 1) {
-                $("#setMesasModal").modal("show")
+                // $("#setMesasModal").modal("show")
                 this.tipoModal = 1
             } else if (estado == 2) {
                 $("#setMesasModal").modal("show")
@@ -419,6 +424,14 @@ let mesasList = new Vue({
             }
             $('#tblmesaList').on('click', '.badge-success', function () {
                 let id = $(this).data('id');
+                that.idMesaSeleccionada = id;
+                that.idTipo = 1
+                that.key++;
+
+                setTimeout(() => {
+                    that.evento.$emit('iniciar-modal-mesas');
+                }, 100);
+
                 that.setMesa(id, 1);
                 that.validarNombre = true
                 that.nombreCliente = ''
@@ -788,7 +801,7 @@ let mesasList = new Vue({
                         this.evento.$emit('cambiar-insumos', this.idLocal);
                         this.evento.$emit('cambiar-empleado', this.idLocal);
                         this.evento.$emit('cambiar-alimentos', this.idLocal);
-                    }, 100);
+                    }, 500);
                 });
             }, 100);
         },

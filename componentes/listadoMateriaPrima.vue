@@ -12,25 +12,23 @@
 
 <script>
 module.exports = {
-    props: ['tipo', 'modal', 'evento'], // Aquí defines el prop miProp
+    props: ['tipo', 'modal', 'evento', 'local'],
 
     data: function () {
         return {
             materiasPrimas: '',
         }
     },
-    mounted: function () {
+    mounted() {
         if (this.tipo == 1) {
-            this.evento.$on('cambiar-materia-prima', (nuevoValor) => {
-                this.getMateriasPrimas(nuevoValor)
-            });
+            this.getMateriasPrimas(this.local)
         } else {
             this.getMateriasPrimas(3);
         }
 
     },
     methods: {
-        getMateriasPrimas: function (id) {
+        getMateriasPrimas(id) {
             axios.get(`bodega/model/bodegaList.php`, {
                 params: {
                     opcion: 1,
@@ -47,7 +45,6 @@ module.exports = {
                     placeholder: 'Menú',
                     allowClear: true,
                     width: '100%',
-                    dropdownParent: $('#' + this.modal + ''),
                 });
                 // Agrega un evento 'change' al select
                 $('#materiasPrimas').on('change', (event) => {

@@ -1,5 +1,5 @@
 const ListadoMedidas = httpVueLoader('./componentes/listadoMedidas.vue');
-const LitadoLocales = httpVueLoader('./componentes/ListadoLocales.vue');
+const LitadoLocales = httpVueLoader('./componentes/listadoLocales.vue');
 const ListadoMateriasPrimas = httpVueLoader('./componentes/listadoMateriaPrima.vue');
 // const ListadoPrecios = httpVueLoader('./componentes/listadoPrecios.vue');
 const EventBus = new Vue();

@@ -1,6 +1,6 @@
 const ListadoComidas = httpVueLoader('./componentes/listadoComidas.vue'); // Asegúrate de proporcionar la ruta correcta
 const ListadoMateriasPrimas = httpVueLoader('./componentes/listadoMateriaPrima.vue');
-const LitadoLocales = httpVueLoader('./componentes/ListadoLocales.vue');
+const LitadoLocales = httpVueLoader('./componentes/listadoLocales.vue');
 
 const EventBus = new Vue();
 

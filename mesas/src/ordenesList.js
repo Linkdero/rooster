@@ -44,7 +44,8 @@ let ordenesList = new Vue({
         totalFinal: 0,
         totalNeto: 0,
         tragoChicas: '',
-        totalTragos: ''
+        totalTragos: '',
+        validarPropina: ''
     },
     mounted: function () {
         this.idModal = this.$refs.idModal.id;
@@ -349,9 +350,9 @@ let ordenesList = new Vue({
             $('#tblOrdenes').on('click', '.detalle', function () {
                 let id = $(this).data('id');
                 console.log(id)
-                $("#getOrdenDetalle").modal("show")
                 that.idOrden = id
                 that.getDetalleOrden(that.idOrden)
+                $("#getOrdenDetalle").modal("show")
             });
         },
         obtenerHoras() {
@@ -383,8 +384,10 @@ let ordenesList = new Vue({
                     id: id
                 }
             }).then(response => {
-                console.log(response.data)
+                                console.log(response.data)
                 this.tragoChicas = response.data;
+
+          
             }).catch(error => {
                 console.error(error);
             });
@@ -411,7 +414,7 @@ let ordenesList = new Vue({
 
                 let datos = this.ordenDetalle[0];
                 console.log(datos);
-                this.propina = (datos.total * 0.15);
+                this.propina = (this.totalTragos+datos.total) * 0.15;
                 this.totalConsumido = (datos.total * 1);
                 this.totalNeto = parseInt(this.totalTragos) + parseInt(this.totalConsumido);
                 this.totalFinal = parseInt(this.totalConsumido) + parseInt(this.propina) + parseInt(this.totalTragos)

@@ -12,24 +12,23 @@
 <script>
 
 module.exports = {
-    props: ['tipo', 'modal', 'evento'], // Aquí defines el prop miProp
+    props: ['tipo', 'evento', 'local'], 
 
     data: function () {
         return {
             empleados: '',
         }
     },
-    mounted: function () {
+    mounted() {
+        alert(this.tipo)
         if (this.tipo == 2) {
-            this.evento.$on('cambiar-empleado', (nuevoValor) => {
-                this.getEmpleados(nuevoValor)
-            });
+            this.getEmpleados(this.local)
         } else {
             this.getEmpleados(3);
         }
     },
     methods: {
-        getEmpleados: function (local) {
+        getEmpleados(local) {
             axios.get(`componentes/model/empleadosList.php`, {
                 params: {
                     opcion: 1,
@@ -44,7 +43,6 @@ module.exports = {
                     placeholder: 'Empleados',
                     allowClear: true,
                     width: '100%',
-                    dropdownParent: $('#' + this.modal + ''),
                 });
                 // Agrega un evento 'change' al select
                 $('#empleados').on('change', (event) => {
