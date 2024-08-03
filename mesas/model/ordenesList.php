@@ -227,7 +227,7 @@ class Orden
     }
     static function obtenerOrden()
     {
-        $idOrden = $_GET["id"];
+        $idMesa = $_GET["id"];
         $db = new Database();
         $pdo = $db->connect();
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -238,9 +238,9 @@ class Orden
 
         $p = $pdo->prepare($sql);
 
-        $p->execute(array($idOrden, 4));
-        $orden = $p->fetch();
-        $idOrden = $orden["id_orden"];
+        $p->execute(array($idMesa, 4));
+        $idOrden = $p->fetch();
+        $idOrden = $idOrden["id_orden"];
         echo $idOrden;
         return $idOrden;
     }

@@ -17,60 +17,8 @@
                     </div>
 
                     <div v-if="tipo == 3">
-                        <div class="row">
-                            <div class="col-md-12 profile_details">
-                                <table id="tblOrdenDetalle"
-                                    class="table responsive table-sm table-bordered table-striped" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th class="text-center">Num.Insumo</th>
-                                            <th class="text-center">Tipo Insumo</th>
-                                            <th class="text-center">Descripcion</th>
-                                            <th class="text-center">Precio</th>
-                                            <th class="text-center">Cantidades</th>
-                                            <th class="text-center">Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(o, index) in ordenDetalle" :key="index">
-                                            <td class="text-center fw-bold"
-                                                :class="o.estado_insumo == 0 ? 'text-danger' : 'text-primary'">
-                                                {{ o.reg_num }}</td>
-                                            <td class="text-center fw-bold"
-                                                :class="o.estado_insumo == 0 ? 'text-danger' : 'text-primary'">
-                                                {{ o.tipo_producto }}</td>
-                                            <td class="text-center fw-bold"
-                                                :class="o.estado_insumo == 0 ? 'text-danger' : 'text-primary'">
-                                                <div v-if="o.descripcion == null">
-                                                    {{ o.nombre_equivalencia }}
-                                                </div>
-                                                <div v-else>
-                                                    {{ o.descripcion }}
-                                                </div>
-                                            </td>
-                                            <td class="text-center fw-bold"
-                                                :class="o.estado_insumo == 0 ? 'text-danger' : 'text-primary'">
-                                                <div v-if="o.precio == null">
-                                                    Q{{ o.precio_equivalencia }}.00
-                                                </div>
-                                                <div v-else>
-                                                    Q{{ o.precio }}.00
-                                                </div>
-                                            </td>
-                                            <td class="text-center fw-bold"
-                                                :class="o.estado_insumo == 0 ? 'text-danger' : 'text-primary'">{{
-                        o.cantidad }} U</td>
-                                            <td class="text-center">
-                                                <button type="button" class="btn-sm"
-                                                    :class="o.estado_insumo == 0 ? 'btn btn-outline-primary' : 'btn btn-outline-danger'"
-                                                    @click="setActualizarEstadoInsumo(o.estado_insumo, o.id_producto, o.id_tipo, o.id_orden)">
-                                                    {{ o.estado_insumo == 0 ? 'Activar' : 'Cancelar' }} </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                        <orden-detalle-insumos :tipo="1" :evento="evento" :mesa="mesa"
+                            :key="key"></orden-detalle-insumos>
                     </div>
 
                     <div v-if="tipo == 1 || tipo == 3 || tipo == 4">
@@ -99,11 +47,10 @@
                                 <listado-combos v-if="seleccionComidas == 3" :tipo="2" :local="idLocal"
                                     :evento="evento"></listado-combos>
 
-
                                 <listado-alimentos v-if="seleccionComidas == 4" :tipo="1" :local="idLocal"
                                     :evento="evento"></listado-alimentos>
 
-                                <div v-if="(validarEquivalencia !=0)  && tipo != 4">
+                                <div v-if="(validarEquivalencia != 0) && tipo != 4">
                                     <div class="col">
                                         <label for="cantidades">Equivalencia</label>
                                         <br>

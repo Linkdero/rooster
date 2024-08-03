@@ -12,7 +12,7 @@
 
 <script>
 module.exports = {
-    props: ['tipo', 'evento', 'local'],
+    props: ['tipo', 'evento', 'local','modal'],
 
     data: function () {
         return {
@@ -45,6 +45,7 @@ module.exports = {
                     placeholder: 'Menú',
                     allowClear: true,
                     width: '100%',
+                    dropdownParent: $('#' + this.modal + ''),
                 });
                 // Agrega un evento 'change' al select
                 $('#materiasPrimas').on('change', (event) => {

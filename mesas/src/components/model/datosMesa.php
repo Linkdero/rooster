@@ -17,14 +17,14 @@ class DatosMesa
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Construir la consulta SQL
-        $sql = "SELECT nro_mesa, referencia, fecha_inicio, nom_cliente,id_local
+        $sql = "SELECT nro_mesa,o.id_orden, referencia, DATE_FORMAT(fecha_inicio, '%H:%i') AS fecha_inicio, nom_cliente, id_local
                 FROM tb_mesa AS m
                 LEFT OUTER JOIN (SELECT id_orden, id_mesa, fecha_inicio
                     FROM tb_orden
                     WHERE id_estado = 4) AS o ON m.id_mesa = o.id_mesa
                 LEFT OUTER JOIN (SELECT id_orden, nom_cliente
                     FROM tb_cliente) AS c ON o.id_orden = c.id_orden
-                WHERE m.id_mesa = ?";
+                WHERE m.id_mesa = ?;";
 
         $p = $pdo->prepare($sql);
         $p->execute([$mesa]);

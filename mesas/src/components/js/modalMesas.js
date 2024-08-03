@@ -1,4 +1,3 @@
-
 const DatosMesa = httpVueLoader('./datosMesa.vue');
 const TipoSeleccion = httpVueLoader('./tipoSeleccion.vue');
 const ListadoMateriasPrimas = httpVueLoader('../../../componentes/listadoMateriaPrima.vue');
@@ -8,9 +7,10 @@ const ListadoInsumos = httpVueLoader('../../../componentes/listadoInsumos.vue');
 const ListadoComidas = httpVueLoader('../../../componentes/listadoComidas.vue'); // Asegúrate de proporcionar la ruta correcta
 const ListadoAlimentos = httpVueLoader('../../../componentes/listadoAlimentos.vue');
 const ListadoCombos = httpVueLoader('../../../componentes/listadoCombos.vue');
+const OrdenDetalleInsumos = httpVueLoader('./ordenDetalleInsumos.vue');
 
 module.exports = {
-    props: ['tipo', 'modal', 'evento', 'mesa', 'tipo'], // Aquí defines el prop miProp
+    props: ['tipo', 'modal', 'evento', 'mesa'], // Aquí defines el prop miProp
 
     data: function () {
         return {
@@ -29,12 +29,30 @@ module.exports = {
             progreso: 0,
             idLocal: 0,
             idMateriaPrima: '',
-            equivalenciaSeleccionada: ''
+            equivalenciaSeleccionada: '',
+            tragoChicas: [],
+            idOrden: ''
         }
     },
 
     mounted() {
         this.idModal = this.$refs.idModal.id;
+
+        if (this.tipo == 3 || this.tipo == 4)
+            this.getObtenerDatosMesa()
+
+        this.Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        })
+
         this.evento.$on('iniciar-modal-mesas', () => {
             $("#setMesasModal").modal("show");
         });
@@ -44,7 +62,7 @@ module.exports = {
         this.evento.$on('tipo-selección', (valor) => {
             this.seleccionComidas = valor
         });
-        this.evento.$on('datos-mesa-seleccionada', (valorLocal,valorNroMesa) => {
+        this.evento.$on('datos-mesa-seleccionada', (valorLocal, valorNroMesa) => {
             this.idLocal = valorLocal
             this.nroMesa = valorNroMesa
         });
@@ -66,6 +84,9 @@ module.exports = {
         this.evento.$on('id-empleado', (valor) => {
             this.idEmpleado = valor
         });
+        this.evento.$on('recargar-orden-detalle', () => {
+            this.key++
+        });
     },
     watch: {
         seleccionComidas(valor) {
@@ -73,6 +94,10 @@ module.exports = {
                 this.validarEquivalencia = false
                 this.estadoEquivalencia = false
             }
+        },
+        idOrden(o) {
+            if (this.tipo == 4)
+                this.getTragosChicas()
         }
     },
     computed: {
@@ -107,6 +132,7 @@ module.exports = {
         'listado-insumos': ListadoInsumos,
         'listado-combos': ListadoCombos,
         'listado-alimentos': ListadoAlimentos,
+        'orden-detalle-insumos': OrdenDetalleInsumos
 
     },
     methods: {
@@ -148,7 +174,7 @@ module.exports = {
                 return;
             }
 
-            if (this.tipoModal != 4) {
+            if (this.tipo != 4) {
                 // Verifica si el insumo ya está en la lista
                 insumoExistente = this.filasInsumos.find(fila =>
                     fila.idInsumo === idInsumo &&
@@ -184,7 +210,7 @@ module.exports = {
                         confirmButtonText: 'Aceptar'
                     });
                 }
-            } else if (this.tipoModal == 4) {
+            } else if (this.tipo == 4) {
                 let nombreMesera = $('#empleados option:selected').text();
                 // Verifica si el insumo ya está en la lista
                 let insumoExistente = this.tragoChicas.find(fila =>
@@ -226,7 +252,7 @@ module.exports = {
             this.filasInsumos.splice(index, 1);
             this.progreso -= 5; // Aumenta en un 10% cada vez que se agrega una fila
         },
-        generarOrden () {
+        generarOrden() {
             Swal.fire({
                 title: '¿Desea iniciar una nueva orden?',
                 text: `¡Se iniciara la orden con la mesa ${this.nroMesa}!`,
@@ -282,5 +308,155 @@ module.exports = {
                 }
             })
         },
+        actualizarMesa() {
+            Swal.fire({
+                title: `Actualizar orden de la mesa: #${this.nroMesa}`,
+                text: "¡Se actualizara la orden!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '¡Si, actualizar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var formData = new FormData();
+                    formData.append('opcion', 7);
+                    formData.append('filasInsumos', JSON.stringify(this.filasInsumos));
+                    formData.append('mesa', this.mesa);
+                    axios.post('mesas/model/mesasList.php', formData)
+                        .then(response => {
+                            console.log(response.data);
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.data.msg,
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                            this.key++
+                            this.filasInsumos = []
+                            this.progreso = 0
+                        })
+                        .catch(error => {
+                            console.error(error);
+                        });
+                }
+            })
+        },
+        getObtenerDatosMesa() {
+            axios.get(`mesas/src/components/model/datosMesa.php`, {
+                params: {
+                    opcion: 1,
+                    mesa: this.mesa,
+                }
+            }).then(response => {
+                console.log(response.data)
+                this.idLocal = response.data.id_local
+                this.nroMesa = response.data.nro_mesa
+                this.idOrden = response.data.id_orden
+            }).catch(error => {
+                console.error(error);
+            });
+        },
+        finalizarMesa() {
+            Swal.fire({
+                title: `¿Finalizar orden de la mesa: #${this.nroMesa}`,
+                text: "¡Se finalizara la orden y el consumo se dara por concluido!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '¡Si, finalizar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    axios.get(`mesas/model/mesasList.php`, {
+                            params: {
+                                opcion: 5,
+                                id: this.mesa,
+                                nit: this.nitCliente,
+                                direccion: this.direccionCliente,
+                                observacion: this.descripcion,
+                            }
+                        }).then(response => {
+                            console.log(response.data)
+                            if (response.data.id == 1) {
+
+                                this.Toast.fire({
+                                    icon: 'success',
+                                    title: response.data.msg
+                                });
+                                $("#setMesasModal").modal("hide")
+                                this.evento.$emit('reiniciar-valores');
+                            } else {
+                                this.Toast.fire({
+                                    icon: 'error',
+                                    title: response.data.msg
+                                })
+                                return
+                            }
+                        })
+                        .catch(error => {
+                            console.error(error);
+                        });
+
+                }
+            })
+        },
+        actualizarTragos: function () {
+            Swal.fire({
+                title: '¿Actualizar Tragos?',
+                text: "¡Se agregaran tragos a las chicas!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '¡Si, Actualizar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Crear un objeto FormData para enviar los datos al servidor
+                    var formData = new FormData();
+                    var tragos = JSON.stringify(this.tragoChicas);
+                    formData.append('opcion', 8);
+                    formData.append('tragos', tragos);
+                    formData.append('orden', this.idOrden);
+
+                    // Realizar la solicitud POST al servidor
+                    axios.post('mesas/model/ordenesList.php', formData)
+                        .then(response => {
+                            console.log(response.data);
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.data.msg,
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                            $("#setMesasModal").modal("hide")
+                        })
+                        .catch(error => {
+                            console.error(error);
+                        });
+                }
+            });
+        },
+        actualizarPrecioTotal(index) {
+            let fila = this.filasInsumos[index];
+            fila.precioTotal = fila.precioInsumo * fila.cantidad;
+        },
+        getTragosChicas() {
+            axios.get(`mesas/model/ordenesList.php`, {
+                params: {
+                    opcion: 7,
+                    id: this.idOrden
+                }
+            }).then(response => {
+                console.log(response.data)
+                this.tragoChicas = response.data;
+            }).catch(error => {
+                console.error(error);
+            });
+        }
     }
 }
