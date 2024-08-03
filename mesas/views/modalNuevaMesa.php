@@ -33,7 +33,7 @@
             <div class="modal-footer" style="margin-bottom: -1rem;">
                 <button type="button" class="btn btn-danger btn-xs" data-dismiss="modal">Cerrar <i
                         class="fa-solid fa-circle-xmark ml-1"></i></button>
-                <button type="button" class="btn btn-primary btn-xs" :disabled="!camposCompletos3"
+                <button type="button" class="btn btn-primary btn-xs" :disabled="!camposCompletos"
                     @click="setNuevaMedida()">Generar Mesa <i class="fa-solid fa-octagon-plus ml-1"></i></button>
             </div>
         </div>

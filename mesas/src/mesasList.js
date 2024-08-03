@@ -1,4 +1,5 @@
 const ModalMesas = httpVueLoader('./mesas/src/components/modalMesas.vue');
+const LitadoLocales = httpVueLoader('./componentes/listadoLocales.vue');
 
 const EventBus = new Vue();
 
@@ -52,6 +53,9 @@ let mesasList = new Vue({
         if (this.idLocalSesion != 3) {
             this.idLocal = $("#local").val();
         }
+        this.evento.$on('cambiar-local', (nuevoValor) => {
+            this.idLocal = nuevoValor
+        });
         this.evento.$on('reiniciar-valores', () => {
             this.cargarTablaMesas();
             this.key++
@@ -71,9 +75,16 @@ let mesasList = new Vue({
         this.baseTables();
     },
     components: {
-        'modal-mesas': ModalMesas
-    },
+        'modal-mesas': ModalMesas,
+        'listado-locales': LitadoLocales,
 
+    },
+    computed: {
+        camposCompletos() {
+            return (
+                this.descripcion.trim() !== '');
+        },
+    },
     methods: {
         setMesa: function (id, estado) {
             // Obtener la hora actual en el formato HH:mm
@@ -381,6 +392,43 @@ let mesasList = new Vue({
 
         modalNuevaMesa() {
             $("#setNuevaMesa").modal("show")
+        },
+        setNuevaMedida: function () {
+            Swal.fire({
+                title: '¿Generar Nueva Mesa?',
+                text: "Se agregara una mesa al Sistema!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '¡Si, Generar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Crear un objeto FormData para enviar los datos al servidor
+                    var formData = new FormData();
+                    formData.append('opcion', 6);
+                    formData.append('descripcion', this.descripcion);
+                    formData.append('id', this.idLocal);
+                    // Realizar la solicitud POST al servidor
+                    axios.post('./mesas/model/mesasList.php', formData)
+                        .then(response => {
+                            console.log(response.data);
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.data.msg,
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                            $("#setNuevaMesa").modal("hide")
+                            this.cargarTablaMesas()
+                            this.descripcion = ''
+                        })
+                        .catch(error => {
+                            console.error(error);
+                        });
+                }
+            });
         },
     }
 });

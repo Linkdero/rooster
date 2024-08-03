@@ -106,10 +106,10 @@ module.exports = {
                 this.filasInsumos !== ''
             );
         },
-        camposCompletos3() {
-            return (
-                this.descripcion !== '');
-        },
+        // camposCompletos3() {
+        //     return (
+        //         this.descripcion !== '');
+        // },
         camposCompletos2() {
             return (
                 this.nitCliente !== '' && this.direccionCliente !== '');
