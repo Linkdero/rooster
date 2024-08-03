@@ -70,7 +70,7 @@ module.exports = {
     },
     methods: {
         getDatosMesa() {
-            axios.get(`mesas/src/components/datosMesa.php`, {
+            axios.get(`mesas/src/components/model/datosMesa.php`, {
                 params: {
                     opcion: 1,
                     mesa: this.mesa,
@@ -89,8 +89,7 @@ module.exports = {
 
                 this.datosMesa.nom_cliente == null ? this.validarNombre = false : this.validarNombre = true;
                 this.datosMesa.fecha_inicio == null ? this.horaActual = formattedTime : this.horaActual = this.datosMesa.fecha_inicio;
-                this.evento.$emit('local', this.datosMesa.id_local);
-
+                this.evento.$emit('datos-mesa-seleccionada', this.datosMesa.id_local, this.datosMesa.nro_mesa);
             }).catch(error => {
                 console.error(error);
             });

@@ -3,11 +3,7 @@
     <label for="equivalencias">Equivalencias</label>
     <select id="equivalencias" class="form-control btn-xs">
       <option></option>
-      <option
-        v-for="equivalencia in equivalencias"
-        :key="equivalencia.id"
-        :value="equivalencia.id"
-      >
+      <option v-for="equivalencia in equivalencias" :key="equivalencia.id" :value="equivalencia.id">
         {{ equivalencia.nombre }}
       </option>
     </select>
@@ -15,20 +11,20 @@
 </template>
 <script>
 module.exports = {
-  props: ["tipo", "modal", "evento"], // Aquí defines el prop miProp
+  props: ["tipo", "local", "evento", "materiaPrima"], // Aquí defines el prop miProp
 
   data: function () {
     return {
       equivalencias: "",
     };
   },
-  mounted: function () {
+  mounted() {
     this.evento.$on("cargar-equivalencias", (nuevoValor) => {
       this.getEquivalencias(nuevoValor);
     });
   },
   methods: {
-    getEquivalencias: function (materiaPrima) {
+    getEquivalencias(materiaPrima) {
       axios
         .get(`componentes/model/equivalenciasList.php`, {
           params: {
@@ -45,7 +41,6 @@ module.exports = {
             placeholder: "Equivalencias",
             allowClear: true,
             width: "100%",
-            dropdownParent: $("#" + this.modal + ""),
           });
           // Agrega un evento 'change' al select
           $("#equivalencias").on("change", (event) => {

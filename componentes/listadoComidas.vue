@@ -12,24 +12,22 @@
 <script>
 
 module.exports = {
-    props: ['tipo', 'modal', 'evento'], // Aquí defines el prop miProp
+    props: ['tipo', 'modal', 'evento', 'local'], // Aquí defines el prop miProp
 
     data: function () {
         return {
             comidas: '',
         }
     },
-    mounted: function () {
+    mounted() {
         if (this.tipo == 2) {
-            this.evento.$on('cambiar-insumos', (nuevoValor) => {
-                this.getComidas(nuevoValor)
-            });
+            this.getComidas(this.local)
         } else {
             this.getComidas(3);
         }
     },
     methods: {
-        getComidas: function (id) {
+        getComidas(id) {
             axios.get(`mesas/model/mesasList.php`, {
                 params: {
                     opcion: 2,
@@ -44,7 +42,6 @@ module.exports = {
                     placeholder: 'Comida',
                     allowClear: true,
                     width: '100%',
-                    dropdownParent: $('#' + this.modal + ''),
                 });
                 // Agrega un evento 'change' al select
                 $('#comidas').on('change', (event) => {

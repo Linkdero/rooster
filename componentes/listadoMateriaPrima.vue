@@ -12,7 +12,7 @@
 
 <script>
 module.exports = {
-    props: ['tipo', 'modal', 'evento', 'local'],
+    props: ['tipo', 'evento', 'local'],
 
     data: function () {
         return {

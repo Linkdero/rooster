@@ -13,7 +13,7 @@
 <script>
 
 module.exports = {
-    props: ['tipo', 'modal', 'evento'], // Aquí defines el prop miProp
+    props: ['tipo', 'modal', 'evento', 'local'], // Aquí defines el prop miProp
 
     data: function () {
         return {
@@ -26,16 +26,14 @@ module.exports = {
                 this.getInsumos(nuevoValor)
             });
         } else if (this.tipo == 3) {
-            this.evento.$on('cambiar-insumos-comida', (nuevoValor) => {
-                this.getInsumosComida(nuevoValor)
-            });
+            this.getInsumosComida(this.local)
         } else {
             this.getInsumos(3);
         }
 
     },
     methods: {
-        getInsumos: function (id) {
+        getInsumos(id) {
             axios.get(`insumos/model/comidasList.php`, {
                 params: {
                     opcion: 5,
@@ -50,7 +48,6 @@ module.exports = {
                     placeholder: 'Insumos',
                     allowClear: true,
                     width: '100%',
-                    dropdownParent: $('#' + this.modal + ''),
                 });
                 // Agrega un evento 'change' al select
                 $('#insumos').on('change', (event) => {
@@ -64,7 +61,7 @@ module.exports = {
                 console.error(error);
             });
         },
-        getInsumosComida: function (id) {
+        getInsumosComida(id) {
             axios.get(`componentes/model/insumosList.php`, {
                 params: {
                     opcion: 1,
@@ -79,7 +76,6 @@ module.exports = {
                     placeholder: 'Insumos',
                     allowClear: true,
                     width: '100%',
-                    dropdownParent: $('#' + this.modal + ''),
                 });
                 // Agrega un evento 'change' al select
                 $('#insumos').on('change', (event) => {

@@ -12,24 +12,22 @@
 <script>
 
 module.exports = {
-    props: ['tipo', 'modal', 'evento'], // Aquí defines el prop miProp
+    props: ['tipo', 'local', 'evento'], // Aquí defines el prop miProp
 
     data: function () {
         return {
             combos: '',
         }
     },
-    mounted: function () {
+    mounted() {
         if (this.tipo == 2) {
-            this.evento.$on('cambiar-insumos', (nuevoValor) => {
-                this.getCombos(nuevoValor);
-            });
+            this.getCombos(this.local);
         } else {
             this.getCombos(3);
         }
     },
     methods: {
-        getCombos: function (id) {
+        getCombos(id) {
             axios.get(`insumos/model/combosList.php`, {
                 params: {
                     opcion: 1,
@@ -44,7 +42,6 @@ module.exports = {
                     placeholder: 'Combos',
                     allowClear: true,
                     width: '100%',
-                    dropdownParent: $('#' + this.modal + ''),
                 });
                 // Agrega un evento 'change' al select
                 $('#combos').on('change', (event) => {

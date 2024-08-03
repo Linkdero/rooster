@@ -13,7 +13,7 @@
 <script>
 
 module.exports = {
-    props: ['tipo', 'modal', 'evento'], // Aquí defines el prop miProp
+    props: ['tipo', 'local', 'evento'], // Aquí defines el prop miProp
 
     data: function () {
         return {
@@ -22,9 +22,7 @@ module.exports = {
     },
     mounted: function () {
         if (this.tipo == 1) {
-            this.evento.$on('cambiar-alimentos', (nuevoValor) => {
-                this.getAlimentos(nuevoValor)
-            });
+            this.getAlimentos(this.local)
         } else {
             this.getAlimentos(3);
         }
@@ -48,7 +46,6 @@ module.exports = {
                     placeholder: 'alimento',
                     allowClear: true,
                     width: '100%',
-                    dropdownParent: $('#' + this.modal + ''),
                 });
                 // Agrega un evento 'change' al select
                 $('#alimentos').on('change', (event) => {

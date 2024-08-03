@@ -20,7 +20,6 @@ module.exports = {
         }
     },
     mounted() {
-        alert(this.tipo)
         if (this.tipo == 2) {
             this.getEmpleados(this.local)
         } else {
