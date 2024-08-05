@@ -30,9 +30,7 @@
             </div>
         </div>
     </div>
-    <iframe id="pdf_preview_v" hidden></iframe>
     <modal-mesas :evento="evento" :key="key" :mesa="idMesaSeleccionada" :tipo="idTipo"> </modal-mesas>
-
-    <?php include 'modalNuevaMesa.php'; ?>
+    <modal-nueva-mesa :evento="evento" :key="key" :local="idLocalSesion"> </modal-nueva-mesa>
 </div>
 <script type="module" src="./mesas/src/mesasList.js"> </script>

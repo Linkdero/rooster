@@ -25,7 +25,6 @@ module.exports = {
         } else {
             this.getMateriasPrimas(3);
         }
-
     },
     methods: {
         getMateriasPrimas(id) {

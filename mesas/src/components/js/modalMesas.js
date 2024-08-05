@@ -12,7 +12,7 @@ const OrdenDetalleInsumos = httpVueLoader('./ordenDetalleInsumos.vue');
 module.exports = {
     props: ['tipo', 'modal', 'evento', 'mesa'], // Aquí defines el prop miProp
 
-    data: function () {
+    data() {
         return {
             key: 0,
             nombreCliente: '',
@@ -433,6 +433,7 @@ module.exports = {
                                 showConfirmButton: false,
                                 timer: 1500
                             })
+                            this.evento.$emit('reiniciar-valores');
                             $("#setMesasModal").modal("hide")
                         })
                         .catch(error => {

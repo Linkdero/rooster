@@ -13,18 +13,18 @@
 <script>
 
 module.exports = {
-    props: ['tipo', 'modal', 'evento'], // Aquí defines el prop miProp
+    props: ['tipo', 'evento'], // Aquí defines el prop miProp
 
-    data: function () {
+    data() {
         return {
             locales: '',
         }
     },
-    mounted: function () {
+    mounted() {
         this.getLocales();
     },
     methods: {
-        getLocales: function () {
+        getLocales() {
             axios.get(`componentes/model/localesList.php`, {
                 params: {
                     opcion: 1,
@@ -38,14 +38,12 @@ module.exports = {
                     placeholder: 'Locales',
                     allowClear: true,
                     width: '100%',
-                    // dropdownParent: $('#' + this.modal + ''),
                 });
                 $('#locales').on('change', (event) => {
                     // Obtiene el valor seleccionado
                     const valorSeleccionado = $(event.target).val();
 
                     this.evento.$emit('cambiar-local', valorSeleccionado);
-
                 });
 
             }).catch(error => {

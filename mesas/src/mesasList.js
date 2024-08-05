@@ -1,5 +1,6 @@
 const ModalMesas = httpVueLoader('./mesas/src/components/modalMesas.vue');
 const LitadoLocales = httpVueLoader('./componentes/listadoLocales.vue');
+const ModalNuevaMesa = httpVueLoader('./mesas/src/components/modalNuevaMesa.vue');
 
 const EventBus = new Vue();
 
@@ -46,20 +47,15 @@ let mesasList = new Vue({
         key: 0,
         idTipo: 0
     },
-    mounted: function () {
-        // this.idModal = this.$refs.idModal.id;
+    mounted() {
         this.evento = EventBus;
         this.idLocalSesion = $("#local").val();
-        if (this.idLocalSesion != 3) {
-            this.idLocal = $("#local").val();
-        }
-        this.evento.$on('cambiar-local', (nuevoValor) => {
-            this.idLocal = nuevoValor
-        });
+
         this.evento.$on('reiniciar-valores', () => {
             this.cargarTablaMesas();
             this.key++
         });
+
         this.Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
@@ -77,98 +73,15 @@ let mesasList = new Vue({
     components: {
         'modal-mesas': ModalMesas,
         'listado-locales': LitadoLocales,
+        'modal-nueva-mesa': ModalNuevaMesa,
 
     },
     computed: {
-        camposCompletos() {
-            return (
-                this.descripcion.trim() !== '');
-        },
+
     },
     methods: {
-        setMesa: function (id, estado) {
-            // Obtener la hora actual en el formato HH:mm
-            const now = new Date();
-            const formattedTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
-            // Asignar la hora actual al modelo
-            this.horaActual = formattedTime;
-
-            this.tablaMesasData.forEach(mesa => {
-                if (mesa.id_mesa == id) {
-                    this.nroMesa = mesa.nro_mesa;
-                    this.referenciaMesa = mesa.referencia;
-                    if (this.idLocalSesion == 3) {
-                        this.idLocal = mesa.id_local
-                    }
-                }
-            });
-            if (estado == 1) {
-                // $("#setMesasModal").modal("show")
-                this.tipoModal = 1
-            } else if (estado == 2) {
-                $("#setMesasModal").modal("show")
-                this.tipoModal = 2
-            } else if (estado == 3) {
-                $("#setMesasModal").modal("show")
-                this.tipoModal = 3
-                axios.get(`mesas/model/ordenesList.php`, {
-                    params: {
-                        opcion: 5,
-                        id: id
-                    }
-                }).then(response => {
-                    console.log(response.data)
-                    this.idOrden = response.data
-                    axios.get(`mesas/model/ordenesList.php`, {
-                        params: {
-                            opcion: 3,
-                            id: this.idOrden
-                        }
-                    }).then(response => {
-                        console.log(response.data)
-                        this.ordenDetalle = response.data;
-                    }).catch(error => {
-                        console.error(error);
-                    });
-
-                }).catch(error => {
-                    console.error(error);
-                });
-
-            } else if (estado == 4) {
-                $("#setMesasModal").modal("show")
-                this.tipoModal = 4
-                axios.get(`mesas/model/ordenesList.php`, {
-                    params: {
-                        opcion: 5,
-                        id: id
-                    }
-                }).then(response => {
-                    console.log(response.data)
-                    this.idOrden = response.data
-                    axios.get(`mesas/model/ordenesList.php`, {
-                        params: {
-                            opcion: 7,
-                            id: this.idOrden
-                        }
-                    }).then(response => {
-                        console.log(response.data)
-                        this.tragoChicas = response.data;
-                    }).catch(error => {
-                        console.error(error);
-                    });
-
-                }).catch(error => {
-                    console.error(error);
-                });
-
-            }
-
-            this.idMesa = id
-        },
-
-        cargarTablaMesas: function (id) {
+        cargarTablaMesas(id) {
             let thes = this;
             if (id === false || id === undefined) {
                 id = 1;
@@ -281,7 +194,7 @@ let mesasList = new Vue({
             });
         },
 
-        baseTables: function () {
+        baseTables() {
             let that = this;
             // DataTables Bootstrap integration
             this.bsDataTables = jQuery.fn.dataTable;
@@ -391,49 +304,8 @@ let mesasList = new Vue({
         },
 
         modalNuevaMesa() {
+            this.key++
             $("#setNuevaMesa").modal("show")
         },
-        setNuevaMedida: function () {
-            Swal.fire({
-                title: '¿Generar Nueva Mesa?',
-                text: "Se agregara una mesa al Sistema!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: '¡Si, Generar!',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Crear un objeto FormData para enviar los datos al servidor
-                    var formData = new FormData();
-                    formData.append('opcion', 6);
-                    formData.append('descripcion', this.descripcion);
-                    formData.append('id', this.idLocal);
-                    // Realizar la solicitud POST al servidor
-                    axios.post('./mesas/model/mesasList.php', formData)
-                        .then(response => {
-                            console.log(response.data);
-                            Swal.fire({
-                                icon: 'success',
-                                title: response.data.msg,
-                                showConfirmButton: false,
-                                timer: 1500
-                            })
-                            $("#setNuevaMesa").modal("hide")
-                            this.cargarTablaMesas()
-                            this.descripcion = ''
-                        })
-                        .catch(error => {
-                            console.error(error);
-                        });
-                }
-            });
-        },
     }
-});
-
-$(document).on('click', '[id^="btnImprimir_"]', function () {
-    var data = $(this).attr('id').split('_')[1];
-    parqueoList.imprimirTicket(data);
 });
