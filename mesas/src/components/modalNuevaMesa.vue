@@ -1,5 +1,5 @@
 <template>
-    <div id="setNuevaMesa" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog"
+    <div ref="idModal2" id="setNuevaMesa" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog"
         aria-hidden="true" data-backdrop="static">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -18,10 +18,11 @@
                                 </div>
                             </div>
                             <div class="col">
-                                <label for="descripcion">Referencia</label>
+                                <label for="descripcionMesa">Referencia</label>
                                 <div
                                     class="input-daterange input-group input-group-sm my-auto ml-auto mr-auto ml-sm-auto mr-sm-0">
-                                    <input v-model="descripcion" class="btn btn-outline-primary form-control btn-xs">
+                                    <input v-model="descripcionMesa" type="text" class="input-sm form-control">
+                                    <span class="input-group-text"><i class="fa-solid fa-location-dot"></i></span>
                                 </div>
                             </div>
                             <div v-if="local == 3">

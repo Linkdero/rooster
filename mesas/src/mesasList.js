@@ -119,72 +119,72 @@ let mesasList = new Vue({
                             sProcessing: " <h3 class=''><i class='fa fa-sync fa-spin'></i> Cargando la información, por favor espere</h3> "
                         },
                         "aoColumns": [{
-                                "class": "text-center",
-                                data: 'nro_mesa',
-                                render: function (data, type, row) {
-                                    let encabezado;
-                                    if (row.estado_mesa == 3) {
-                                        encabezado = `
+                            "class": "text-center",
+                            data: 'nro_mesa',
+                            render: function (data, type, row) {
+                                let encabezado;
+                                if (row.estado_mesa == 3) {
+                                    encabezado = `
                                         <button class="btn btn-success btn-xs disponible" type="button" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
                                         </button>`;
-                                        encabezado;
-                                    } else {
-                                        encabezado = `
+                                    encabezado;
+                                } else {
+                                    encabezado = `
                                         <button class="btn btn-danger btn-xs ocupada" data-id="${data}" type="button" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa-sharp fa-solid fa-badge-check"></i> ${data}
                                         </button>
                                         
                                         <a href="#" class="badge badge-info text-white py-1 tragos" data-id="${row.id_mesa}" >Tragos<i class="fa-solid fa-glass ml-1"></i></a>`;
-                                    }
-                                    return encabezado;
-                                },
+                                }
+                                return encabezado;
                             },
-                            {
-                                "class": "text-center",
-                                mData: 'referencia'
+                        },
+                        {
+                            "class": "text-center",
+                            mData: 'referencia'
+                        },
+                        {
+                            "class": "text-center",
+                            mData: 'restaurante'
+                        },
+                        {
+                            "class": "text-center",
+                            data: 'estado_mesa',
+                            render: function (data, type, row) {
+                                if (data == 3) {
+                                    return `<a href="#" class="badge badge-success text-white py-1" data-id="${row.id_mesa}"">${row.estado} <i class="fa-solid fa-check-to-slot mx-1"></i></a>`;
+                                } else {
+                                    return `<a href="#" class="badge badge-danger text-white py-1" data-id="${row.id_mesa}" >${row.estado} <i class="fa-solid fa-street-view mx-1"></i></a>`;
+                                }
                             },
-                            {
-                                "class": "text-center",
-                                mData: 'restaurante'
-                            },
-                            {
-                                "class": "text-center",
-                                data: 'estado_mesa',
-                                render: function (data, type, row) {
-                                    if (data == 3) {
-                                        return `<a href="#" class="badge badge-success text-white py-1" data-id="${row.id_mesa}"">${row.estado} <i class="fa-solid fa-check-to-slot mx-1"></i></a>`;
-                                    } else {
-                                        return `<a href="#" class="badge badge-danger text-white py-1" data-id="${row.id_mesa}" >${row.estado} <i class="fa-solid fa-street-view mx-1"></i></a>`;
-                                    }
-                                },
 
-                            },
+                        },
                         ],
                         buttons: [{
-                                text: 'Todas <i class="fa fa-server" aria-hidden="true"></i>',
-                                className: 'bg-primary text-white btn-xs ',
-                                action: function (e, dt, node, config) {
-                                    thes.tablaMesas.clear().destroy();
-                                    thes.cargarTablaMesas()
-                                }
+                            text: 'Todas <i class="fa fa-server" aria-hidden="true"></i>',
+                            className: 'bg-primary text-white btn-xs ',
+                            action: function (e, dt, node, config) {
+                                thes.tablaMesas.clear().destroy();
+                                thes.cargarTablaMesas()
+                            }
+                        },
+                        {
+                            text: 'Ocupadas <i class="fa-solid fa-circle-xmark"></i>',
+                            className: 'bg-primary text-white btn btn-xs',
+                            action: function (e, dt, node, config) {
+                                thes.tablaMesas.clear().destroy();
+                                thes.cargarTablaMesas(4)
                             },
-                            {
-                                text: 'Ocupadas <i class="fa-solid fa-circle-xmark"></i>',
-                                className: 'bg-primary text-white btn btn-xs',
-                                action: function (e, dt, node, config) {
-                                    thes.tablaMesas.clear().destroy();
-                                    thes.cargarTablaMesas(4)
-                                },
-                            },
-                            {
-                                text: 'Libres <i class="fa fa-check-circle"></i>',
-                                className: 'bg-primary text-white btn btn-xs',
-                                action: function (e, dt, node, config) {
-                                    thes.tablaMesas.clear().destroy();
-                                    thes.cargarTablaMesas(3)
-                                }
-                            },
+                        },
+                        {
+                            text: 'Libres <i class="fa fa-check-circle"></i>',
+                            className: 'bg-primary text-white btn btn-xs',
+                            action: function (e, dt, node, config) {
+                                thes.tablaMesas.clear().destroy();
+                                thes.cargarTablaMesas(3)
+                            }
+                        },
                         ],
                         data: response.data,
                     });
@@ -305,7 +305,9 @@ let mesasList = new Vue({
 
         modalNuevaMesa() {
             this.key++
-            $("#setNuevaMesa").modal("show")
+            setTimeout(() => {
+                this.evento.$emit('iniciar-modal-nueva-mesa');
+            }, 100);
         },
     }
 });

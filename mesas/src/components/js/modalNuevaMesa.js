@@ -7,7 +7,7 @@ module.exports = {
         return {
             key: 0,
             idLocal: 0,
-            descripcion: '',
+            descripcionMesa: '',
             Toast: '',
         }
     },
@@ -24,22 +24,26 @@ module.exports = {
                 toast.addEventListener('mouseleave', Swal.resumeTimer)
             }
         })
+
+        this.evento.$on('iniciar-modal-nueva-mesa', () => {
+            $("#setNuevaMesa").modal("show");
+        });
+
         this.evento.$on('cambiar-local', (nuevoValor) => {
             this.idLocal = nuevoValor
         });
     },
     watch: {
-
     },
     computed: {
         camposCompletos() {
             console.log('Local:', this.local);
-            console.log('Descripción:', this.descripcion);
+            console.log('Descripción:', this.descripcionMesa);
             console.log('ID Local:', this.idLocal);
             if (this.local == 3)
-                return (this.descripcion != '' && this.idLocal != 0);
+                return (this.descripcionMesa != '' && this.idLocal != 0);
             else
-                return (this.descripcion != '');
+                return (this.descripcionMesa != '');
         },
     },
     components: {
@@ -68,7 +72,7 @@ module.exports = {
                     // Crear un objeto FormData para enviar los datos al servidor
                     var formData = new FormData();
                     formData.append('opcion', 6);
-                    formData.append('descripcion', this.descripcion);
+                    formData.append('descripcion', this.descripcionMesa);
                     formData.append('id', local);
                     // Realizar la solicitud POST al servidor
                     axios.post('./mesas/model/mesasList.php', formData)

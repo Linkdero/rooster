@@ -27,7 +27,7 @@ class Mesa
 
         $params = array();
 
-        if ($estado && $estado != 1 && $estado != 3) {
+        if ($estado == 4 || $estado == 3) {
             $sql .= " AND estado_mesa = ?";
             $params[] = $estado;
         }

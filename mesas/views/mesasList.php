@@ -30,7 +30,7 @@
             </div>
         </div>
     </div>
-    <modal-mesas :evento="evento" :key="key" :mesa="idMesaSeleccionada" :tipo="idTipo"> </modal-mesas>
-    <modal-nueva-mesa :evento="evento" :key="key" :local="idLocalSesion"> </modal-nueva-mesa>
+    <modal-mesas :evento="evento" :key="'modal-mesas'+key" :mesa="idMesaSeleccionada" :tipo="idTipo"> </modal-mesas>
+    <modal-nueva-mesa :evento="evento" :key="'modal-nueva-mesa'+key" :local="idLocalSesion"> </modal-nueva-mesa>
 </div>
 <script type="module" src="./mesas/src/mesasList.js"> </script>
